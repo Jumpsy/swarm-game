@@ -1,10 +1,11 @@
 // Vercel serverless function — AI-generated power-ups for SWARM.
-// Tries providers in cost order: OpenRouter free → Groq free → Gemini Flash free → Anthropic paid.
+// Tries providers in order: VPS self-hosted → OpenRouter free → Groq free → Gemini Flash free → Anthropic paid.
 // Falls back to procedural generator on the client if none are configured.
 //
 // Set ONE of these env vars in Vercel:
-//   OPENROUTER_API_KEY  — https://openrouter.ai/keys  (free models — uses :free variants)
-//   GROQ_API_KEY        — https://console.groq.com    (free, ~30 req/min, fastest)
+//   VPS_AI_URL          — http://YOUR_VPS:3737/api/wish  (self-hosted Ollama, free forever, see vps/README.md)
+//   OPENROUTER_API_KEY  — https://openrouter.ai/keys  (free models)
+//   GROQ_API_KEY        — https://console.groq.com    (free, ~30 req/min, fastest hosted)
 //   GEMINI_API_KEY      — https://aistudio.google.com/apikey  (free, 1500/day)
 //   ANTHROPIC_API_KEY   — https://console.anthropic.com  (paid, ~$0.0008/wish)
 
@@ -70,6 +71,22 @@ function extractJson(text) {
 }
 
 // ---- Provider implementations ----
+
+async function callVPS(prompt, wish) {
+  // Our VPS endpoint already builds the prompt + clamps the output —
+  // we just forward the wish text.
+  const res = await fetch(process.env.VPS_AI_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ wish }),
+    // 25s timeout — CPU inference can take a while
+    signal: AbortSignal.timeout ? AbortSignal.timeout(25000) : undefined,
+  });
+  if (!res.ok) throw new Error('vps ' + res.status + ' ' + (await res.text()).slice(0, 100));
+  const data = await res.json();
+  // VPS already returns clamped {name,description,stat,op,value,provider}
+  return data;
+}
 
 async function callOpenRouter(prompt) {
   // Uses only :free model variants so this stays zero-cost.
@@ -188,17 +205,18 @@ export default async function handler(req, res) {
   const wish = String((req.body || {}).wish || 'surprise me').slice(0, 100);
   const prompt = buildPrompt(wish);
 
-  // Try providers in cost order (free first)
+  // Try providers in order: self-hosted VPS first, then hosted free, then paid
   const providers = [];
+  if (process.env.VPS_AI_URL)        providers.push({ name: 'vps',        call: (p) => callVPS(p, wish), skipClamp: true });
   if (process.env.OPENROUTER_API_KEY) providers.push({ name: 'openrouter', call: callOpenRouter });
-  if (process.env.GROQ_API_KEY) providers.push({ name: 'groq', call: callGroq });
-  if (process.env.GEMINI_API_KEY) providers.push({ name: 'gemini', call: callGemini });
-  if (process.env.ANTHROPIC_API_KEY) providers.push({ name: 'anthropic', call: callAnthropic });
+  if (process.env.GROQ_API_KEY)      providers.push({ name: 'groq',        call: callGroq });
+  if (process.env.GEMINI_API_KEY)    providers.push({ name: 'gemini',      call: callGemini });
+  if (process.env.ANTHROPIC_API_KEY) providers.push({ name: 'anthropic',   call: callAnthropic });
 
   if (!providers.length) {
     return res.status(503).json({
       error: 'no_key',
-      message: 'Set OPENROUTER_API_KEY (free) or GROQ_API_KEY (free) or GEMINI_API_KEY (free) or ANTHROPIC_API_KEY in Vercel env vars.',
+      message: 'Set VPS_AI_URL (self-hosted) or OPENROUTER_API_KEY (free) or GROQ_API_KEY (free) or GEMINI_API_KEY (free) or ANTHROPIC_API_KEY in Vercel env vars.',
     });
   }
 
@@ -206,7 +224,8 @@ export default async function handler(req, res) {
   for (const p of providers) {
     try {
       const raw = await p.call(prompt);
-      const safe = clampPower(raw);
+      // VPS already clamps; everything else needs it.
+      const safe = p.skipClamp ? raw : clampPower(raw);
       if (!safe) throw new Error('invalid power shape');
       return res.status(200).json(safe);
     } catch (e) {
