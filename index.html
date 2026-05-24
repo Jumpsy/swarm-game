@@ -1186,32 +1186,23 @@ function renderChoices(choices){
   document.querySelectorAll('.wish-bar').forEach(el => el.remove());
   const wishBar = document.createElement('div');
   wishBar.className = 'wish-bar';
-  wishBar.style.cssText = 'margin-top:20px;display:flex;flex-direction:column;gap:8px;align-items:center';
+  wishBar.style.cssText = 'margin-top:20px;display:flex;justify-content:center';
   const remaining = state.wishesLeft || 0;
-  const wishInput = document.createElement('input');
-  wishInput.type = 'text';
-  wishInput.placeholder = 'Optional: type what you want (e.g. "more crit damage")';
-  wishInput.maxLength = 80;
-  wishInput.style.cssText = 'background:rgba(20,28,60,.85);border:1px solid #2c3870;color:var(--fg);padding:8px 12px;border-radius:6px;width:360px;font-size:12px;outline:none;font-family:inherit';
   const btn = document.createElement('button');
   btn.className = 'small';
-  btn.style.cssText = 'border-color:var(--accent2);color:var(--accent2);min-width:300px;letter-spacing:2px';
+  btn.style.cssText = 'border-color:var(--accent2);color:var(--accent2);min-width:300px;letter-spacing:3px;padding:12px 20px;font-size:12px';
   btn.disabled = remaining <= 0;
   btn.textContent = `✨ ASK AI FOR POWER-UP (${remaining} LEFT)`;
-  const onWish = async () => {
+  btn.addEventListener('click', async () => {
     if(state.wishesLeft <= 0 || btn.disabled) return;
     btn.disabled = true;
-    const wishText = wishInput.value.trim();
-    wishInput.blur(); // critical: release keyboard focus so gameplay keys work again
-    const origLabel = btn.textContent;
     btn.textContent = '⏳ AI THINKING…';
     state.wishesLeft -= 1;
     let gen;
     try {
-      // Try real LLM first
       const res = await fetch('/api/wish', {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ wish: wishText || 'surprise me' }),
+        body: JSON.stringify({ wish: 'surprise me' }),
       });
       if(!res.ok) throw new Error('api ' + res.status);
       const data = await res.json();
@@ -1233,19 +1224,10 @@ function renderChoices(choices){
       console.warn('[wish] AI unavailable, using local generator:', err.message);
       gen = generateRandomPower();
       gen.rarity = 'epic';
-      gen.name = gen.name + ' (offline)';
     }
     applyChoice({ kind:'generated', generated:gen });
     wishBar.remove();
-  };
-  btn.addEventListener('click', onWish);
-  // Pressing Enter inside the input submits, then immediately blurs.
-  wishInput.addEventListener('keydown', e => {
-    if(e.code === 'Enter') { e.preventDefault(); onWish(); }
-    // Don't propagate to the game keydown listener while typing
-    e.stopPropagation();
   });
-  wishBar.appendChild(wishInput);
   wishBar.appendChild(btn);
   box.parentNode.insertBefore(wishBar, box.nextSibling);
 }
@@ -1706,44 +1688,98 @@ function drawZombieSprite(g, size, def, id){
   }
 }
 
-// Soldier sprite — drawn once for the player.
+// Soldier sprite — clear, bold human silhouette so player stands out on the war-field tile.
 const PLAYER_SPRITE = document.createElement('canvas');
-PLAYER_SPRITE.width = 72; PLAYER_SPRITE.height = 72;
+PLAYER_SPRITE.width = 80; PLAYER_SPRITE.height = 80;
 {
   const g = PLAYER_SPRITE.getContext('2d');
   g.imageSmoothingEnabled = false;
-  const cx = 36, cy = 36, r = 22;
-  g.fillStyle = 'rgba(0,0,0,.4)';
-  g.beginPath(); g.ellipse(cx, cy + r*0.85, r*0.6, r*0.2, 0, 0, TAU); g.fill();
-  g.fillStyle = '#3a4530';
-  g.fillRect(cx - r*0.4, cy + r*0.25, r*0.3, r*0.55);
-  g.fillRect(cx + r*0.1, cy + r*0.25, r*0.3, r*0.55);
-  g.fillStyle = '#1a1108';
-  g.fillRect(cx - r*0.42, cy + r*0.7, r*0.36, r*0.15);
-  g.fillRect(cx + r*0.06, cy + r*0.7, r*0.36, r*0.15);
-  g.fillStyle = '#4a5a3a';
-  g.fillRect(cx - r*0.55, cy - r*0.15, r*1.1, r*0.55);
-  g.fillStyle = '#2a3520';
-  g.fillRect(cx - r*0.4, cy + r*0.05, r*0.25, r*0.18);
-  g.fillRect(cx + r*0.15, cy + r*0.05, r*0.25, r*0.18);
-  g.fillStyle = '#4a5a3a';
-  g.fillRect(cx - r*0.7, cy - r*0.1, r*0.22, r*0.35);
-  g.fillRect(cx + r*0.48, cy - r*0.1, r*0.22, r*0.35);
-  g.fillStyle = '#d8b896';
-  g.fillRect(cx - r*0.72, cy + r*0.2, r*0.2, r*0.18);
-  g.fillRect(cx + r*0.52, cy + r*0.2, r*0.2, r*0.18);
-  g.fillStyle = '#d8b896';
-  g.fillRect(cx - r*0.35, cy - r*0.55, r*0.7, r*0.5);
-  g.fillStyle = '#3a4530';
-  g.fillRect(cx - r*0.42, cy - r*0.8, r*0.84, r*0.35);
-  g.fillRect(cx - r*0.42, cy - r*0.45, r*0.84, r*0.08);
-  g.fillStyle = '#1a1108';
-  g.fillRect(cx - r*0.4, cy - r*0.45, r*0.04, r*0.15);
+  const cx = 40, cy = 40, r = 26;
+  // Soft shadow ellipse at feet
+  g.fillStyle = 'rgba(0,0,0,.55)';
+  g.beginPath(); g.ellipse(cx, cy + r*0.95, r*0.7, r*0.22, 0, 0, TAU); g.fill();
+
+  // Legs (combat pants — olive)
+  g.fillStyle = '#3a4a28';
+  g.fillRect(cx - r*0.4, cy + r*0.3, r*0.32, r*0.55);
+  g.fillRect(cx + r*0.08, cy + r*0.3, r*0.32, r*0.55);
+  // Knee pads
+  g.fillStyle = '#222a14';
+  g.fillRect(cx - r*0.38, cy + r*0.55, r*0.28, r*0.1);
+  g.fillRect(cx + r*0.1, cy + r*0.55, r*0.28, r*0.1);
+  // Boots
+  g.fillStyle = '#15100a';
+  g.fillRect(cx - r*0.42, cy + r*0.78, r*0.36, r*0.16);
+  g.fillRect(cx + r*0.06, cy + r*0.78, r*0.36, r*0.16);
+
+  // Torso (tactical vest — bigger, darker olive with edge highlight)
+  g.fillStyle = '#3e5028';
+  g.fillRect(cx - r*0.58, cy - r*0.18, r*1.16, r*0.62);
+  // Vest edge highlight (left)
+  g.fillStyle = '#5a6e36';
+  g.fillRect(cx - r*0.58, cy - r*0.18, r*0.08, r*0.62);
+  // Vest pouches (4 of them, 2x2)
+  g.fillStyle = '#1c2410';
+  g.fillRect(cx - r*0.48, cy - r*0.04, r*0.32, r*0.2);
+  g.fillRect(cx + r*0.16, cy - r*0.04, r*0.32, r*0.2);
+  g.fillRect(cx - r*0.48, cy + r*0.22, r*0.32, r*0.18);
+  g.fillRect(cx + r*0.16, cy + r*0.22, r*0.32, r*0.18);
+  // Pouch buckles
+  g.fillStyle = '#8a9560';
+  g.fillRect(cx - r*0.36, cy + r*0.04, r*0.08, r*0.04);
+  g.fillRect(cx + r*0.28, cy + r*0.04, r*0.08, r*0.04);
+
+  // Arms (held close, gripping rifle)
+  g.fillStyle = '#3e5028';
+  g.fillRect(cx - r*0.74, cy - r*0.12, r*0.24, r*0.42);
+  g.fillRect(cx + r*0.5, cy - r*0.12, r*0.24, r*0.42);
+  // Forearm highlights
+  g.fillStyle = '#5a6e36';
+  g.fillRect(cx - r*0.74, cy - r*0.12, r*0.06, r*0.42);
+
+  // Hands (gloved, dark)
+  g.fillStyle = '#1c1408';
+  g.fillRect(cx - r*0.76, cy + r*0.26, r*0.24, r*0.18);
+  g.fillRect(cx + r*0.52, cy + r*0.26, r*0.24, r*0.18);
+
+  // Neck/skin
+  g.fillStyle = '#c8a078';
+  g.fillRect(cx - r*0.18, cy - r*0.24, r*0.36, r*0.12);
+
+  // Face / head
+  g.fillStyle = '#c8a078';
+  g.fillRect(cx - r*0.36, cy - r*0.6, r*0.72, r*0.42);
+  // Face shadow (right cheek)
+  g.fillStyle = 'rgba(0,0,0,.25)';
+  g.fillRect(cx + r*0.08, cy - r*0.6, r*0.28, r*0.42);
+
+  // Combat helmet (top half)
+  g.fillStyle = '#3e5028';
+  g.fillRect(cx - r*0.44, cy - r*0.86, r*0.88, r*0.36);
+  // Helmet brim shadow line
+  g.fillStyle = '#222a14';
+  g.fillRect(cx - r*0.44, cy - r*0.52, r*0.88, r*0.08);
+  // Helmet highlight
+  g.fillStyle = '#5a6e36';
+  g.fillRect(cx - r*0.44, cy - r*0.86, r*0.88, r*0.06);
+  // Helmet strap
+  g.fillStyle = '#15100a';
+  g.fillRect(cx - r*0.42, cy - r*0.52, r*0.04, r*0.18);
+
+  // Dark visor / eyes
   g.fillStyle = '#0a0a0c';
-  g.fillRect(cx - r*0.22, cy - r*0.3, r*0.12, r*0.06);
-  g.fillRect(cx + r*0.1, cy - r*0.3, r*0.12, r*0.06);
+  g.fillRect(cx - r*0.26, cy - r*0.35, r*0.16, r*0.08);
+  g.fillRect(cx + r*0.1, cy - r*0.35, r*0.16, r*0.08);
+
+  // Insignia on vest (orange chevron)
   g.fillStyle = '#c25a2a';
-  g.fillRect(cx - r*0.05, cy + r*0.02, r*0.1, r*0.04);
+  g.fillRect(cx - r*0.06, cy - r*0.02, r*0.12, r*0.04);
+  g.fillRect(cx - r*0.04, cy + r*0.02, r*0.08, r*0.04);
+
+  // Black outline pass — read against busy background
+  g.strokeStyle = '#000'; g.lineWidth = 1.5;
+  g.strokeRect(cx - r*0.58, cy - r*0.18, r*1.16, r*0.62); // vest outline
+  g.strokeRect(cx - r*0.44, cy - r*0.86, r*0.88, r*0.36); // helmet outline
 }
 buildZombieSprites();
 
@@ -1933,33 +1969,40 @@ function render(){
     if(state.iframes > 0){
       ctx.globalAlpha = 0.5 + Math.sin(state.time*30)*0.5;
     }
-    ctx.drawImage(PLAYER_SPRITE, state.pos.x - 36, state.pos.y - 36);
-    // Rifle — drawn on top, rotated toward aim direction
+    ctx.drawImage(PLAYER_SPRITE, state.pos.x - 40, state.pos.y - 40);
+    // Rifle — offset to the right side of the soldier, not over their face.
     if(state.aimDir !== undefined){
       ctx.save();
       ctx.translate(state.pos.x, state.pos.y);
       ctx.rotate(state.aimDir);
       const kick = state.gunRecoil || 0;
+      // Origin offset so rifle sits at hand level, not at body center
+      const baseX = 14 - kick;
+      const baseY = 6;
       // Stock
       ctx.fillStyle = '#2a1a0e';
-      ctx.fillRect(0 - kick, -2, 8, 5);
+      ctx.fillRect(baseX, baseY - 2, 8, 5);
       // Barrel body
       ctx.fillStyle = '#1a1c20';
-      ctx.fillRect(8 - kick, -3, 16, 6);
-      // Barrel top highlight
+      ctx.fillRect(baseX + 8, baseY - 3, 18, 6);
+      // Top highlight
       ctx.fillStyle = '#3a3c40';
-      ctx.fillRect(8 - kick, -3, 16, 1.5);
+      ctx.fillRect(baseX + 8, baseY - 3, 18, 1.5);
       // Iron sight
       ctx.fillStyle = '#0a0a0c';
-      ctx.fillRect(14 - kick, -5, 2, 2);
+      ctx.fillRect(baseX + 16, baseY - 5, 2, 2);
       // Muzzle
       ctx.fillStyle = state.gunFlash > 0 ? '#ffea00' : '#000';
-      ctx.fillRect(24 - kick, -2.5, 4, 5);
+      ctx.fillRect(baseX + 26, baseY - 2.5, 4, 5);
       if(state.gunFlash > 0){
         ctx.shadowColor = '#ffea00'; ctx.shadowBlur = 14;
-        ctx.beginPath(); ctx.arc(30 - kick, 0, 4 * state.gunFlash, 0, TAU); ctx.fill();
+        ctx.beginPath(); ctx.arc(baseX + 32, baseY, 4 * state.gunFlash, 0, TAU); ctx.fill();
         ctx.shadowBlur = 0;
       }
+      // Black outline so rifle reads against bright backgrounds
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 1;
+      ctx.strokeRect(baseX, baseY - 2, 8, 5);
+      ctx.strokeRect(baseX + 8, baseY - 3, 18, 6);
       ctx.restore();
     }
     ctx.globalAlpha = 1;
