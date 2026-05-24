@@ -1,9 +1,10 @@
 // Vercel serverless function — AI-generated power-ups for SWARM.
-// Tries providers in cost order: Groq (free) → Gemini Flash (free) → Anthropic Claude (paid).
+// Tries providers in cost order: OpenRouter free → Groq free → Gemini Flash free → Anthropic paid.
 // Falls back to procedural generator on the client if none are configured.
 //
 // Set ONE of these env vars in Vercel:
-//   GROQ_API_KEY        — https://console.groq.com  (free, ~30 req/min, fastest)
+//   OPENROUTER_API_KEY  — https://openrouter.ai/keys  (free models — uses :free variants)
+//   GROQ_API_KEY        — https://console.groq.com    (free, ~30 req/min, fastest)
 //   GEMINI_API_KEY      — https://aistudio.google.com/apikey  (free, 1500/day)
 //   ANTHROPIC_API_KEY   — https://console.anthropic.com  (paid, ~$0.0008/wish)
 
@@ -69,6 +70,46 @@ function extractJson(text) {
 }
 
 // ---- Provider implementations ----
+
+async function callOpenRouter(prompt) {
+  // Uses only :free model variants so this stays zero-cost.
+  // Llama 3.3 70B free → fallback to Gemini Flash free if unavailable.
+  const models = [
+    'meta-llama/llama-3.3-70b-instruct:free',
+    'google/gemini-2.0-flash-exp:free',
+    'mistralai/mistral-small-3.1-24b-instruct:free',
+  ];
+  let lastErr;
+  for (const model of models) {
+    try {
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          'HTTP-Referer': 'https://github.com/Jumpsy/swarm-game',
+          'X-Title': 'SWARM',
+        },
+        body: JSON.stringify({
+          model,
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 200,
+          temperature: 0.9,
+        }),
+      });
+      if (!res.ok) { lastErr = 'openrouter ' + model + ' ' + res.status; continue; }
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content || '';
+      const json = extractJson(text);
+      json.provider = 'openrouter/' + model.split('/').pop();
+      return json;
+    } catch (e) {
+      lastErr = 'openrouter ' + model + ' ' + (e.message || e);
+      continue;
+    }
+  }
+  throw new Error(lastErr || 'openrouter all models failed');
+}
 
 async function callGroq(prompt) {
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -147,8 +188,9 @@ export default async function handler(req, res) {
   const wish = String((req.body || {}).wish || 'surprise me').slice(0, 100);
   const prompt = buildPrompt(wish);
 
-  // Try providers in cost order (cheapest/free first)
+  // Try providers in cost order (free first)
   const providers = [];
+  if (process.env.OPENROUTER_API_KEY) providers.push({ name: 'openrouter', call: callOpenRouter });
   if (process.env.GROQ_API_KEY) providers.push({ name: 'groq', call: callGroq });
   if (process.env.GEMINI_API_KEY) providers.push({ name: 'gemini', call: callGemini });
   if (process.env.ANTHROPIC_API_KEY) providers.push({ name: 'anthropic', call: callAnthropic });
@@ -156,7 +198,7 @@ export default async function handler(req, res) {
   if (!providers.length) {
     return res.status(503).json({
       error: 'no_key',
-      message: 'Set GROQ_API_KEY (free) or GEMINI_API_KEY (free) or ANTHROPIC_API_KEY in Vercel env vars.',
+      message: 'Set OPENROUTER_API_KEY (free) or GROQ_API_KEY (free) or GEMINI_API_KEY (free) or ANTHROPIC_API_KEY in Vercel env vars.',
     });
   }
 

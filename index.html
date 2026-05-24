@@ -181,7 +181,7 @@
     <button class="nav" id="nav-changeuser">Change Name</button>
   </div>
 
-  <div class="ad-slot" id="ad-slot">Advert slot · 728 × 60</div>
+  <div class="ad-slot hidden" id="ad-slot">Advert slot · 728 × 60</div>
 
   <div id="hud" class="hidden">
     <div class="topbar">
@@ -2000,10 +2000,20 @@ function updateHud(){
   ring.style.setProperty('--p', p);
   dm.classList.toggle('ready', state.dashCd <= 0);
 }
+// Ad slot stays hidden until the player has logged real play.
+// Threshold: 5 completed runs OR 15 minutes total play time.
+// Settings toggle can still force it off.
+const AD_UNLOCK_RUNS = 5;
+const AD_UNLOCK_SECONDS = 15 * 60;
+function adsUnlocked(){
+  const totalSec = Number(localStorage.getItem('swarm.totalPlaySec') || 0);
+  return profile.runs >= AD_UNLOCK_RUNS || totalSec >= AD_UNLOCK_SECONDS;
+}
 function refreshTopnav(){
   document.getElementById('nav-user').textContent = profile.user || '—';
   document.getElementById('nav-coins').textContent = profile.coins;
-  document.getElementById('ad-slot').classList.toggle('hidden', !settings.ads);
+  const show = settings.ads && adsUnlocked();
+  document.getElementById('ad-slot').classList.toggle('hidden', !show);
 }
 function refreshMenuStats(){
   document.getElementById('menu-best-time').textContent = fmtTime(profile.best.time);
@@ -2041,6 +2051,9 @@ async function gameOver(){
   profile.best = { time:Math.max(best.time,run.time), kills:Math.max(best.kills,run.kills), level:Math.max(best.level,run.level) };
   const coinsEarned = state.kills*10 + state.level*50 + Math.floor(state.time/60)*20;
   profile.coins += coinsEarned; profile.runs += 1;
+  // Track lifetime play seconds for ad-unlock threshold
+  const totalSec = Number(localStorage.getItem('swarm.totalPlaySec') || 0) + Math.floor(state.time);
+  try { localStorage.setItem('swarm.totalPlaySec', String(totalSec)); } catch {}
   saveProfile({ best:profile.best, coins:profile.coins, runs:profile.runs });
   const rank = await addToLeaderboard(run);
   document.getElementById('go-time').textContent = fmtTime(state.time);
