@@ -1506,17 +1506,201 @@ function update(dt){
 }
 
 // ----------------- Render -----------------
+
+// War-torn ground tile — dirt, rubble, blood, scorch marks.
 const starBuf = document.createElement('canvas');
 starBuf.width = 800; starBuf.height = 800;
 {
   const c = starBuf.getContext('2d');
-  c.fillStyle = '#070818'; c.fillRect(0,0,800,800);
-  for(let i=0;i<240;i++){
-    c.fillStyle = `rgba(${irnd(150,255)},${irnd(180,255)},255,${rnd(.25,.9)})`;
-    const s = rnd(.5,2.2);
-    c.fillRect(irnd(0,800), irnd(0,800), s, s);
+  c.fillStyle = '#2a1d10'; c.fillRect(0,0,800,800);
+  for(let i=0;i<60;i++){
+    c.fillStyle = `rgba(${irnd(70,110)},${irnd(55,80)},${irnd(40,55)},${rnd(.2,.4)})`;
+    c.fillRect(irnd(0,800), irnd(0,800), irnd(20,80), irnd(15,50));
+  }
+  c.strokeStyle = 'rgba(15,8,4,.6)'; c.lineWidth = 1;
+  for(let i=0;i<40;i++){
+    c.beginPath();
+    const x = irnd(0,800), y = irnd(0,800);
+    c.moveTo(x, y);
+    c.lineTo(x + irnd(-30,30), y + irnd(-30,30));
+    c.stroke();
+  }
+  for(let i=0;i<140;i++){
+    c.fillStyle = `rgba(${irnd(85,120)},${irnd(80,110)},${irnd(75,100)},${rnd(.5,.85)})`;
+    c.fillRect(irnd(0,800), irnd(0,800), irnd(2,5), irnd(2,4));
+  }
+  for(let i=0;i<25;i++){
+    const x = irnd(0,800), y = irnd(0,800);
+    c.fillStyle = `rgba(${irnd(60,110)},${irnd(15,35)},${irnd(15,30)},${rnd(.35,.6)})`;
+    for(let j=0;j<6;j++){
+      c.beginPath();
+      c.arc(x + irnd(-12,12), y + irnd(-12,12), rnd(1.5, 4), 0, TAU);
+      c.fill();
+    }
+  }
+  for(let i=0;i<8;i++){
+    const x = irnd(0,800), y = irnd(0,800);
+    const grad = c.createRadialGradient(x, y, 0, x, y, 50);
+    grad.addColorStop(0, 'rgba(8,4,2,.7)');
+    grad.addColorStop(1, 'rgba(8,4,2,0)');
+    c.fillStyle = grad;
+    c.beginPath(); c.arc(x, y, 50, 0, TAU); c.fill();
   }
 }
+
+// Zombie sprite library — drawn once per enemy type into offscreen canvases.
+const ZOMBIE_SPRITES = {};
+function buildZombieSprites(){
+  for(const [id, def] of Object.entries(ENEMY_TYPES)){
+    const sz = Math.ceil(def.r * 3.2);
+    const c = document.createElement('canvas');
+    c.width = sz; c.height = sz;
+    drawZombieSprite(c.getContext('2d'), sz, def, id);
+    ZOMBIE_SPRITES[id] = c;
+  }
+}
+function drawZombieSprite(g, size, def, id){
+  g.imageSmoothingEnabled = false;
+  const cx = size/2, cy = size/2;
+  const r = def.r;
+  const skin = def.skin || '#a89070';
+  const isBoss = def.boss;
+  // Shadow
+  g.fillStyle = 'rgba(0,0,0,.45)';
+  g.beginPath(); g.ellipse(cx, cy + r*0.8, r*0.6, r*0.18, 0, 0, TAU); g.fill();
+  // Legs
+  g.fillStyle = '#2a1a0e';
+  g.fillRect(cx - r*0.35, cy + r*0.25, r*0.28, r*0.55);
+  g.fillRect(cx + r*0.07, cy + r*0.25, r*0.28, r*0.55);
+  // Boots
+  g.fillStyle = '#0d0805';
+  g.fillRect(cx - r*0.38, cy + r*0.7, r*0.34, r*0.15);
+  g.fillRect(cx + r*0.04, cy + r*0.7, r*0.34, r*0.15);
+  // Torso (rotted clothing)
+  g.fillStyle = def.color;
+  g.fillRect(cx - r*0.5, cy - r*0.15, r, r*0.5);
+  g.fillStyle = 'rgba(0,0,0,.25)';
+  g.fillRect(cx + r*0.25, cy - r*0.15, r*0.25, r*0.5);
+  // Shirt rips
+  g.fillStyle = 'rgba(0,0,0,.5)';
+  g.fillRect(cx - r*0.2, cy + r*0.05, r*0.08, r*0.18);
+  g.fillRect(cx + r*0.1, cy + r*0.12, r*0.06, r*0.15);
+  // Blood on torso
+  g.fillStyle = '#7a1414';
+  g.fillRect(cx - r*0.25, cy + r*0.1, r*0.18, r*0.1);
+  g.fillRect(cx + r*0.05, cy - r*0.05, r*0.12, r*0.08);
+  // Arms reaching forward
+  g.fillStyle = def.color;
+  g.fillRect(cx - r*0.75, cy - r*0.05, r*0.3, r*0.35);
+  g.fillRect(cx + r*0.45, cy - r*0.05, r*0.3, r*0.35);
+  // Hands
+  g.fillStyle = skin;
+  g.fillRect(cx - r*0.78, cy + r*0.25, r*0.22, r*0.22);
+  g.fillRect(cx + r*0.56, cy + r*0.25, r*0.22, r*0.22);
+  // Head
+  g.fillStyle = skin;
+  const headR = r*0.42;
+  g.fillRect(cx - headR, cy - r*0.7, headR*2, headR*1.4);
+  g.fillStyle = 'rgba(0,0,0,.2)';
+  g.fillRect(cx + r*0.1, cy - r*0.7, headR*0.6, headR*1.4);
+  // Eyes
+  if(isBoss){
+    g.fillStyle = '#ff2030';
+    g.fillRect(cx - r*0.22, cy - r*0.45, r*0.12, r*0.1);
+    g.fillRect(cx + r*0.1, cy - r*0.45, r*0.12, r*0.1);
+  } else {
+    g.fillStyle = '#0a0405';
+    g.fillRect(cx - r*0.2, cy - r*0.5, r*0.12, r*0.12);
+    g.fillRect(cx + r*0.08, cy - r*0.5, r*0.12, r*0.12);
+    g.fillStyle = '#5a1010';
+    g.fillRect(cx - r*0.16, cy - r*0.46, r*0.04, r*0.04);
+    g.fillRect(cx + r*0.12, cy - r*0.46, r*0.04, r*0.04);
+  }
+  // Mouth + teeth + drip
+  g.fillStyle = '#5a0a0a';
+  g.fillRect(cx - r*0.18, cy - r*0.22, r*0.36, r*0.1);
+  g.fillStyle = '#e8d8a8';
+  g.fillRect(cx - r*0.14, cy - r*0.22, r*0.04, r*0.04);
+  g.fillRect(cx - r*0.04, cy - r*0.22, r*0.04, r*0.04);
+  g.fillRect(cx + r*0.06, cy - r*0.22, r*0.04, r*0.04);
+  g.fillStyle = '#7a1414';
+  g.fillRect(cx - r*0.05, cy - r*0.12, r*0.05, r*0.18);
+  // Type-specific
+  if(id === 'shielded'){
+    g.fillStyle = '#3a4a5a';
+    g.fillRect(cx - r*0.55, cy - r*0.25, r*0.18, r*0.6);
+    g.fillStyle = '#8090a0';
+    g.fillRect(cx - r*0.5, cy - r*0.2, r*0.08, r*0.5);
+  }
+  if(id === 'tank' || id === 'exploder'){
+    g.fillStyle = id === 'exploder' ? '#a04848' : def.color;
+    g.beginPath(); g.arc(cx, cy + r*0.1, r*0.55, 0, TAU); g.fill();
+    if(id === 'exploder'){
+      g.fillStyle = '#ff4030';
+      g.fillRect(cx - r*0.3, cy + r*0.05, r*0.05, r*0.25);
+      g.fillRect(cx + r*0.1, cy + r*0.15, r*0.04, r*0.2);
+    }
+  }
+  if(id === 'spawner'){
+    g.fillStyle = '#fa3aff';
+    g.beginPath(); g.arc(cx - r*0.25, cy + r*0.2, r*0.12, 0, TAU); g.fill();
+    g.beginPath(); g.arc(cx + r*0.2, cy + r*0.1, r*0.1, 0, TAU); g.fill();
+  }
+  if(id === 'shooter' || id === 'spitter'){
+    g.fillStyle = '#3a0808';
+    g.fillRect(cx - r*0.2, cy - r*0.15, r*0.4, r*0.2);
+    g.fillStyle = id === 'spitter' ? '#8aff3a' : '#7a4040';
+    g.fillRect(cx + r*0.05, cy - r*0.1, r*0.1, r*0.1);
+  }
+  if(isBoss){
+    g.fillStyle = '#1a0a0a';
+    g.beginPath(); g.moveTo(cx - r*0.55, cy - r*0.2); g.lineTo(cx - r*0.7, cy - r*0.5); g.lineTo(cx - r*0.4, cy - r*0.25); g.fill();
+    g.beginPath(); g.moveTo(cx + r*0.55, cy - r*0.2); g.lineTo(cx + r*0.7, cy - r*0.5); g.lineTo(cx + r*0.4, cy - r*0.25); g.fill();
+    g.beginPath(); g.moveTo(cx - r*0.35, cy - r*0.65); g.lineTo(cx - r*0.5, cy - r*0.95); g.lineTo(cx - r*0.25, cy - r*0.7); g.fill();
+    g.beginPath(); g.moveTo(cx + r*0.35, cy - r*0.65); g.lineTo(cx + r*0.5, cy - r*0.95); g.lineTo(cx + r*0.25, cy - r*0.7); g.fill();
+  }
+}
+
+// Soldier sprite — drawn once for the player.
+const PLAYER_SPRITE = document.createElement('canvas');
+PLAYER_SPRITE.width = 48; PLAYER_SPRITE.height = 48;
+{
+  const g = PLAYER_SPRITE.getContext('2d');
+  g.imageSmoothingEnabled = false;
+  const cx = 24, cy = 24, r = 14;
+  g.fillStyle = 'rgba(0,0,0,.4)';
+  g.beginPath(); g.ellipse(cx, cy + r*0.85, r*0.6, r*0.2, 0, 0, TAU); g.fill();
+  g.fillStyle = '#3a4530';
+  g.fillRect(cx - r*0.4, cy + r*0.25, r*0.3, r*0.55);
+  g.fillRect(cx + r*0.1, cy + r*0.25, r*0.3, r*0.55);
+  g.fillStyle = '#1a1108';
+  g.fillRect(cx - r*0.42, cy + r*0.7, r*0.36, r*0.15);
+  g.fillRect(cx + r*0.06, cy + r*0.7, r*0.36, r*0.15);
+  g.fillStyle = '#4a5a3a';
+  g.fillRect(cx - r*0.55, cy - r*0.15, r*1.1, r*0.55);
+  g.fillStyle = '#2a3520';
+  g.fillRect(cx - r*0.4, cy + r*0.05, r*0.25, r*0.18);
+  g.fillRect(cx + r*0.15, cy + r*0.05, r*0.25, r*0.18);
+  g.fillStyle = '#4a5a3a';
+  g.fillRect(cx - r*0.7, cy - r*0.1, r*0.22, r*0.35);
+  g.fillRect(cx + r*0.48, cy - r*0.1, r*0.22, r*0.35);
+  g.fillStyle = '#d8b896';
+  g.fillRect(cx - r*0.72, cy + r*0.2, r*0.2, r*0.18);
+  g.fillRect(cx + r*0.52, cy + r*0.2, r*0.2, r*0.18);
+  g.fillStyle = '#d8b896';
+  g.fillRect(cx - r*0.35, cy - r*0.55, r*0.7, r*0.5);
+  g.fillStyle = '#3a4530';
+  g.fillRect(cx - r*0.42, cy - r*0.8, r*0.84, r*0.35);
+  g.fillRect(cx - r*0.42, cy - r*0.45, r*0.84, r*0.08);
+  g.fillStyle = '#1a1108';
+  g.fillRect(cx - r*0.4, cy - r*0.45, r*0.04, r*0.15);
+  g.fillStyle = '#0a0a0c';
+  g.fillRect(cx - r*0.22, cy - r*0.3, r*0.12, r*0.06);
+  g.fillRect(cx + r*0.1, cy - r*0.3, r*0.12, r*0.06);
+  g.fillStyle = '#c25a2a';
+  g.fillRect(cx - r*0.05, cy + r*0.02, r*0.1, r*0.04);
+}
+buildZombieSprites();
 
 function drawEnemy(e){
   const sprite = ZOMBIE_SPRITES[e.type];
