@@ -757,15 +757,15 @@ const PASSIVE_IDS = Object.keys(PASSIVE_DEFS);
 // ENEMIES
 // ============================================================
 const ENEMY_TYPES = {
-  grunt:    { hp:10,  speed:60,  dmg:8,  r:13, color:'#6a8d4a', skin:'#a89070', shape:'circle',   xp:1, score:1, label:'Walker' },
-  swift:    { hp:6,   speed:120, dmg:5,  r:11, color:'#c9b54f', skin:'#b89060', shape:'triangle', xp:1, score:1, label:'Runner' },
-  tank:     { hp:60,  speed:35,  dmg:18, r:22, color:'#5e4a6e', skin:'#8a7058', shape:'hexagon',  xp:4, score:3, label:'Brute' },
-  shooter:  { hp:18,  speed:50,  dmg:6,  r:14, color:'#5a9a9c', skin:'#a08060', shape:'diamond',  xp:2, score:2, ranged:true, label:'Spitter Drone' },
-  spawner:  { hp:90,  speed:22,  dmg:12, r:24, color:'#a85aa5', skin:'#906878', shape:'star',     xp:6, score:5, spawns:'grunt', label:'Hive' },
-  exploder: { hp:25,  speed:90,  dmg:0,  r:15, color:'#a83a3a', skin:'#b87060', shape:'circle',   xp:3, score:2, explodeOnDeath:true, explodeR:80, explodeDmg:30, label:'Bloater' },
-  shielded: { hp:140, speed:38,  dmg:14, r:18, color:'#6e8090', skin:'#a08060', shape:'hexagon',  xp:6, score:4, shield:true, label:'Armored' },
-  spitter:  { hp:14,  speed:55,  dmg:4,  r:12, color:'#8aaa3a', skin:'#a8a060', shape:'diamond',  xp:2, score:2, ranged:true, lobShots:true, label:'Acid' },
-  boss:     { hp:600, speed:40,  dmg:24, r:44, color:'#7a1c1c', skin:'#702a30', shape:'boss',     xp:80, score:50, boss:true, ranged:true, name:'OVERLORD', label:'Overlord' },
+  grunt:    { hp:10,  speed:60,  dmg:8,  r:20, color:'#6a8d4a', skin:'#a89070', shape:'circle',   xp:1, score:1, label:'Walker' },
+  swift:    { hp:6,   speed:120, dmg:5,  r:17, color:'#c9b54f', skin:'#b89060', shape:'triangle', xp:1, score:1, label:'Runner' },
+  tank:     { hp:60,  speed:35,  dmg:18, r:34, color:'#5e4a6e', skin:'#8a7058', shape:'hexagon',  xp:4, score:3, label:'Brute' },
+  shooter:  { hp:18,  speed:50,  dmg:6,  r:21, color:'#5a9a9c', skin:'#a08060', shape:'diamond',  xp:2, score:2, ranged:true, label:'Spitter Drone' },
+  spawner:  { hp:90,  speed:22,  dmg:12, r:36, color:'#a85aa5', skin:'#906878', shape:'star',     xp:6, score:5, spawns:'grunt', label:'Hive' },
+  exploder: { hp:25,  speed:90,  dmg:0,  r:23, color:'#a83a3a', skin:'#b87060', shape:'circle',   xp:3, score:2, explodeOnDeath:true, explodeR:90, explodeDmg:30, label:'Bloater' },
+  shielded: { hp:140, speed:38,  dmg:14, r:27, color:'#6e8090', skin:'#a08060', shape:'hexagon',  xp:6, score:4, shield:true, label:'Armored' },
+  spitter:  { hp:14,  speed:55,  dmg:4,  r:18, color:'#8aaa3a', skin:'#a8a060', shape:'diamond',  xp:2, score:2, ranged:true, lobShots:true, label:'Acid' },
+  boss:     { hp:600, speed:40,  dmg:24, r:66, color:'#7a1c1c', skin:'#702a30', shape:'boss',     xp:80, score:50, boss:true, ranged:true, name:'OVERLORD', label:'Overlord' },
 };
 
 // ============================================================
@@ -1441,11 +1441,11 @@ function update(dt){
     e.hitFlash = Math.max(0, e.hitFlash - dt);
     e.rot += dt * 2;
     // Exploders detonate on contact
-    if(e.def.explodeOnDeath && Math.hypot(e.x-state.pos.x, e.y-state.pos.y) < e.def.r + 12){
+    if(e.def.explodeOnDeath && Math.hypot(e.x-state.pos.x, e.y-state.pos.y) < e.def.r + 18){
       explodeAt(e.x, e.y, e.def.explodeDmg, e.def.explodeR);
       e.hp = 0; killEnemy(e, false); continue;
     }
-    if(Math.hypot(e.x-state.pos.x, e.y-state.pos.y) < e.def.r + 12 && !e.def.explodeOnDeath){
+    if(Math.hypot(e.x-state.pos.x, e.y-state.pos.y) < e.def.r + 18 && !e.def.explodeOnDeath){
       damagePlayer(e.def.dmg * dt);
     }
     if(e.def.ranged){
@@ -1708,11 +1708,11 @@ function drawZombieSprite(g, size, def, id){
 
 // Soldier sprite — drawn once for the player.
 const PLAYER_SPRITE = document.createElement('canvas');
-PLAYER_SPRITE.width = 48; PLAYER_SPRITE.height = 48;
+PLAYER_SPRITE.width = 72; PLAYER_SPRITE.height = 72;
 {
   const g = PLAYER_SPRITE.getContext('2d');
   g.imageSmoothingEnabled = false;
-  const cx = 24, cy = 24, r = 14;
+  const cx = 36, cy = 36, r = 22;
   g.fillStyle = 'rgba(0,0,0,.4)';
   g.beginPath(); g.ellipse(cx, cy + r*0.85, r*0.6, r*0.2, 0, 0, TAU); g.fill();
   g.fillStyle = '#3a4530';
@@ -1933,7 +1933,7 @@ function render(){
     if(state.iframes > 0){
       ctx.globalAlpha = 0.5 + Math.sin(state.time*30)*0.5;
     }
-    ctx.drawImage(PLAYER_SPRITE, state.pos.x - 24, state.pos.y - 24);
+    ctx.drawImage(PLAYER_SPRITE, state.pos.x - 36, state.pos.y - 36);
     // Rifle — drawn on top, rotated toward aim direction
     if(state.aimDir !== undefined){
       ctx.save();
