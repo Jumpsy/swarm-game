@@ -2,6 +2,8 @@
   "version": 2,
   "rewrites": [
     { "source": "/api/leaderboard", "destination": "/api/leaderboard.js" },
-    { "source": "/api/leaderboard/", "destination": "/api/leaderboard.js" }
+    { "source": "/api/leaderboard/", "destination": "/api/leaderboard.js" },
+    { "source": "/api/wish", "destination": "/api/wish.js" },
+    { "source": "/api/wish/", "destination": "/api/wish.js" }
   ]
 }

@@ -1186,21 +1186,66 @@ function renderChoices(choices){
   document.querySelectorAll('.wish-bar').forEach(el => el.remove());
   const wishBar = document.createElement('div');
   wishBar.className = 'wish-bar';
-  wishBar.style.cssText = 'margin-top:20px;display:flex;justify-content:center';
+  wishBar.style.cssText = 'margin-top:20px;display:flex;flex-direction:column;gap:8px;align-items:center';
   const remaining = state.wishesLeft || 0;
+  const wishInput = document.createElement('input');
+  wishInput.type = 'text';
+  wishInput.placeholder = 'Optional: type what you want (e.g. "more crit damage")';
+  wishInput.maxLength = 80;
+  wishInput.style.cssText = 'background:rgba(20,28,60,.85);border:1px solid #2c3870;color:var(--fg);padding:8px 12px;border-radius:6px;width:360px;font-size:12px;outline:none;font-family:inherit';
   const btn = document.createElement('button');
   btn.className = 'small';
   btn.style.cssText = 'border-color:var(--accent2);color:var(--accent2);min-width:300px;letter-spacing:2px';
   btn.disabled = remaining <= 0;
   btn.textContent = `✨ ASK AI FOR POWER-UP (${remaining} LEFT)`;
-  btn.addEventListener('click', ()=>{
-    if(state.wishesLeft <= 0) return;
+  const onWish = async () => {
+    if(state.wishesLeft <= 0 || btn.disabled) return;
+    btn.disabled = true;
+    const wishText = wishInput.value.trim();
+    wishInput.blur(); // critical: release keyboard focus so gameplay keys work again
+    const origLabel = btn.textContent;
+    btn.textContent = '⏳ AI THINKING…';
     state.wishesLeft -= 1;
-    const gen = generateRandomPower();
-    gen.rarity = 'epic'; // wish-rolled powers are always epic
+    let gen;
+    try {
+      // Try real LLM first
+      const res = await fetch('/api/wish', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ wish: wishText || 'surprise me' }),
+      });
+      if(!res.ok) throw new Error('api ' + res.status);
+      const data = await res.json();
+      if(!data.stat) throw new Error('invalid response');
+      console.log('[wish] AI returned', data);
+      gen = {
+        name: data.name || 'AI Boost',
+        icon: 'target',
+        description: data.description || '',
+        rarity: 'epic',
+        apply: () => {
+          const p = state.passives;
+          if(data.op === 'mult') p[data.stat] *= data.value;
+          else p[data.stat] += data.value;
+          if(data.stat === 'maxHp') state.hp = Math.min(p.maxHp, state.hp + data.value);
+        },
+      };
+    } catch(err) {
+      console.warn('[wish] AI unavailable, using local generator:', err.message);
+      gen = generateRandomPower();
+      gen.rarity = 'epic';
+      gen.name = gen.name + ' (offline)';
+    }
     applyChoice({ kind:'generated', generated:gen });
     wishBar.remove();
+  };
+  btn.addEventListener('click', onWish);
+  // Pressing Enter inside the input submits, then immediately blurs.
+  wishInput.addEventListener('keydown', e => {
+    if(e.code === 'Enter') { e.preventDefault(); onWish(); }
+    // Don't propagate to the game keydown listener while typing
+    e.stopPropagation();
   });
+  wishBar.appendChild(wishInput);
   wishBar.appendChild(btn);
   box.parentNode.insertBefore(wishBar, box.nextSibling);
 }
