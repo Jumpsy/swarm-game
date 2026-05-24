@@ -1109,6 +1109,8 @@ function pickChoices(n){
     else if(p.rarity === 'rare') w = 2;
     pool.push({ kind:'passive', id:pid, weight:w });
   }
+  // Procedural slots — every level-up has a chance of an AI-generated card.
+  for(let i = 0; i < 2; i++) pool.push({ kind:'generated', weight:2 });
 
   const choices = [];
   const local = pool.slice();
@@ -1116,7 +1118,12 @@ function pickChoices(n){
     const tot = local.reduce((s,o)=>s+o.weight, 0);
     let r = Math.random()*tot, idx = 0;
     while(r > local[idx].weight){ r -= local[idx].weight; idx++; }
-    choices.push(local[idx]);
+    const pick = local[idx];
+    if(pick.kind === 'generated'){
+      choices.push({ kind:'generated', generated: generateRandomPower() });
+    } else {
+      choices.push(pick);
+    }
     local.splice(idx, 1);
   }
   return choices;
@@ -1443,6 +1450,37 @@ function update(dt){
     if(d < 18){ sfx.pickup(); gainXp(g.value); g._dead = true; }
   }
   state.gems = state.gems.filter(g => !g._dead);
+
+  // Pickups (medkit, lootbox, supply drop)
+  for(const p of state.pickups){
+    p.life += dt; p.vx *= 0.93; p.vy *= 0.93;
+    p.x += p.vx*dt; p.y += p.vy*dt;
+    const d = Math.hypot(p.x-state.pos.x, p.y-state.pos.y);
+    if(d < p.magnet){
+      const a = Math.atan2(state.pos.y-p.y, state.pos.x-p.x);
+      const sp = 200 + (1 - d/p.magnet) * 240;
+      p.x += Math.cos(a)*sp*dt; p.y += Math.sin(a)*sp*dt;
+    }
+    if(d < 22){ PICKUP_DEFS[p.type].onPick(); p._dead = true; }
+  }
+  state.pickups = state.pickups.filter(p => !p._dead);
+
+  // Periodic supply drop (every ~60s) and loot box (every 22-30s)
+  state.nextSupplyDrop -= dt;
+  if(state.nextSupplyDrop <= 0){ state.nextSupplyDrop = 60; spawnSupplyDrop(); }
+  state.nextLootBox -= dt;
+  if(state.nextLootBox <= 0){
+    state.nextLootBox = 22 + Math.random()*8;
+    const a = Math.random() * TAU;
+    const rr = 120 + Math.random()*100;
+    spawnPickup('lootbox', state.pos.x + Math.cos(a)*rr, state.pos.y + Math.sin(a)*rr);
+  }
+
+  // Aim direction (for visible gun) — toward nearest enemy
+  const aimTgt = nearestEnemy(state.pos, 600);
+  if(aimTgt) state.aimDir = Math.atan2(aimTgt.y - state.pos.y, aimTgt.x - state.pos.x);
+  if(state.gunRecoil > 0) state.gunRecoil = Math.max(0, state.gunRecoil - dt*30);
+  if(state.gunFlash > 0) state.gunFlash = Math.max(0, state.gunFlash - dt*8);
 
   // Particles
   for(const p of state.particles){
