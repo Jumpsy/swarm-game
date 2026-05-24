@@ -6,42 +6,46 @@
 <title>SWARM — Horde Survival</title>
 <style>
   :root {
-    --bg:#07091a; --fg:#ecf0ff; --muted:#8a93b8;
-    --accent:#ffb13d; --accent2:#3da3ff; --xp:#c855ff;
-    --danger:#ff4d6d; --good:#34d399; --combo:#ff8a00;
+    --bg:#0a0a0c; --bg2:#15171c; --fg:#e8e8ec; --muted:#6e7080;
+    --accent:#c25a2a; --accent2:#4a6b7c; --xp:#7a5cb4;
+    --danger:#a8253d; --good:#5a7548; --combo:#c98a3a;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{width:100%;height:100%;overflow:hidden;background:#000;color:var(--fg);font-family:'Inter',system-ui,sans-serif;user-select:none}
   #game{position:fixed;inset:0;display:block;cursor:crosshair}
 
-  .topnav{position:fixed;top:0;left:0;right:0;height:48px;display:flex;align-items:center;gap:12px;padding:0 16px;background:linear-gradient(180deg,rgba(7,9,26,.95),rgba(7,9,26,.7));border-bottom:1px solid #1a2055;z-index:20;pointer-events:auto}
-  .topnav .brand{font-weight:900;letter-spacing:4px;font-size:14px;background:linear-gradient(180deg,var(--accent),var(--danger));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .topnav .chip{display:flex;align-items:center;gap:6px;background:rgba(20,28,60,.7);border:1px solid #2c3870;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:800}
+  .topnav{position:fixed;top:0;left:0;right:0;height:44px;display:flex;align-items:center;gap:8px;padding:0 14px;background:#08080a;border-bottom:1px solid #1a1c22;z-index:20;pointer-events:auto;font-family:'JetBrains Mono','Consolas',monospace}
+  .topnav .brand{font-weight:900;letter-spacing:6px;font-size:13px;color:var(--fg);display:flex;align-items:center;gap:8px}
+  .topnav .brand::before{content:'';width:6px;height:6px;background:var(--danger);box-shadow:0 0 8px var(--danger)}
+  .topnav .chip{display:flex;align-items:center;gap:6px;background:#101216;border:1px solid #1f2128;padding:4px 10px;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:1px}
   .topnav .chip.coin{color:var(--accent)}
-  .topnav .chip.user{color:var(--accent2)}
+  .topnav .chip.user{color:var(--fg)}
+  .topnav .chip svg{width:13px;height:13px}
   .topnav .grow{flex:1}
-  .topnav button.nav{background:transparent;border:1px solid #2c3870;padding:5px 10px;font-size:11px;letter-spacing:2px;color:var(--fg);border-radius:6px;cursor:pointer;font-weight:700}
-  .topnav button.nav:hover{background:rgba(61,163,255,.15);border-color:var(--accent2)}
+  .topnav button.nav{background:transparent;border:1px solid #1f2128;padding:5px 10px;font-size:10px;letter-spacing:3px;color:var(--muted);border-radius:2px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:6px;min-width:auto;text-transform:uppercase;font-family:inherit}
+  .topnav button.nav svg{width:12px;height:12px}
+  .topnav button.nav:hover{background:#101216;border-color:#2a2c34;color:var(--fg)}
 
-  .ad-slot{position:fixed;top:54px;left:50%;transform:translateX(-50%);width:728px;max-width:calc(100% - 32px);height:60px;background:repeating-linear-gradient(45deg,rgba(60,72,130,.18) 0 10px,rgba(60,72,130,.08) 10px 20px);border:1px dashed #3a4585;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;letter-spacing:6px;text-transform:uppercase;z-index:15;pointer-events:none}
-  .ad-slot::before{content:'AD';position:absolute;left:8px;top:4px;background:rgba(0,0,0,.5);padding:1px 5px;border-radius:3px;font-size:8px;letter-spacing:1px;color:var(--muted)}
+  .ad-slot{position:fixed;top:50px;left:50%;transform:translateX(-50%);width:728px;max-width:calc(100% - 32px);height:60px;background:#08080a;border:1px solid #1a1c22;border-radius:2px;display:flex;align-items:center;justify-content:center;color:#3a3c44;font-size:10px;letter-spacing:6px;text-transform:uppercase;z-index:15;pointer-events:none;font-family:'JetBrains Mono','Consolas',monospace}
+  .ad-slot::before{content:'AD';position:absolute;left:6px;top:3px;background:#15171c;padding:1px 5px;border-radius:2px;font-size:8px;letter-spacing:1px;color:var(--muted)}
   .ad-slot.hidden{display:none}
 
-  .overlay{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(18,24,60,.92),rgba(5,8,20,.97));backdrop-filter:blur(10px);z-index:30;padding:24px;animation:fadeIn .22s ease-out;pointer-events:auto}
+  .overlay{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(8,8,10,.96);backdrop-filter:blur(6px);z-index:30;padding:24px;animation:fadeIn .18s ease-out;pointer-events:auto}
   .overlay.visible{display:flex}
   @keyframes fadeIn{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:scale(1)}}
 
-  h1.title{font-size:104px;font-weight:900;letter-spacing:16px;line-height:1;background:linear-gradient(180deg,var(--accent) 0%,var(--danger) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 4px 80px rgba(255,77,109,.35);animation:titlepulse 3s ease-in-out infinite}
-  @keyframes titlepulse{0%,100%{letter-spacing:16px}50%{letter-spacing:18px}}
-  .subtitle{color:var(--muted);letter-spacing:6px;text-transform:uppercase;font-size:12px;margin-top:4px;margin-bottom:36px}
+  h1.title{font-size:96px;font-weight:900;letter-spacing:14px;line-height:1;color:var(--fg);text-shadow:0 2px 0 #000,0 0 24px rgba(168,37,61,.35);font-family:'JetBrains Mono','Consolas',monospace}
+  h1.title::before{content:'';display:inline-block;width:8px;height:8px;background:var(--danger);margin-right:18px;vertical-align:middle;box-shadow:0 0 12px var(--danger)}
+  .subtitle{color:var(--muted);letter-spacing:6px;text-transform:uppercase;font-size:11px;margin-top:8px;margin-bottom:36px;font-family:'JetBrains Mono','Consolas',monospace}
 
-  button{background:linear-gradient(180deg,#2a3463,#1a2347);color:var(--fg);border:1px solid #3a4585;border-radius:10px;padding:14px 32px;font-size:14px;font-weight:800;letter-spacing:3px;cursor:pointer;transition:all .15s;text-transform:uppercase;min-width:240px}
-  button:hover{background:linear-gradient(180deg,#3b4a8c,#2a3463);transform:translateY(-2px);border-color:var(--accent);box-shadow:0 8px 24px rgba(255,177,61,.15)}
-  button:active{transform:translateY(0)}
-  button.primary{background:linear-gradient(180deg,#ffd76a,var(--accent));color:#221500;border-color:var(--accent);box-shadow:0 6px 28px rgba(255,177,61,.35)}
-  button.primary:hover{background:linear-gradient(180deg,#ffe289,#ffc34d)}
-  button.danger{background:linear-gradient(180deg,#ff708a,var(--danger));color:#fff;border-color:var(--danger)}
-  button.small{padding:8px 18px;font-size:11px;min-width:auto}
+  button{background:var(--bg2);color:var(--fg);border:1px solid #2a2c34;border-radius:2px;padding:14px 32px;font-size:12px;font-weight:700;letter-spacing:4px;cursor:pointer;transition:all .12s;text-transform:uppercase;min-width:240px;font-family:'JetBrains Mono','Consolas',monospace}
+  button:hover{background:#1f2128;border-color:var(--accent);color:var(--accent)}
+  button:active{transform:translateY(1px)}
+  button.primary{background:var(--danger);color:#fff;border-color:var(--danger)}
+  button.primary:hover{background:#c2304a;color:#fff;border-color:#c2304a}
+  button.danger{background:transparent;border-color:var(--danger);color:var(--danger)}
+  button.danger:hover{background:rgba(168,37,61,.15)}
+  button.small{padding:8px 18px;font-size:10px;min-width:auto}
 
   .stat-block{display:flex;gap:24px;color:var(--muted);margin:8px 0 24px;font-size:13px;letter-spacing:2px;text-transform:uppercase}
   .stat-block .v{color:var(--fg);font-weight:900;font-size:18px;display:block}
@@ -50,69 +54,75 @@
 
   #hud{position:fixed;inset:0;pointer-events:none}
   #hud.hidden{display:none}
-  .topbar{position:fixed;top:120px;left:50%;transform:translateX(-50%);display:flex;gap:14px;align-items:center;background:rgba(7,9,26,.85);padding:8px 18px;border:1px solid #2c3870;border-radius:10px}
-  .topbar .item{display:flex;flex-direction:column;align-items:center;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;min-width:46px}
-  .topbar .item .num{font-size:18px;font-weight:900;color:var(--fg);font-variant-numeric:tabular-nums}
+  .topbar{position:fixed;top:120px;left:50%;transform:translateX(-50%);display:flex;gap:0;align-items:stretch;background:#08080a;padding:0;border:1px solid #1a1c22;border-radius:2px;font-family:'JetBrains Mono','Consolas',monospace}
+  .topbar .item{display:flex;flex-direction:column;align-items:center;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;min-width:64px;padding:7px 14px;border-right:1px solid #1a1c22}
+  .topbar .item:last-child{border-right:none}
+  .topbar .item .num{font-size:17px;font-weight:700;color:var(--fg);font-variant-numeric:tabular-nums}
   .topbar .item.timer .num{color:var(--accent)}
   .topbar .item.kills .num{color:var(--danger)}
   .topbar .item.level .num{color:var(--xp)}
   .topbar .item.wave .num{color:var(--accent2)}
   .topbar .item.combo .num{color:var(--combo)}
 
-  .hpbar{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);width:400px;height:22px;background:rgba(0,0,0,.7);border:2px solid rgba(255,255,255,.15);border-radius:6px;overflow:hidden}
-  .hpbar .fill{height:100%;background:linear-gradient(90deg,#4ade80,#22c55e);transition:width .18s;box-shadow:0 0 12px rgba(74,222,128,.5)}
-  .hpbar .txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;text-shadow:0 1px 3px #000;letter-spacing:1px}
-  .xpbar{position:fixed;bottom:56px;left:50%;transform:translateX(-50%);width:540px;height:8px;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.1);border-radius:4px;overflow:hidden}
-  .xpbar .fill{height:100%;background:linear-gradient(90deg,#d385ff,var(--xp));transition:width .15s;box-shadow:0 0 8px rgba(200,85,255,.6)}
+  .hpbar{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);width:420px;height:20px;background:#08080a;border:1px solid #1a1c22;border-radius:2px;overflow:hidden;font-family:'JetBrains Mono','Consolas',monospace}
+  .hpbar .fill{height:100%;background:var(--danger);transition:width .15s linear}
+  .hpbar .txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;text-shadow:0 1px 2px #000;letter-spacing:2px}
+  .xpbar{position:fixed;bottom:56px;left:50%;transform:translateX(-50%);width:540px;height:4px;background:#08080a;border:1px solid #1a1c22;border-radius:2px;overflow:hidden}
+  .xpbar .fill{height:100%;background:var(--xp);transition:width .12s linear}
 
-  .powerbar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:6px;align-items:center}
-  .powerbar .group{display:flex;gap:4px;background:rgba(7,9,26,.7);border:1px solid #2c3870;border-radius:8px;padding:4px}
+  .powerbar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:6px;align-items:center;font-family:'JetBrains Mono','Consolas',monospace}
+  .powerbar .group{display:flex;gap:3px;background:#08080a;border:1px solid #1a1c22;border-radius:2px;padding:3px}
   .powerbar .group .label{font-size:8px;color:var(--muted);letter-spacing:2px;display:flex;align-items:center;padding:0 6px;text-transform:uppercase}
-  .powerbar .pwr{width:46px;height:46px;background:rgba(10,14,31,.85);border:2px solid #2c3870;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;position:relative}
-  .powerbar .pwr.weapon{border-color:var(--accent)}
-  .powerbar .pwr .lvl{position:absolute;bottom:1px;right:3px;font-size:10px;font-weight:900;color:var(--accent)}
-  .powerbar .pwr.fresh{animation:freshpop .4s ease-out}
-  @keyframes freshpop{0%{transform:scale(.3)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+  .powerbar .pwr{width:42px;height:42px;background:#101216;border:1px solid #1f2128;border-radius:2px;display:flex;align-items:center;justify-content:center;position:relative;color:var(--fg)}
+  .powerbar .pwr svg{width:18px;height:18px}
+  .powerbar .pwr.weapon{border-color:var(--accent);color:var(--accent)}
+  .powerbar .pwr .lvl{position:absolute;bottom:0;right:2px;font-size:9px;font-weight:700;color:var(--accent)}
+  .powerbar .pwr.fresh{animation:freshpop .35s ease-out}
+  @keyframes freshpop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
 
-  .dash-meter{position:fixed;bottom:16px;right:16px;width:56px;height:56px;background:rgba(10,14,31,.85);border:2px solid #2c3870;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--accent2);position:fixed}
-  .dash-meter .ring{position:absolute;inset:-2px;border-radius:50%;background:conic-gradient(var(--accent2) calc(var(--p,1)*360deg),#1a2347 0);mask:radial-gradient(circle,transparent 24px,#000 26px);-webkit-mask:radial-gradient(circle,transparent 24px,#000 26px)}
-  .dash-meter.ready{box-shadow:0 0 16px rgba(61,163,255,.5)}
+  .dash-meter{position:fixed;bottom:16px;right:16px;width:52px;height:52px;background:#08080a;border:1px solid #1a1c22;border-radius:2px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:'JetBrains Mono','Consolas',monospace}
+  .dash-meter svg{width:18px;height:18px}
+  .dash-meter .ring{position:absolute;inset:0;background:conic-gradient(var(--accent2) calc(var(--p,1)*360deg),transparent 0);opacity:.4}
+  .dash-meter.ready{color:var(--accent2);border-color:var(--accent2)}
 
-  .bossbar{position:fixed;top:120px;left:50%;transform:translateX(-50%);width:520px;opacity:0;transition:opacity .3s;pointer-events:none;margin-top:60px}
+  .bossbar{position:fixed;top:120px;left:50%;transform:translateX(-50%);width:520px;opacity:0;transition:opacity .25s;pointer-events:none;margin-top:62px;font-family:'JetBrains Mono','Consolas',monospace}
   .bossbar.visible{opacity:1}
-  .bossbar .name{font-size:12px;letter-spacing:6px;color:var(--danger);font-weight:900;text-align:center;margin-bottom:4px;text-transform:uppercase}
-  .bossbar .bar{height:14px;background:rgba(0,0,0,.8);border:2px solid var(--danger);border-radius:3px;overflow:hidden}
-  .bossbar .bar .fill{height:100%;background:linear-gradient(90deg,#ff1744,#ff5252);transition:width .2s}
+  .bossbar .name{font-size:11px;letter-spacing:6px;color:var(--danger);font-weight:700;text-align:center;margin-bottom:4px;text-transform:uppercase}
+  .bossbar .bar{height:10px;background:#08080a;border:1px solid var(--danger);border-radius:2px;overflow:hidden}
+  .bossbar .bar .fill{height:100%;background:var(--danger);transition:width .2s linear}
 
-  .boss-warning{position:fixed;top:38%;left:50%;transform:translate(-50%,-50%);font-size:64px;font-weight:900;color:var(--danger);letter-spacing:12px;text-shadow:0 0 40px rgba(255,77,109,.8),0 4px 24px #000;animation:warn 1s ease-in-out infinite;pointer-events:none;text-transform:uppercase;text-align:center;display:none}
+  .boss-warning{position:fixed;top:38%;left:50%;transform:translate(-50%,-50%);font-size:52px;font-weight:900;color:var(--danger);letter-spacing:10px;text-shadow:0 0 30px rgba(168,37,61,.7),0 2px 8px #000;animation:warn 1.2s ease-in-out infinite;pointer-events:none;text-transform:uppercase;text-align:center;display:none;font-family:'JetBrains Mono','Consolas',monospace}
   .boss-warning.visible{display:block}
-  .boss-warning .sub{font-size:14px;letter-spacing:8px;color:var(--accent);margin-top:8px}
-  @keyframes warn{0%,100%{opacity:.4;transform:translate(-50%,-50%) scale(.95)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}}
+  .boss-warning .sub{font-size:11px;letter-spacing:8px;color:var(--accent);margin-top:8px}
+  @keyframes warn{0%,100%{opacity:.6}50%{opacity:1}}
 
-  .combo-badge{position:fixed;top:28%;left:50%;transform:translateX(-50%);font-weight:900;font-size:48px;color:var(--combo);text-shadow:0 4px 24px rgba(255,138,0,.7);pointer-events:none;opacity:0;transition:opacity .15s;letter-spacing:4px}
-  .combo-badge.visible{opacity:1;animation:combopop .5s ease-out}
-  @keyframes combopop{0%{transform:translateX(-50%) scale(.4)}50%{transform:translateX(-50%) scale(1.3)}100%{transform:translateX(-50%) scale(1)}}
+  .combo-badge{position:fixed;top:28%;left:50%;transform:translateX(-50%);font-weight:700;font-size:36px;color:var(--combo);text-shadow:0 2px 12px rgba(201,138,58,.6);pointer-events:none;opacity:0;transition:opacity .12s;letter-spacing:4px;font-family:'JetBrains Mono','Consolas',monospace}
+  .combo-badge.visible{opacity:1;animation:combopop .4s ease-out}
+  @keyframes combopop{0%{transform:translateX(-50%) scale(.6);opacity:0}50%{transform:translateX(-50%) scale(1.1);opacity:1}100%{transform:translateX(-50%) scale(1)}}
 
-  #levelup{background:radial-gradient(ellipse at center,rgba(50,18,86,.95),rgba(5,8,20,.97))}
-  #levelup h2{font-size:56px;font-weight:900;color:var(--xp);letter-spacing:8px;margin-bottom:6px;text-shadow:0 4px 36px rgba(200,85,255,.6);text-transform:uppercase;animation:lvlglow 1.5s ease-in-out infinite}
-  @keyframes lvlglow{0%,100%{text-shadow:0 4px 36px rgba(200,85,255,.6)}50%{text-shadow:0 4px 60px rgba(200,85,255,1)}}
-  #levelup .lvl-tag{color:var(--muted);letter-spacing:4px;text-transform:uppercase;margin-bottom:32px;font-size:12px}
-  .choices{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;max-width:1200px}
-  .choice{background:linear-gradient(180deg,#1a2347,#131836);border:2px solid #2c3870;border-radius:12px;padding:24px 20px;width:240px;min-height:300px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:center;text-align:center}
-  .choice:hover{border-color:var(--accent);transform:translateY(-6px);box-shadow:0 14px 36px rgba(255,177,61,.25)}
-  .choice.rare{border-color:var(--accent2);box-shadow:0 0 14px rgba(61,163,255,.18)}
-  .choice.epic{border-color:var(--xp);box-shadow:0 0 18px rgba(200,85,255,.28)}
-  .choice.legendary{border-color:var(--accent);box-shadow:0 0 24px rgba(255,177,61,.4);animation:lglow 2s ease-in-out infinite}
-  @keyframes lglow{0%,100%{box-shadow:0 0 24px rgba(255,177,61,.4)}50%{box-shadow:0 0 40px rgba(255,177,61,.7)}}
-  .choice.weapon{border-color:var(--danger)}
-  .choice.weapon .rarity{color:var(--danger)}
-  .choice .icon{font-size:56px;margin-bottom:10px}
-  .choice .name{font-size:16px;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+  #levelup{background:rgba(8,8,10,.97)}
+  #levelup h2{font-size:42px;font-weight:700;color:var(--xp);letter-spacing:10px;margin-bottom:6px;text-transform:uppercase;font-family:'JetBrains Mono','Consolas',monospace}
+  #levelup .lvl-tag{color:var(--muted);letter-spacing:4px;text-transform:uppercase;margin-bottom:32px;font-size:11px;font-family:'JetBrains Mono','Consolas',monospace}
+  .choices{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;max-width:1200px}
+  .choice{background:#101216;border:1px solid #1f2128;border-radius:2px;padding:20px 18px;width:228px;min-height:280px;cursor:pointer;transition:all .12s;display:flex;flex-direction:column;align-items:center;text-align:center;font-family:'JetBrains Mono','Consolas',monospace}
+  .choice:hover{border-color:var(--fg);background:#15171c}
+  .choice.rare{border-left:3px solid var(--accent2)}
+  .choice.epic{border-left:3px solid var(--xp)}
+  .choice.legendary{border-left:3px solid var(--accent)}
+  .choice.weapon{border-left:3px solid var(--danger)}
+  .choice .icon{margin-bottom:14px;color:var(--fg);height:48px;display:flex;align-items:center;justify-content:center}
+  .choice .icon svg{width:42px;height:42px}
+  .choice.weapon .icon{color:var(--danger)}
+  .choice.rare .icon{color:var(--accent2)}
+  .choice.epic .icon{color:var(--xp)}
+  .choice.legendary .icon{color:var(--accent)}
+  .choice .name{font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;color:var(--fg)}
   .choice .rarity{font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:14px}
   .choice.rare .rarity{color:var(--accent2)}
   .choice.epic .rarity{color:var(--xp)}
   .choice.legendary .rarity{color:var(--accent)}
-  .choice .desc{font-size:12px;color:var(--muted);line-height:1.5}
+  .choice.weapon .rarity{color:var(--danger)}
+  .choice .desc{font-size:11px;color:var(--muted);line-height:1.6;letter-spacing:.5px}
 
   #leaderboard h2,#settings h2,#pause h2{font-size:42px;letter-spacing:6px;font-weight:900;margin-bottom:12px;text-transform:uppercase}
   .lb-table{background:rgba(10,14,31,.78);border:1px solid #2c3870;border-radius:12px;padding:18px 24px;min-width:520px;margin-bottom:18px}
@@ -136,8 +146,8 @@
   #username input{background:rgba(20,28,60,.85);border:2px solid #2c3870;color:var(--fg);padding:14px 18px;font-size:18px;border-radius:8px;min-width:320px;text-align:center;letter-spacing:2px;font-weight:800;outline:none;font-family:inherit}
   #username input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(255,177,61,.18)}
 
-  #gameover .deathline{font-size:14px;color:var(--danger);letter-spacing:8px;margin-bottom:4px;text-transform:uppercase}
-  #gameover .newbest{color:var(--accent);letter-spacing:6px;text-transform:uppercase;font-weight:900;margin-bottom:8px;font-size:13px;animation:lglow 1.4s ease-in-out infinite}
+  #gameover .deathline{font-size:13px;color:var(--danger);letter-spacing:10px;margin-bottom:4px;text-transform:uppercase;font-family:'JetBrains Mono','Consolas',monospace}
+  #gameover .newbest{color:var(--accent);letter-spacing:6px;text-transform:uppercase;font-weight:700;margin-bottom:8px;font-size:12px;font-family:'JetBrains Mono','Consolas',monospace}
   #gameover .runinfo{background:rgba(10,14,31,.78);border:1px solid #2c3870;border-radius:10px;padding:20px 32px;margin:12px 0 20px;min-width:380px}
   #gameover .runrow{display:flex;justify-content:space-between;padding:5px 0;font-size:13px}
   #gameover .runrow .l{color:var(--muted);letter-spacing:2px;text-transform:uppercase}
@@ -164,17 +174,17 @@
 
   <div class="topnav" id="topnav">
     <div class="brand">SWARM</div>
-    <div class="chip user"><span>👤</span><span id="nav-user">—</span></div>
-    <div class="chip coin"><span>🪙</span><span id="nav-coins">0</span></div>
+    <div class="chip user"><span data-ico="user"></span><span id="nav-user">—</span></div>
+    <div class="chip coin"><span data-ico="coin"></span><span id="nav-coins">0</span></div>
     <div class="grow"></div>
-    <button class="nav" id="nav-howto">❔ How to play</button>
-    <button class="nav" id="nav-leaderboard">🏆 Leaderboard</button>
-    <button class="nav" id="nav-settings">⚙ Settings</button>
-    <button class="nav" id="nav-legal">📜 Legal</button>
+    <button class="nav" id="nav-howto"><span data-ico="help"></span>How to play</button>
+    <button class="nav" id="nav-leaderboard"><span data-ico="trophy"></span>Leaderboard</button>
+    <button class="nav" id="nav-settings"><span data-ico="gear"></span>Settings</button>
+    <button class="nav" id="nav-legal"><span data-ico="doc"></span>Legal</button>
     <button class="nav" id="nav-changeuser">Change Name</button>
   </div>
 
-  <div class="ad-slot" id="ad-slot">Your ad here · 728 × 60</div>
+  <div class="ad-slot" id="ad-slot">Advert slot · 728 × 60</div>
 
   <div id="hud" class="hidden">
     <div class="topbar">
@@ -188,12 +198,12 @@
     <div class="hpbar"><div class="fill" id="hp-fill" style="width:100%"></div><div class="txt" id="hp-txt">100 / 100</div></div>
     <div class="xpbar"><div class="fill" id="xp-fill" style="width:0%"></div></div>
     <div class="powerbar" id="powerbar"></div>
-    <div class="dash-meter" id="dash-meter"><div class="ring" id="dash-ring"></div>⚡</div>
+    <div class="dash-meter" id="dash-meter"><div class="ring" id="dash-ring"></div><span data-ico="dash"></span></div>
   </div>
   <div class="float-layer" id="float-layer"></div>
   <div class="vignette" id="vignette"></div>
   <div class="combo-badge" id="combo-badge"></div>
-  <div class="boss-warning" id="boss-warning">⚠ BOSS INCOMING ⚠<div class="sub">PREPARE</div></div>
+  <div class="boss-warning" id="boss-warning">// BOSS INCOMING //<div class="sub">PREPARE</div></div>
 
   <div id="username" class="overlay">
     <h1 class="title">SWARM</h1>
@@ -202,7 +212,7 @@
       <label>Display name (max 14 chars)</label>
       <input id="username-input" type="text" maxlength="14" placeholder="ENTER NAME" autocomplete="off" />
     </div>
-    <button class="primary" id="username-save">✓ SAVE</button>
+    <button class="primary" id="username-save">SAVE</button>
   </div>
 
   <div id="menu" class="overlay">
@@ -214,7 +224,7 @@
       <div><span class="v" id="menu-best-kills">0</span>Best kills</div>
       <div><span class="v" id="menu-best-level">1</span>Best level</div>
     </div>
-    <button class="primary" id="btn-start">▶ START RUN</button>
+    <button class="primary" id="btn-start">START RUN</button>
     <div class="controls-hint">
       <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> move · <kbd>Space</kbd> dash · auto-fire · <kbd>ESC</kbd> pause
     </div>
@@ -316,8 +326,8 @@
   <div id="leaderboard" class="overlay">
     <h2>TOP 10 RUNS</h2>
     <div style="display:flex;gap:6px;margin-bottom:10px">
-      <button id="lb-tab-global" class="small primary">🌍 Global</button>
-      <button id="lb-tab-local" class="small">💾 Local</button>
+      <button id="lb-tab-global" class="small primary">Global</button>
+      <button id="lb-tab-local" class="small">Local</button>
     </div>
     <div class="lb-table" id="lb-table"></div>
     <div style="display:flex;gap:10px">
@@ -358,8 +368,8 @@
   <div id="pause" class="overlay">
     <h2>PAUSED</h2>
     <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
-      <button id="pause-resume" class="primary">▶ RESUME</button>
-      <button id="pause-settings">⚙ SETTINGS</button>
+      <button id="pause-resume" class="primary">RESUME</button>
+      <button id="pause-settings">SETTINGS</button>
       <button id="pause-quit" class="danger">QUIT TO MENU</button>
     </div>
   </div>
@@ -376,20 +386,66 @@
       <div class="runrow"><span class="l">DPS</span><span class="v" id="go-dps">0</span></div>
       <div class="runrow"><span class="l">Leaderboard rank</span><span class="v" id="go-rank">—</span></div>
     </div>
-    <div class="coins-earned" id="go-coins">+0 🪙</div>
+    <div class="coins-earned" id="go-coins">+0 CR</div>
     <div class="actions">
-      <button id="btn-restart" class="primary">↻ TRY AGAIN</button>
-      <button id="btn-show-lb">🏆 LEADERBOARD</button>
+      <button id="btn-restart" class="primary">TRY AGAIN</button>
+      <button id="btn-show-lb">LEADERBOARD</button>
       <button id="btn-menu">MENU</button>
     </div>
   </div>
 
 <script>
 // ============================================================
-// SWARM v1.2 — multi-weapon roguelite
-// Architecture: WEAPON_DEFS + PASSIVE_DEFS, level-up offers cards
-// from either pool. Each weapon has its own state & update fn.
+// SWARM v1.3 — multi-weapon roguelite (tactical visual style)
 // ============================================================
+
+// ----------------- SVG icon library (line-style, monochrome) -----------------
+const ICONS = {
+  user:    '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-5 4-8 8-8s8 3 8 8"/>',
+  coin:    '<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 12h6"/>',
+  trophy:  '<path d="M7 4h10v6a5 5 0 0 1-10 0V4z"/><path d="M7 7H4v2a3 3 0 0 0 3 3M17 7h3v2a3 3 0 0 1-3 3"/><path d="M10 19h4v2h-4z"/>',
+  gear:    '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M3 12h3M18 12h3M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>',
+  help:    '<circle cx="12" cy="12" r="10"/><path d="M9.5 9a2.5 2.5 0 1 1 4.5 1.5c-1 1-2 1.5-2 2.5M12 17v.01"/>',
+  doc:     '<path d="M7 3h8l4 4v14H7z"/><path d="M14 3v4h4M10 12h6M10 16h6M10 8h2"/>',
+  warn:    '<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/>',
+  dash:    '<path d="M3 12h13M13 7l5 5-5 5"/>',
+  // weapons
+  pulse:   '<path d="M3 12h15M14 8l5 4-5 4"/>',
+  blade:   '<path d="M5 19L19 5M14 5h5v5"/>',
+  bolt:    '<path d="M13 2L4 14h6l-1 8 9-12h-7z"/>',
+  mine:    '<circle cx="12" cy="14" r="6"/><path d="M12 8V3M8 5l-3-2M16 5l3-2"/>',
+  flame:   '<path d="M12 22c4 0 7-3 7-7 0-3-3-4-3-8-2 2-5 4-5 7 0-2-2-3-2-5-2 2-4 4-4 7 0 4 3 6 7 6z"/>',
+  drone:   '<rect x="9" y="9" width="6" height="6"/><circle cx="5" cy="5" r="1.8"/><circle cx="19" cy="5" r="1.8"/><circle cx="5" cy="19" r="1.8"/><circle cx="19" cy="19" r="1.8"/><path d="M7 7l2 2M17 7l-2 2M7 17l2-2M17 17l-2-2"/>',
+  // passives
+  power:   '<path d="M12 3v9M12 12l-3 9M12 12l3 9M6 6h12"/>',
+  boots:   '<path d="M5 4h6v12c0 2-2 4-4 4s-4-2-4-4V6a2 2 0 0 1 2-2zM11 14h6v6h-4l-2-2z"/>',
+  pierce:  '<path d="M3 12h18M14 6l6 6-6 6"/>',
+  magnet:  '<path d="M5 3v9a7 7 0 0 0 14 0V3h-4v9a3 3 0 0 1-6 0V3z"/>',
+  crit:    '<polygon points="12,3 22,21 2,21"/>',
+  heart:   '<path d="M12 21l-9-9c-3-3 1-8 5-4l4 4 4-4c4-4 8 1 5 4z"/>',
+  shield:  '<path d="M12 3l8 4v6c0 5-4 8-8 9-4-1-8-4-8-9V7z"/>',
+  book:    '<path d="M4 4h11l3 3v13H6a2 2 0 0 1-2-2zM4 18a2 2 0 0 1 2-2h12"/>',
+  bullet:  '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/>',
+  target:  '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  chain:   '<path d="M9 5h2a4 4 0 0 1 0 8h-2M15 19h-2a4 4 0 0 1 0-8h2"/><path d="M9 12h6"/>',
+  blood:   '<path d="M12 3c0 0-7 8-7 13a7 7 0 0 0 14 0c0-5-7-13-7-13z"/>',
+  armor:   '<path d="M12 3l8 4v6c0 5-4 8-8 9-4-1-8-4-8-9V7z"/><path d="M9 11l2 2 4-4"/>',
+  boom:    '<path d="M12 2l2 6 6-2-2 6 6 2-6 2 2 6-6-2-2 6-2-6-6 2 2-6-6-2 6-2-2-6 6 2z"/>',
+  clover:  '<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><circle cx="8" cy="15" r="3"/><circle cx="16" cy="15" r="3"/>',
+  shock:   '<circle cx="12" cy="12" r="10"/><path d="M13 6l-5 7h4l-1 5 5-7h-4z"/>',
+  homing:  '<circle cx="12" cy="12" r="3"/><path d="M2 12h4M18 12h4M12 2v4M12 18v4"/>',
+};
+function ico(id, size=16){
+  const path = ICONS[id] || '';
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+}
+// On page load: replace any [data-ico="name"] placeholder with the SVG
+function fillStaticIcons(){
+  document.querySelectorAll('[data-ico]').forEach(el => {
+    el.innerHTML = ico(el.dataset.ico, 13);
+  });
+}
+window.addEventListener('DOMContentLoaded', fillStaticIcons);
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
@@ -517,7 +573,7 @@ canvas.addEventListener('click', audioInit);
 // ============================================================
 const WEAPON_DEFS = {
   pulse: {
-    name:'Pulse Rifle', icon:'🔫',
+    name:'Pulse Rifle', icon:'pulse',
     desc:lv=>`Auto-fires at nearest enemy. ${10+lv*4} dmg, ${(2+lv*0.5).toFixed(1)} shots/s`,
     init(w){ w.cd = 0; },
     update(w, dt, st){
@@ -546,7 +602,7 @@ const WEAPON_DEFS = {
     },
   },
   blades: {
-    name:'Orbit Blades', icon:'🗡️',
+    name:'Orbit Blades', icon:'blade',
     desc:lv=>`${lv+1} blades orbit you. ${8+lv*3} dmg per touch.`,
     init(w, st){ this.refresh(w, st); },
     refresh(w, st){
@@ -578,7 +634,7 @@ const WEAPON_DEFS = {
     },
   },
   lightning: {
-    name:'Chain Lightning', icon:'⚡',
+    name:'Chain Lightning', icon:'bolt',
     desc:lv=>`Every ${(2.4 - lv*0.2).toFixed(1)}s zaps & chains ${1+lv} enemies.`,
     init(w){ w.cd = 1; },
     update(w, dt, st){
@@ -596,7 +652,7 @@ const WEAPON_DEFS = {
     },
   },
   mines: {
-    name:'Proximity Mines', icon:'💣',
+    name:'Proximity Mines', icon:'mine',
     desc:lv=>`Drops a mine every ${(2-lv*0.2).toFixed(1)}s. ${30+lv*15} dmg radius ${60+lv*8}.`,
     init(w){ w.cd = 0.5; },
     update(w, dt, st){
@@ -607,7 +663,7 @@ const WEAPON_DEFS = {
     },
   },
   flame: {
-    name:'Flame Cone', icon:'🔥',
+    name:'Flame Cone', icon:'flame',
     desc:lv=>`Forward cone, ${(20+lv*8)|0} dmg/s, ${(80+lv*10)|0} reach.`,
     init(w){ w.dir = 0; },
     update(w, dt, st){
@@ -635,7 +691,7 @@ const WEAPON_DEFS = {
     },
   },
   drone: {
-    name:'Companion Drone', icon:'🤖',
+    name:'Companion Drone', icon:'drone',
     desc:lv=>`${1+Math.floor(lv/2)} drones auto-fire. ${12+lv*4} dmg.`,
     init(w, st){
       st.drones = st.drones.filter(d=>d.weaponId!=='drone');
@@ -677,23 +733,23 @@ const MAX_WEAPON_LEVEL = 5;
 // PASSIVES — same as before, modify shared stats.
 // ============================================================
 const PASSIVE_DEFS = {
-  dmg:    { name:'Power',      icon:'💥', desc:'+20% damage to all weapons',     apply:p => p.dmgMult *= 1.20 },
-  speed:  { name:'Boots',      icon:'👟', desc:'+12% move speed',                 apply:p => p.moveSpeed *= 1.12 },
-  pierce: { name:'Pierce',     icon:'🗡️', desc:'+1 enemy pierce on bullets',      apply:p => p.pierce += 1 },
-  magnet: { name:'Magnet',     icon:'🧲', desc:'+50% XP pickup range',            apply:p => p.magnet *= 1.50 },
-  crit:   { name:'Crit',       icon:'🎲', desc:'+10% crit chance (2× damage)',    apply:p => p.crit += 0.10 },
-  regen:  { name:'Vitality',   icon:'💚', desc:'+0.6 HP/s regen',                 apply:p => p.regen += 0.6 },
-  maxhp:  { name:'Endurance',  icon:'🛡️', desc:'+30 max HP, heal to full',         apply:p => { p.maxHp += 30; if(state) state.hp = p.maxHp; } },
-  xpgain: { name:'Scholar',    icon:'📘', desc:'+25% XP gain',                    apply:p => p.xpMult *= 1.25 },
-  size:   { name:'Big Bullet', icon:'🔵', desc:'+30% bullet size',                apply:p => p.bulletSize += 2 },
-  shots:  { name:'Multishot',  icon:'🎯', desc:'+1 projectile per shot',          apply:p => p.extraShots += 1 },
-  chain:  { name:'Chain',      icon:'⛓️', desc:'+1 extra chain target',           apply:p => p.chain += 1, rarity:'rare' },
-  vamp:   { name:'Vampiric',   icon:'🩸', desc:'6% lifesteal per hit',            apply:p => p.vamp += 0.06, rarity:'rare' },
-  homing: { name:'Homing',     icon:'🎯', desc:'Bullets curve to targets',        apply:p => p.homing += 1, rarity:'rare' },
-  armor:  { name:'Armor',      icon:'🛡️', desc:'-15% damage taken',                apply:p => p.armor *= 0.85, rarity:'rare' },
-  explode:{ name:'Boom',       icon:'💣', desc:'Bullets explode on kill',          apply:p => p.explodeOnKill = true, rarity:'epic', once:true },
-  luck:   { name:'Lucky',      icon:'🍀', desc:'+1 card on level-up',             apply:p => p.luck += 1, rarity:'epic', once:true },
-  shock:  { name:'Shockwave',  icon:'⚡', desc:'Level-up blasts nearby enemies',   apply:p => p.shockwave = true, rarity:'legendary', once:true },
+  dmg:    { name:'Power',      icon:'power',  desc:'+20% damage to all weapons',     apply:p => p.dmgMult *= 1.20 },
+  speed:  { name:'Boots',      icon:'boots',  desc:'+12% move speed',                 apply:p => p.moveSpeed *= 1.12 },
+  pierce: { name:'Pierce',     icon:'pierce', desc:'+1 enemy pierce on bullets',      apply:p => p.pierce += 1 },
+  magnet: { name:'Magnet',     icon:'magnet', desc:'+50% XP pickup range',            apply:p => p.magnet *= 1.50 },
+  crit:   { name:'Crit',       icon:'crit',   desc:'+10% crit chance (2× damage)',    apply:p => p.crit += 0.10 },
+  regen:  { name:'Vitality',   icon:'heart',  desc:'+0.6 HP/s regen',                 apply:p => p.regen += 0.6 },
+  maxhp:  { name:'Endurance',  icon:'shield', desc:'+30 max HP, heal to full',         apply:p => { p.maxHp += 30; if(state) state.hp = p.maxHp; } },
+  xpgain: { name:'Scholar',    icon:'book',   desc:'+25% XP gain',                    apply:p => p.xpMult *= 1.25 },
+  size:   { name:'Big Bullet', icon:'bullet', desc:'+30% bullet size',                apply:p => p.bulletSize += 2 },
+  shots:  { name:'Multishot',  icon:'target', desc:'+1 projectile per shot',          apply:p => p.extraShots += 1 },
+  chain:  { name:'Chain',      icon:'chain',  desc:'+1 extra chain target',           apply:p => p.chain += 1, rarity:'rare' },
+  vamp:   { name:'Vampiric',   icon:'blood',  desc:'6% lifesteal per hit',            apply:p => p.vamp += 0.06, rarity:'rare' },
+  homing: { name:'Homing',     icon:'homing', desc:'Bullets curve to targets',        apply:p => p.homing += 1, rarity:'rare' },
+  armor:  { name:'Armor',      icon:'armor',  desc:'-15% damage taken',                apply:p => p.armor *= 0.85, rarity:'rare' },
+  explode:{ name:'Boom',       icon:'boom',   desc:'Bullets explode on kill',          apply:p => p.explodeOnKill = true, rarity:'epic', once:true },
+  luck:   { name:'Lucky',      icon:'clover', desc:'+1 card on level-up',             apply:p => p.luck += 1, rarity:'epic', once:true },
+  shock:  { name:'Shockwave',  icon:'shock',  desc:'Level-up blasts nearby enemies',   apply:p => p.shockwave = true, rarity:'legendary', once:true },
 };
 const PASSIVE_IDS = Object.keys(PASSIVE_DEFS);
 
@@ -1030,24 +1086,24 @@ function renderChoices(choices){
     const card = document.createElement('div');
     const rar = rarityFor(c);
     card.className = 'choice ' + rar;
-    let name, icon, desc, lvtxt = '';
+    let name, iconId, desc, lvtxt = '';
     if(c.kind === 'weapon-new'){
       const def = WEAPON_DEFS[c.id];
-      name = '+ ' + def.name; icon = def.icon; desc = def.desc(1) + ' (NEW WEAPON)';
+      name = '+ ' + def.name; iconId = def.icon; desc = def.desc(1) + ' (NEW WEAPON)';
     } else if(c.kind === 'weapon-up'){
       const def = WEAPON_DEFS[c.id];
       const cur = state.weapons.find(w=>w.id===c.id);
-      name = def.name; icon = def.icon;
+      name = def.name; iconId = def.icon;
       lvtxt = ` <span style="color:var(--accent)">Lv ${cur.level} → ${cur.level+1}</span>`;
       desc = def.desc(cur.level+1);
     } else {
       const def = PASSIVE_DEFS[c.id];
-      name = def.name; icon = def.icon; desc = def.desc;
+      name = def.name; iconId = def.icon; desc = def.desc;
       const cnt = state.upgrades[c.id] || 0;
       if(cnt > 0) lvtxt = ` <span style="color:var(--accent)">×${cnt+1}</span>`;
     }
     card.innerHTML = `
-      <div class="icon">${icon}</div>
+      <div class="icon">${ico(iconId, 42)}</div>
       <div class="name">${name}${lvtxt}</div>
       <div class="rarity">${rar === 'weapon' ? 'WEAPON' : rar.toUpperCase()}</div>
       <div class="desc">${desc}</div>
@@ -1091,7 +1147,7 @@ function renderPowerbar(animateLast=false){
       const el = document.createElement('div');
       el.className = 'pwr weapon' + (animateLast && i === state.weapons.length-1 ? ' fresh' : '');
       el.title = `${def.name} Lv${w.level}`;
-      el.innerHTML = `${def.icon}<span class="lvl">${w.level}</span>`;
+      el.innerHTML = `${ico(def.icon, 18)}<span class="lvl">${w.level}</span>`;
       g.appendChild(el);
     });
     bar.appendChild(g);
@@ -1107,7 +1163,7 @@ function renderPowerbar(animateLast=false){
       const el = document.createElement('div');
       el.className = 'pwr';
       el.title = `${def.name} ×${count}`;
-      el.innerHTML = `${def.icon}<span class="lvl">${count}</span>`;
+      el.innerHTML = `${ico(def.icon, 18)}<span class="lvl">${count}</span>`;
       g.appendChild(el);
     });
     bar.appendChild(g);
@@ -1340,14 +1396,17 @@ starBuf.width = 800; starBuf.height = 800;
 function drawEnemy(e){
   const c = e.hitFlash > 0 ? '#fff' : e.def.color;
   ctx.save(); ctx.translate(e.x, e.y); ctx.rotate(e.rot);
-  ctx.fillStyle = c; ctx.shadowColor = e.def.color; ctx.shadowBlur = e.def.boss ? 26 : 8;
+  ctx.fillStyle = c;
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
+  ctx.shadowBlur = e.def.boss ? 18 : 0;
+  ctx.shadowColor = e.def.boss ? e.def.color : 'transparent';
   switch(e.def.shape){
-    case 'circle': ctx.beginPath(); ctx.arc(0,0,e.def.r,0,TAU); ctx.fill(); break;
-    case 'triangle': polygon(0,0,e.def.r,3); ctx.fill(); break;
-    case 'diamond': polygon(0,0,e.def.r,4); ctx.fill(); break;
-    case 'hexagon': polygon(0,0,e.def.r,6); ctx.fill(); break;
-    case 'star': star(0,0,e.def.r,5); ctx.fill(); break;
-    case 'boss': polygon(0,0,e.def.r,8); ctx.fill(); ctx.fillStyle='#fff'; ctx.shadowBlur=0; polygon(0,0,e.def.r*0.5,4); ctx.fill(); break;
+    case 'circle': ctx.beginPath(); ctx.arc(0,0,e.def.r,0,TAU); ctx.fill(); ctx.stroke(); break;
+    case 'triangle': polygon(0,0,e.def.r,3); ctx.fill(); ctx.stroke(); break;
+    case 'diamond': polygon(0,0,e.def.r,4); ctx.fill(); ctx.stroke(); break;
+    case 'hexagon': polygon(0,0,e.def.r,6); ctx.fill(); ctx.stroke(); break;
+    case 'star': star(0,0,e.def.r,5); ctx.fill(); ctx.stroke(); break;
+    case 'boss': polygon(0,0,e.def.r,8); ctx.fill(); ctx.stroke(); ctx.fillStyle='#000'; ctx.shadowBlur=0; polygon(0,0,e.def.r*0.4,4); ctx.fill(); break;
   }
   // Shielded enemies — draw shield arc in front
   if(e.def.shield){
@@ -1432,18 +1491,16 @@ function render(){
 
     for(const e of state.enemies) drawEnemy(e);
 
-    // Bullets
+    // Bullets — small bright dots with tracer
     for(const b of state.bullets){
-      ctx.fillStyle = b.color || (b.crit ? '#ffb13d' : '#ffea00');
-      ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 12;
-      ctx.beginPath(); ctx.arc(b.x, b.y, b.size, 0, TAU); ctx.fill();
-      ctx.shadowBlur = 0;
+      ctx.fillStyle = b.crit ? '#e9a44d' : '#e8e8ec';
+      ctx.strokeStyle = b.crit ? '#c25a2a' : '#7a7c84'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(b.x, b.y, b.size, 0, TAU); ctx.fill(); ctx.stroke();
     }
     for(const b of state.enemyBullets){
-      ctx.fillStyle = b.splash ? '#aaff66' : '#ff4d6d';
-      ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 8;
-      ctx.beginPath(); ctx.arc(b.x, b.y, b.size, 0, TAU); ctx.fill();
-      ctx.shadowBlur = 0;
+      ctx.fillStyle = b.splash ? '#8b9c6a' : '#a8253d';
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(b.x, b.y, b.size, 0, TAU); ctx.fill(); ctx.stroke();
     }
 
     // Orbs (blades)
@@ -1460,16 +1517,22 @@ function render(){
       ctx.fillStyle = '#fff'; ctx.fillRect((d.x||state.pos.x)-1, (d.y||state.pos.y)-1, 2, 2);
     }
 
-    // Player
-    const pulse = 1 + Math.sin(state.time*4)*0.06;
+    // Player — solid armored dot with crosshair feel
     if(state.iframes > 0){
-      ctx.globalAlpha = 0.5 + Math.sin(state.time*30)*0.5;
+      ctx.globalAlpha = 0.4 + Math.sin(state.time*30)*0.4;
     }
-    ctx.fillStyle = '#3da3ff'; ctx.shadowColor = '#3da3ff'; ctx.shadowBlur = 18;
-    ctx.beginPath(); ctx.arc(state.pos.x, state.pos.y, 12*pulse, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#d5d8e0';
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
     ctx.shadowBlur = 0;
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(state.pos.x-3, state.pos.y-3, 3, 0, TAU); ctx.fill();
+    ctx.beginPath(); ctx.arc(state.pos.x, state.pos.y, 11, 0, TAU); ctx.fill(); ctx.stroke();
+    // Crosshair marker over player
+    ctx.strokeStyle = 'rgba(168,37,61,.6)'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(state.pos.x - 6, state.pos.y); ctx.lineTo(state.pos.x - 2, state.pos.y);
+    ctx.moveTo(state.pos.x + 2, state.pos.y); ctx.lineTo(state.pos.x + 6, state.pos.y);
+    ctx.moveTo(state.pos.x, state.pos.y - 6); ctx.lineTo(state.pos.x, state.pos.y - 2);
+    ctx.moveTo(state.pos.x, state.pos.y + 2); ctx.lineTo(state.pos.x, state.pos.y + 6);
+    ctx.stroke();
     ctx.globalAlpha = 1;
 
     // Particles
