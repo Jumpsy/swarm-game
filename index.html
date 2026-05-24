@@ -6,46 +6,44 @@
 <title>SWARM — Horde Survival</title>
 <style>
   :root {
-    --bg:#0a0a0c; --bg2:#15171c; --fg:#e8e8ec; --muted:#6e7080;
-    --accent:#c25a2a; --accent2:#4a6b7c; --xp:#7a5cb4;
-    --danger:#a8253d; --good:#5a7548; --combo:#c98a3a;
+    --bg:#07091a; --bg2:#15171c; --fg:#ecf0ff; --muted:#8a93b8;
+    --accent:#ffb13d; --accent2:#3da3ff; --xp:#c855ff;
+    --danger:#ff4d6d; --good:#34d399; --combo:#ff8a00;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{width:100%;height:100%;overflow:hidden;background:#000;color:var(--fg);font-family:'Inter',system-ui,sans-serif;user-select:none}
   #game{position:fixed;inset:0;display:block;cursor:crosshair}
 
-  .topnav{position:fixed;top:0;left:0;right:0;height:44px;display:flex;align-items:center;gap:8px;padding:0 14px;background:#08080a;border-bottom:1px solid #1a1c22;z-index:20;pointer-events:auto;font-family:'JetBrains Mono','Consolas',monospace}
-  .topnav .brand{font-weight:900;letter-spacing:6px;font-size:13px;color:var(--fg);display:flex;align-items:center;gap:8px}
-  .topnav .brand::before{content:'';width:6px;height:6px;background:var(--danger);box-shadow:0 0 8px var(--danger)}
-  .topnav .chip{display:flex;align-items:center;gap:6px;background:#101216;border:1px solid #1f2128;padding:4px 10px;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:1px}
+  .topnav{position:fixed;top:0;left:0;right:0;height:48px;display:flex;align-items:center;gap:12px;padding:0 16px;background:linear-gradient(180deg,rgba(7,9,26,.95),rgba(7,9,26,.7));border-bottom:1px solid #1a2055;z-index:20;pointer-events:auto}
+  .topnav .brand{font-weight:900;letter-spacing:4px;font-size:14px;background:linear-gradient(180deg,var(--accent),var(--danger));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .topnav .chip{display:flex;align-items:center;gap:6px;background:rgba(20,28,60,.7);border:1px solid #2c3870;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:800}
   .topnav .chip.coin{color:var(--accent)}
-  .topnav .chip.user{color:var(--fg)}
-  .topnav .chip svg{width:13px;height:13px}
+  .topnav .chip.user{color:var(--accent2)}
+  .topnav .chip svg{width:14px;height:14px}
   .topnav .grow{flex:1}
-  .topnav button.nav{background:transparent;border:1px solid #1f2128;padding:5px 10px;font-size:10px;letter-spacing:3px;color:var(--muted);border-radius:2px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:6px;min-width:auto;text-transform:uppercase;font-family:inherit}
-  .topnav button.nav svg{width:12px;height:12px}
-  .topnav button.nav:hover{background:#101216;border-color:#2a2c34;color:var(--fg)}
+  .topnav button.nav{background:transparent;border:1px solid #2c3870;padding:5px 10px;font-size:11px;letter-spacing:2px;color:var(--fg);border-radius:6px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:6px;min-width:auto;text-transform:none}
+  .topnav button.nav svg{width:13px;height:13px}
+  .topnav button.nav:hover{background:rgba(61,163,255,.15);border-color:var(--accent2)}
 
   .ad-slot{position:fixed;top:50px;left:50%;transform:translateX(-50%);width:728px;max-width:calc(100% - 32px);height:60px;background:#08080a;border:1px solid #1a1c22;border-radius:2px;display:flex;align-items:center;justify-content:center;color:#3a3c44;font-size:10px;letter-spacing:6px;text-transform:uppercase;z-index:15;pointer-events:none;font-family:'JetBrains Mono','Consolas',monospace}
   .ad-slot::before{content:'AD';position:absolute;left:6px;top:3px;background:#15171c;padding:1px 5px;border-radius:2px;font-size:8px;letter-spacing:1px;color:var(--muted)}
   .ad-slot.hidden{display:none}
 
-  .overlay{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(8,8,10,.96);backdrop-filter:blur(6px);z-index:30;padding:24px;animation:fadeIn .18s ease-out;pointer-events:auto}
+  .overlay{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,rgba(18,24,60,.92),rgba(5,8,20,.97));backdrop-filter:blur(10px);z-index:30;padding:24px;animation:fadeIn .22s ease-out;pointer-events:auto}
   .overlay.visible{display:flex}
   @keyframes fadeIn{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:scale(1)}}
 
-  h1.title{font-size:96px;font-weight:900;letter-spacing:14px;line-height:1;color:var(--fg);text-shadow:0 2px 0 #000,0 0 24px rgba(168,37,61,.35);font-family:'JetBrains Mono','Consolas',monospace}
-  h1.title::before{content:'';display:inline-block;width:8px;height:8px;background:var(--danger);margin-right:18px;vertical-align:middle;box-shadow:0 0 12px var(--danger)}
-  .subtitle{color:var(--muted);letter-spacing:6px;text-transform:uppercase;font-size:11px;margin-top:8px;margin-bottom:36px;font-family:'JetBrains Mono','Consolas',monospace}
+  h1.title{font-size:104px;font-weight:900;letter-spacing:16px;line-height:1;background:linear-gradient(180deg,var(--accent) 0%,var(--danger) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 4px 80px rgba(255,77,109,.35);animation:titlepulse 3s ease-in-out infinite}
+  @keyframes titlepulse{0%,100%{letter-spacing:16px}50%{letter-spacing:18px}}
+  .subtitle{color:var(--muted);letter-spacing:6px;text-transform:uppercase;font-size:12px;margin-top:4px;margin-bottom:36px}
 
-  button{background:var(--bg2);color:var(--fg);border:1px solid #2a2c34;border-radius:2px;padding:14px 32px;font-size:12px;font-weight:700;letter-spacing:4px;cursor:pointer;transition:all .12s;text-transform:uppercase;min-width:240px;font-family:'JetBrains Mono','Consolas',monospace}
-  button:hover{background:#1f2128;border-color:var(--accent);color:var(--accent)}
-  button:active{transform:translateY(1px)}
-  button.primary{background:var(--danger);color:#fff;border-color:var(--danger)}
-  button.primary:hover{background:#c2304a;color:#fff;border-color:#c2304a}
-  button.danger{background:transparent;border-color:var(--danger);color:var(--danger)}
-  button.danger:hover{background:rgba(168,37,61,.15)}
-  button.small{padding:8px 18px;font-size:10px;min-width:auto}
+  button{background:linear-gradient(180deg,#2a3463,#1a2347);color:var(--fg);border:1px solid #3a4585;border-radius:10px;padding:14px 32px;font-size:14px;font-weight:800;letter-spacing:3px;cursor:pointer;transition:all .15s;text-transform:uppercase;min-width:240px}
+  button:hover{background:linear-gradient(180deg,#3b4a8c,#2a3463);transform:translateY(-2px);border-color:var(--accent);box-shadow:0 8px 24px rgba(255,177,61,.15)}
+  button:active{transform:translateY(0)}
+  button.primary{background:linear-gradient(180deg,#ffd76a,var(--accent));color:#221500;border-color:var(--accent);box-shadow:0 6px 28px rgba(255,177,61,.35)}
+  button.primary:hover{background:linear-gradient(180deg,#ffe289,#ffc34d)}
+  button.danger{background:linear-gradient(180deg,#ff708a,var(--danger));color:#fff;border-color:var(--danger)}
+  button.small{padding:8px 18px;font-size:11px;min-width:auto}
 
   .stat-block{display:flex;gap:24px;color:var(--muted);margin:8px 0 24px;font-size:13px;letter-spacing:2px;text-transform:uppercase}
   .stat-block .v{color:var(--fg);font-weight:900;font-size:18px;display:block}
@@ -54,21 +52,20 @@
 
   #hud{position:fixed;inset:0;pointer-events:none}
   #hud.hidden{display:none}
-  .topbar{position:fixed;top:120px;left:50%;transform:translateX(-50%);display:flex;gap:0;align-items:stretch;background:#08080a;padding:0;border:1px solid #1a1c22;border-radius:2px;font-family:'JetBrains Mono','Consolas',monospace}
-  .topbar .item{display:flex;flex-direction:column;align-items:center;font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;min-width:64px;padding:7px 14px;border-right:1px solid #1a1c22}
-  .topbar .item:last-child{border-right:none}
-  .topbar .item .num{font-size:17px;font-weight:700;color:var(--fg);font-variant-numeric:tabular-nums}
+  .topbar{position:fixed;top:120px;left:50%;transform:translateX(-50%);display:flex;gap:14px;align-items:center;background:rgba(7,9,26,.85);padding:8px 18px;border:1px solid #2c3870;border-radius:10px}
+  .topbar .item{display:flex;flex-direction:column;align-items:center;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;min-width:46px}
+  .topbar .item .num{font-size:18px;font-weight:900;color:var(--fg);font-variant-numeric:tabular-nums}
   .topbar .item.timer .num{color:var(--accent)}
   .topbar .item.kills .num{color:var(--danger)}
   .topbar .item.level .num{color:var(--xp)}
   .topbar .item.wave .num{color:var(--accent2)}
   .topbar .item.combo .num{color:var(--combo)}
 
-  .hpbar{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);width:420px;height:20px;background:#08080a;border:1px solid #1a1c22;border-radius:2px;overflow:hidden;font-family:'JetBrains Mono','Consolas',monospace}
-  .hpbar .fill{height:100%;background:var(--danger);transition:width .15s linear}
-  .hpbar .txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;text-shadow:0 1px 2px #000;letter-spacing:2px}
-  .xpbar{position:fixed;bottom:56px;left:50%;transform:translateX(-50%);width:540px;height:4px;background:#08080a;border:1px solid #1a1c22;border-radius:2px;overflow:hidden}
-  .xpbar .fill{height:100%;background:var(--xp);transition:width .12s linear}
+  .hpbar{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);width:400px;height:22px;background:rgba(0,0,0,.7);border:2px solid rgba(255,255,255,.15);border-radius:6px;overflow:hidden}
+  .hpbar .fill{height:100%;background:linear-gradient(90deg,#4ade80,#22c55e);transition:width .18s;box-shadow:0 0 12px rgba(74,222,128,.5)}
+  .hpbar .txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;text-shadow:0 1px 3px #000;letter-spacing:1px}
+  .xpbar{position:fixed;bottom:56px;left:50%;transform:translateX(-50%);width:540px;height:8px;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.1);border-radius:4px;overflow:hidden}
+  .xpbar .fill{height:100%;background:linear-gradient(90deg,#d385ff,var(--xp));transition:width .15s;box-shadow:0 0 8px rgba(200,85,255,.6)}
 
   .powerbar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:6px;align-items:center;font-family:'JetBrains Mono','Consolas',monospace}
   .powerbar .group{display:flex;gap:3px;background:#08080a;border:1px solid #1a1c22;border-radius:2px;padding:3px}
@@ -586,10 +583,12 @@ const WEAPON_DEFS = {
       const dmg = (10 + w.level*4) * st.passives.dmgMult;
       const shots = w.level >= 3 ? 2 : 1;
       sfx.shoot();
+      st.gunRecoil = 4; st.gunFlash = 1; // visible gun kick
       for(let i=0;i<shots+st.passives.extraShots;i++){
         const baseAng = Math.atan2(t.y-st.pos.y, t.x-st.pos.x);
-        const spread = (shots+st.passives.extraShots > 1) ? 0.18 : 0;
-        const ang = baseAng + (i/(shots+st.passives.extraShots-1||1) - 0.5) * spread;
+        const spreadBase = (shots+st.passives.extraShots > 1) ? 0.18 : 0;
+        const inaccuracy = (1 / Math.max(0.3, st.passives.accuracy)) * 0.02;
+        const ang = baseAng + (i/(shots+st.passives.extraShots-1||1) - 0.5) * spreadBase + (Math.random()-0.5) * inaccuracy;
         const isCrit = Math.random() < st.passives.crit;
         st.bullets.push({
           x:st.pos.x, y:st.pos.y,
@@ -750,6 +749,7 @@ const PASSIVE_DEFS = {
   explode:{ name:'Boom',       icon:'boom',   desc:'Bullets explode on kill',          apply:p => p.explodeOnKill = true, rarity:'epic', once:true },
   luck:   { name:'Lucky',      icon:'clover', desc:'+1 card on level-up',             apply:p => p.luck += 1, rarity:'epic', once:true },
   shock:  { name:'Shockwave',  icon:'shock',  desc:'Level-up blasts nearby enemies',   apply:p => p.shockwave = true, rarity:'legendary', once:true },
+  accuracy:{name:'Accuracy',   icon:'target', desc:'Tighter spread, +5% crit chance',  apply:p => { p.accuracy *= 1.25; p.crit += 0.05; } },
 };
 const PASSIVE_IDS = Object.keys(PASSIVE_DEFS);
 
@@ -775,23 +775,26 @@ let state = {};
 function freshPassives(){
   return { dmgMult:1, moveSpeed:200, fireRate:2.4, pierce:0, magnet:60, crit:0.05, regen:0,
     maxHp:100, xpMult:1, bulletSize:0, extraShots:0, chain:0, vamp:0, homing:0, armor:1,
-    explodeOnKill:false, luck:0, shockwave:false };
+    explodeOnKill:false, luck:0, shockwave:false, accuracy:1 /* 1 = perfect, < 1 = more spread */ };
 }
 function initState(){
   state = {
     mode:'menu',
     time:0, kills:0, level:1, xp:0, xpNext:6, wave:1,
     hp:100, passives:freshPassives(),
-    weapons:[], // [{id, level, ...weapon state}]
-    upgrades:{}, // passiveId -> count
+    weapons:[], upgrades:{},
     pos:{x:0,y:0}, vel:{x:0,y:0},
     enemies:[], bullets:[], enemyBullets:[], gems:[], orbs:[], mines:[], drones:[], particles:[],
+    pickups:[], // medkit / supplydrop / lootbox
     fireCooldown:0, regenAccum:0, damageDealt:0,
     lastSpawn:0, bossActive:null, bossPending:false, bossWarning:0, lastBossMin:0,
     paused:false, shake:0,
     combo:0, comboTimer:0, maxCombo:1,
     trail:[],
     dashCd:0, dashing:0, dashDir:{x:0,y:0}, iframes:0,
+    aimDir:0, gunRecoil:0, gunFlash:0,
+    nextSupplyDrop:30, nextLootBox:15,
+    wishesLeft:3, // "Ask AI" requests per run
   };
 }
 
@@ -954,7 +957,53 @@ function killEnemy(e, fromBullet){
   }
   // XP gem
   state.gems.push({ x:e.x, y:e.y, vx:rnd(-30,30), vy:rnd(-30,30), value:e.def.xp, life:0 });
-  if(e.def.boss) state.gems.push({ x:e.x+10, y:e.y, vx:rnd(-30,30), vy:rnd(-30,30), value:40, life:0, big:true });
+  if(e.def.boss) {
+    state.gems.push({ x:e.x+10, y:e.y, vx:rnd(-30,30), vy:rnd(-30,30), value:40, life:0, big:true });
+    // Bosses always drop a medkit
+    spawnPickup('medkit', e.x, e.y - 30);
+  }
+  // Random drops
+  const r = Math.random();
+  if(r < 0.04) spawnPickup('medkit', e.x, e.y);      // 4% medkit
+  else if(r < 0.06) spawnPickup('lootbox', e.x, e.y); // 2% loot box (mats/coins boost)
+}
+
+// ----------------- Pickups -----------------
+function spawnPickup(type, x, y){
+  const def = PICKUP_DEFS[type];
+  if(!def) return;
+  state.pickups.push({ type, x, y, vx:rnd(-20,20), vy:rnd(-20,20), life:0, magnet:def.magnet||50 });
+}
+
+const PICKUP_DEFS = {
+  medkit:    { color:'#34d399', icon:'heart',  size:9,  magnet:60, label:'+30 HP',
+               onPick:()=> { state.hp = Math.min(state.passives.maxHp, state.hp + 30); floatNumber(state.pos.x, state.pos.y - 24, '+30 HP', 'heal'); sfx.pickup(); } },
+  lootbox:   { color:'#ffb13d', icon:'bullet', size:11, magnet:50, label:'+15 XP',
+               onPick:()=> { gainXp(15); floatNumber(state.pos.x, state.pos.y - 24, '+15 XP', 'crit'); sfx.pickup(); } },
+  supply:    { color:'#3da3ff', icon:'drone',  size:14, magnet:80, label:'SUPPLY DROP',
+               onPick:()=> { sfx.levelup(); pickup('SUPPLY DROP'); openSupplyDrop(); } },
+};
+
+function spawnSupplyDrop(){
+  // Drop near the player but not on top
+  const a = Math.random() * TAU;
+  const r = 180 + Math.random()*60;
+  const x = state.pos.x + Math.cos(a) * r;
+  const y = state.pos.y + Math.sin(a) * r;
+  spawnPickup('supply', x, y);
+  pickup('⌖ SUPPLY DROP INCOMING');
+}
+
+function openSupplyDrop(){
+  // Triggers a free level-up choice (3 cards, no XP cost)
+  state.paused = true;
+  state.mode = 'levelup';
+  const v = document.getElementById('vignette'); v.classList.add('levelup');
+  setTimeout(()=> v.classList.remove('levelup'), 350);
+  const choices = pickChoices(3 + state.passives.luck);
+  renderChoices(choices);
+  document.getElementById('levelup').classList.add('visible');
+  document.getElementById('hud').style.opacity = '0.25';
 }
 function explodeAt(x, y, dmg, radius){
   burst(x, y, 26, '#ffb13d', 8);
@@ -1084,7 +1133,8 @@ function renderChoices(choices){
   box.innerHTML = '';
   for(const c of choices){
     const card = document.createElement('div');
-    const rar = rarityFor(c);
+    let rar = rarityFor(c);
+    if(c.kind === 'generated') rar = c.generated.rarity || 'rare';
     card.className = 'choice ' + rar;
     let name, iconId, desc, lvtxt = '';
     if(c.kind === 'weapon-new'){
@@ -1096,6 +1146,9 @@ function renderChoices(choices){
       name = def.name; iconId = def.icon;
       lvtxt = ` <span style="color:var(--accent)">Lv ${cur.level} → ${cur.level+1}</span>`;
       desc = def.desc(cur.level+1);
+    } else if(c.kind === 'generated'){
+      name = c.generated.name; iconId = c.generated.icon; desc = c.generated.description;
+      lvtxt = ` <span style="color:var(--accent2);font-size:9px">AI</span>`;
     } else {
       const def = PASSIVE_DEFS[c.id];
       name = def.name; iconId = def.icon; desc = def.desc;
@@ -1105,12 +1158,35 @@ function renderChoices(choices){
     card.innerHTML = `
       <div class="icon">${ico(iconId, 42)}</div>
       <div class="name">${name}${lvtxt}</div>
-      <div class="rarity">${rar === 'weapon' ? 'WEAPON' : rar.toUpperCase()}</div>
+      <div class="rarity">${c.kind==='generated' ? 'AI · '+rar.toUpperCase() : (rar === 'weapon' ? 'WEAPON' : rar.toUpperCase())}</div>
       <div class="desc">${desc}</div>
     `;
     card.onclick = () => applyChoice(c);
     box.appendChild(card);
   }
+  // "Ask AI" wish button at the bottom
+  const wishBar = document.createElement('div');
+  wishBar.style.cssText = 'margin-top:24px;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap';
+  wishBar.innerHTML = `
+    <input id="wish-input" type="text" placeholder="Describe your wish (e.g. 'more crit damage')" maxlength="64"
+      style="background:rgba(20,28,60,.85);border:1px solid #2c3870;color:var(--fg);padding:10px 14px;border-radius:6px;width:340px;font-size:13px;outline:none;font-family:inherit" />
+    <button id="wish-submit" class="small" style="border-color:var(--accent2);color:var(--accent2)">
+      ✨ Ask AI (${state.wishesLeft||0} left)
+    </button>
+  `;
+  box.parentNode.insertBefore(wishBar, box.nextSibling);
+  document.getElementById('wish-submit').onclick = ()=>{
+    if(state.wishesLeft <= 0) return;
+    const v = document.getElementById('wish-input').value.trim();
+    if(!v) return;
+    state.wishesLeft -= 1;
+    const gen = generateWishPower(v);
+    applyChoice({ kind:'generated', generated:gen });
+    wishBar.remove();
+  };
+  document.getElementById('wish-input').addEventListener('keydown', e=>{
+    if(e.code === 'Enter') document.getElementById('wish-submit').click();
+  });
 }
 
 function applyChoice(c){
@@ -1122,7 +1198,9 @@ function applyChoice(c){
     const w = state.weapons.find(x => x.id === c.id);
     w.level++;
     WEAPON_DEFS[c.id].refresh?.(w, state);
-    WEAPON_DEFS[c.id].init?.(w, state); // re-init for blades/drones to spawn more
+    WEAPON_DEFS[c.id].init?.(w, state);
+  } else if(c.kind === 'generated'){
+    c.generated.apply();
   } else {
     const def = PASSIVE_DEFS[c.id];
     def.apply(state.passives);
@@ -1397,16 +1475,14 @@ function drawEnemy(e){
   const c = e.hitFlash > 0 ? '#fff' : e.def.color;
   ctx.save(); ctx.translate(e.x, e.y); ctx.rotate(e.rot);
   ctx.fillStyle = c;
-  ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
-  ctx.shadowBlur = e.def.boss ? 18 : 0;
-  ctx.shadowColor = e.def.boss ? e.def.color : 'transparent';
+  ctx.shadowColor = e.def.color; ctx.shadowBlur = e.def.boss ? 26 : 8;
   switch(e.def.shape){
-    case 'circle': ctx.beginPath(); ctx.arc(0,0,e.def.r,0,TAU); ctx.fill(); ctx.stroke(); break;
-    case 'triangle': polygon(0,0,e.def.r,3); ctx.fill(); ctx.stroke(); break;
-    case 'diamond': polygon(0,0,e.def.r,4); ctx.fill(); ctx.stroke(); break;
-    case 'hexagon': polygon(0,0,e.def.r,6); ctx.fill(); ctx.stroke(); break;
-    case 'star': star(0,0,e.def.r,5); ctx.fill(); ctx.stroke(); break;
-    case 'boss': polygon(0,0,e.def.r,8); ctx.fill(); ctx.stroke(); ctx.fillStyle='#000'; ctx.shadowBlur=0; polygon(0,0,e.def.r*0.4,4); ctx.fill(); break;
+    case 'circle': ctx.beginPath(); ctx.arc(0,0,e.def.r,0,TAU); ctx.fill(); break;
+    case 'triangle': polygon(0,0,e.def.r,3); ctx.fill(); break;
+    case 'diamond': polygon(0,0,e.def.r,4); ctx.fill(); break;
+    case 'hexagon': polygon(0,0,e.def.r,6); ctx.fill(); break;
+    case 'star': star(0,0,e.def.r,5); ctx.fill(); break;
+    case 'boss': polygon(0,0,e.def.r,8); ctx.fill(); ctx.fillStyle='#fff'; ctx.shadowBlur=0; polygon(0,0,e.def.r*0.5,4); ctx.fill(); break;
   }
   // Shielded enemies — draw shield arc in front
   if(e.def.shield){
@@ -1488,19 +1564,45 @@ function render(){
       ctx.beginPath(); ctx.arc(g.x, g.y, r + Math.sin(g.life*8)*1.2, 0, TAU); ctx.fill();
       ctx.shadowBlur = 0;
     }
+    // Pickups (medkit, lootbox, supply drop)
+    for(const p of state.pickups){
+      const def = PICKUP_DEFS[p.type];
+      const bob = Math.sin(p.life*4) * 2;
+      ctx.fillStyle = def.color;
+      ctx.shadowColor = def.color; ctx.shadowBlur = 20;
+      // Box
+      ctx.fillRect(p.x - def.size, p.y - def.size + bob, def.size*2, def.size*2);
+      // Inner mark
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#fff';
+      if(p.type === 'medkit'){
+        // + cross
+        ctx.fillRect(p.x - 2, p.y - 6 + bob, 4, 12);
+        ctx.fillRect(p.x - 6, p.y - 2 + bob, 12, 4);
+      } else if(p.type === 'supply'){
+        // 'S' band
+        ctx.fillRect(p.x - def.size, p.y - 3 + bob, def.size*2, 2);
+        ctx.fillRect(p.x - def.size, p.y + 1 + bob, def.size*2, 2);
+      } else {
+        // lootbox: small dot
+        ctx.beginPath(); ctx.arc(p.x, p.y + bob, 3, 0, TAU); ctx.fill();
+      }
+    }
 
     for(const e of state.enemies) drawEnemy(e);
 
-    // Bullets — small bright dots with tracer
+    // Bullets — glowing energy bolts
     for(const b of state.bullets){
-      ctx.fillStyle = b.crit ? '#e9a44d' : '#e8e8ec';
-      ctx.strokeStyle = b.crit ? '#c25a2a' : '#7a7c84'; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.arc(b.x, b.y, b.size, 0, TAU); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = b.color || (b.crit ? '#ffb13d' : '#ffea00');
+      ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 12;
+      ctx.beginPath(); ctx.arc(b.x, b.y, b.size, 0, TAU); ctx.fill();
+      ctx.shadowBlur = 0;
     }
     for(const b of state.enemyBullets){
-      ctx.fillStyle = b.splash ? '#8b9c6a' : '#a8253d';
-      ctx.strokeStyle = '#000'; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.arc(b.x, b.y, b.size, 0, TAU); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = b.splash ? '#aaff66' : '#ff4d6d';
+      ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 8;
+      ctx.beginPath(); ctx.arc(b.x, b.y, b.size, 0, TAU); ctx.fill();
+      ctx.shadowBlur = 0;
     }
 
     // Orbs (blades)
@@ -1517,22 +1619,40 @@ function render(){
       ctx.fillStyle = '#fff'; ctx.fillRect((d.x||state.pos.x)-1, (d.y||state.pos.y)-1, 2, 2);
     }
 
-    // Player — solid armored dot with crosshair feel
+    // Player — cyan body + visible gun barrel pointing at nearest enemy
     if(state.iframes > 0){
-      ctx.globalAlpha = 0.4 + Math.sin(state.time*30)*0.4;
+      ctx.globalAlpha = 0.5 + Math.sin(state.time*30)*0.5;
     }
-    ctx.fillStyle = '#d5d8e0';
-    ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+    // Body
+    const pulse = 1 + Math.sin(state.time*4)*0.06;
+    ctx.fillStyle = '#3da3ff'; ctx.shadowColor = '#3da3ff'; ctx.shadowBlur = 18;
+    ctx.beginPath(); ctx.arc(state.pos.x, state.pos.y, 12*pulse, 0, TAU); ctx.fill();
     ctx.shadowBlur = 0;
-    ctx.beginPath(); ctx.arc(state.pos.x, state.pos.y, 11, 0, TAU); ctx.fill(); ctx.stroke();
-    // Crosshair marker over player
-    ctx.strokeStyle = 'rgba(168,37,61,.6)'; ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(state.pos.x - 6, state.pos.y); ctx.lineTo(state.pos.x - 2, state.pos.y);
-    ctx.moveTo(state.pos.x + 2, state.pos.y); ctx.lineTo(state.pos.x + 6, state.pos.y);
-    ctx.moveTo(state.pos.x, state.pos.y - 6); ctx.lineTo(state.pos.x, state.pos.y - 2);
-    ctx.moveTo(state.pos.x, state.pos.y + 2); ctx.lineTo(state.pos.x, state.pos.y + 6);
-    ctx.stroke();
+    // Highlight
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(state.pos.x-3, state.pos.y-3, 3, 0, TAU); ctx.fill();
+    // Visible gun barrel
+    if(state.aimDir !== undefined){
+      ctx.save();
+      ctx.translate(state.pos.x, state.pos.y);
+      ctx.rotate(state.aimDir);
+      const kick = state.gunRecoil || 0;
+      // Body of gun
+      ctx.fillStyle = '#1a2347';
+      ctx.fillRect(8 - kick, -3, 14, 6);
+      // Highlight strip
+      ctx.fillStyle = '#3a4585';
+      ctx.fillRect(8 - kick, -3, 14, 1.5);
+      // Muzzle
+      ctx.fillStyle = state.gunFlash > 0 ? '#ffea00' : '#0c0f24';
+      ctx.fillRect(20 - kick, -2.5, 3, 5);
+      if(state.gunFlash > 0){
+        ctx.shadowColor = '#ffea00'; ctx.shadowBlur = 12;
+        ctx.beginPath(); ctx.arc(24 - kick, 0, 3 * state.gunFlash, 0, TAU); ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+      ctx.restore();
+    }
     ctx.globalAlpha = 1;
 
     // Particles
