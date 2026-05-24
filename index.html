@@ -757,15 +757,15 @@ const PASSIVE_IDS = Object.keys(PASSIVE_DEFS);
 // ENEMIES
 // ============================================================
 const ENEMY_TYPES = {
-  grunt:    { hp:10,  speed:60,  dmg:8,  r:11, color:'#ff5252', shape:'circle',   xp:1, score:1 },
-  swift:    { hp:6,   speed:120, dmg:5,  r:9,  color:'#ffb13d', shape:'triangle', xp:1, score:1 },
-  tank:     { hp:60,  speed:35,  dmg:18, r:18, color:'#9854ff', shape:'hexagon',  xp:4, score:3 },
-  shooter:  { hp:18,  speed:50,  dmg:6,  r:12, color:'#52d3ff', shape:'diamond',  xp:2, score:2, ranged:true },
-  spawner:  { hp:90,  speed:22,  dmg:12, r:22, color:'#e676ff', shape:'star',     xp:6, score:5, spawns:'grunt' },
-  exploder: { hp:25,  speed:90,  dmg:0,  r:13, color:'#ff8a00', shape:'circle',   xp:3, score:2, explodeOnDeath:true, explodeR:80, explodeDmg:30 },
-  shielded: { hp:140, speed:38,  dmg:14, r:16, color:'#00e0ff', shape:'hexagon',  xp:6, score:4, shield:true },
-  spitter:  { hp:14,  speed:55,  dmg:4,  r:10, color:'#aaff66', shape:'diamond',  xp:2, score:2, ranged:true, lobShots:true },
-  boss:     { hp:600, speed:40,  dmg:24, r:38, color:'#ff1744', shape:'boss',     xp:80, score:50, boss:true, ranged:true, name:'OVERLORD' },
+  grunt:    { hp:10,  speed:60,  dmg:8,  r:13, color:'#6a8d4a', skin:'#a89070', shape:'circle',   xp:1, score:1, label:'Walker' },
+  swift:    { hp:6,   speed:120, dmg:5,  r:11, color:'#c9b54f', skin:'#b89060', shape:'triangle', xp:1, score:1, label:'Runner' },
+  tank:     { hp:60,  speed:35,  dmg:18, r:22, color:'#5e4a6e', skin:'#8a7058', shape:'hexagon',  xp:4, score:3, label:'Brute' },
+  shooter:  { hp:18,  speed:50,  dmg:6,  r:14, color:'#5a9a9c', skin:'#a08060', shape:'diamond',  xp:2, score:2, ranged:true, label:'Spitter Drone' },
+  spawner:  { hp:90,  speed:22,  dmg:12, r:24, color:'#a85aa5', skin:'#906878', shape:'star',     xp:6, score:5, spawns:'grunt', label:'Hive' },
+  exploder: { hp:25,  speed:90,  dmg:0,  r:15, color:'#a83a3a', skin:'#b87060', shape:'circle',   xp:3, score:2, explodeOnDeath:true, explodeR:80, explodeDmg:30, label:'Bloater' },
+  shielded: { hp:140, speed:38,  dmg:14, r:18, color:'#6e8090', skin:'#a08060', shape:'hexagon',  xp:6, score:4, shield:true, label:'Armored' },
+  spitter:  { hp:14,  speed:55,  dmg:4,  r:12, color:'#8aaa3a', skin:'#a8a060', shape:'diamond',  xp:2, score:2, ranged:true, lobShots:true, label:'Acid' },
+  boss:     { hp:600, speed:40,  dmg:24, r:44, color:'#7a1c1c', skin:'#702a30', shape:'boss',     xp:80, score:50, boss:true, ranged:true, name:'OVERLORD', label:'Overlord' },
 };
 
 // ============================================================
@@ -928,6 +928,16 @@ function nearestEnemy(pos, maxDist=Infinity){
 function damageEnemy(e, dmg, isCrit, fromBullet){
   e.hp -= dmg; e.hitFlash = 0.12; state.damageDealt += dmg;
   floatNumber(e.x, e.y - e.def.r, Math.ceil(dmg), isCrit?'crit':'');
+  // Blood splatter
+  for(let i = 0; i < 4; i++){
+    const a = Math.random() * TAU;
+    state.particles.push({
+      x: e.x, y: e.y,
+      vx: Math.cos(a) * rnd(20, 80), vy: Math.sin(a) * rnd(20, 80),
+      life: rnd(0.2, 0.5), maxLife: 0.5,
+      color: '#8a1414', size: rnd(1.5, 3),
+    });
+  }
   if(state.passives.vamp > 0) state.hp = Math.min(state.passives.maxHp, state.hp + dmg*state.passives.vamp);
   if(e.hp <= 0) killEnemy(e, fromBullet);
 }
@@ -1172,28 +1182,27 @@ function renderChoices(choices){
     box.appendChild(card);
   }
   // "Ask AI" wish button at the bottom
+  // Remove stale wish bar(s) from previous level-ups
+  document.querySelectorAll('.wish-bar').forEach(el => el.remove());
   const wishBar = document.createElement('div');
-  wishBar.style.cssText = 'margin-top:24px;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap';
-  wishBar.innerHTML = `
-    <input id="wish-input" type="text" placeholder="Describe your wish (e.g. 'more crit damage')" maxlength="64"
-      style="background:rgba(20,28,60,.85);border:1px solid #2c3870;color:var(--fg);padding:10px 14px;border-radius:6px;width:340px;font-size:13px;outline:none;font-family:inherit" />
-    <button id="wish-submit" class="small" style="border-color:var(--accent2);color:var(--accent2)">
-      ✨ Ask AI (${state.wishesLeft||0} left)
-    </button>
-  `;
-  box.parentNode.insertBefore(wishBar, box.nextSibling);
-  document.getElementById('wish-submit').onclick = ()=>{
+  wishBar.className = 'wish-bar';
+  wishBar.style.cssText = 'margin-top:20px;display:flex;justify-content:center';
+  const remaining = state.wishesLeft || 0;
+  const btn = document.createElement('button');
+  btn.className = 'small';
+  btn.style.cssText = 'border-color:var(--accent2);color:var(--accent2);min-width:300px;letter-spacing:2px';
+  btn.disabled = remaining <= 0;
+  btn.textContent = `✨ ASK AI FOR POWER-UP (${remaining} LEFT)`;
+  btn.addEventListener('click', ()=>{
     if(state.wishesLeft <= 0) return;
-    const v = document.getElementById('wish-input').value.trim();
-    if(!v) return;
     state.wishesLeft -= 1;
-    const gen = generateWishPower(v);
+    const gen = generateRandomPower();
+    gen.rarity = 'epic'; // wish-rolled powers are always epic
     applyChoice({ kind:'generated', generated:gen });
     wishBar.remove();
-  };
-  document.getElementById('wish-input').addEventListener('keydown', e=>{
-    if(e.code === 'Enter') document.getElementById('wish-submit').click();
   });
+  wishBar.appendChild(btn);
+  box.parentNode.insertBefore(wishBar, box.nextSibling);
 }
 
 function applyChoice(c){
@@ -1510,6 +1519,40 @@ starBuf.width = 800; starBuf.height = 800;
 }
 
 function drawEnemy(e){
+  const sprite = ZOMBIE_SPRITES[e.type];
+  if(sprite){
+    ctx.save();
+    ctx.translate(e.x, e.y);
+    // Bobbing walk animation
+    const bob = Math.sin(e.rot * 1.5) * 1.5;
+    ctx.translate(0, bob);
+    // Boss glow
+    if(e.def.boss){ ctx.shadowColor = '#ff2030'; ctx.shadowBlur = 18; }
+    ctx.drawImage(sprite, -sprite.width/2, -sprite.height/2);
+    ctx.shadowBlur = 0;
+    // Hit flash
+    if(e.hitFlash > 0){
+      ctx.globalCompositeOperation = 'source-atop';
+      ctx.fillStyle = `rgba(255,255,255,${e.hitFlash*5})`;
+      ctx.fillRect(-sprite.width/2, -sprite.height/2, sprite.width, sprite.height);
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    // Shielded extra arc
+    if(e.def.shield){
+      const ang = Math.atan2(state.pos.y - e.y, state.pos.x - e.x);
+      ctx.strokeStyle = '#00e0ff'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(0, 0, e.def.r + 6, ang - 0.9, ang + 0.9); ctx.stroke();
+    }
+    ctx.restore();
+    if(e.def.hp >= 30 && !e.def.boss){
+      ctx.fillStyle = 'rgba(0,0,0,.7)';
+      ctx.fillRect(e.x-e.def.r, e.y-e.def.r-10, e.def.r*2, 4);
+      ctx.fillStyle = '#ff5252';
+      ctx.fillRect(e.x-e.def.r, e.y-e.def.r-10, e.def.r*2*(e.hp/e.maxHp), 4);
+    }
+    return;
+  }
+  // Fallback to old shape rendering if sprite missing
   const c = e.hitFlash > 0 ? '#fff' : e.def.color;
   ctx.save(); ctx.translate(e.x, e.y); ctx.rotate(e.rot);
   ctx.fillStyle = c;
@@ -1657,36 +1700,35 @@ function render(){
       ctx.fillStyle = '#fff'; ctx.fillRect((d.x||state.pos.x)-1, (d.y||state.pos.y)-1, 2, 2);
     }
 
-    // Player — cyan body + visible gun barrel pointing at nearest enemy
+    // Player — soldier sprite + visible rifle pointing at nearest enemy
     if(state.iframes > 0){
       ctx.globalAlpha = 0.5 + Math.sin(state.time*30)*0.5;
     }
-    // Body
-    const pulse = 1 + Math.sin(state.time*4)*0.06;
-    ctx.fillStyle = '#3da3ff'; ctx.shadowColor = '#3da3ff'; ctx.shadowBlur = 18;
-    ctx.beginPath(); ctx.arc(state.pos.x, state.pos.y, 12*pulse, 0, TAU); ctx.fill();
-    ctx.shadowBlur = 0;
-    // Highlight
-    ctx.fillStyle = '#fff';
-    ctx.beginPath(); ctx.arc(state.pos.x-3, state.pos.y-3, 3, 0, TAU); ctx.fill();
-    // Visible gun barrel
+    ctx.drawImage(PLAYER_SPRITE, state.pos.x - 24, state.pos.y - 24);
+    // Rifle — drawn on top, rotated toward aim direction
     if(state.aimDir !== undefined){
       ctx.save();
       ctx.translate(state.pos.x, state.pos.y);
       ctx.rotate(state.aimDir);
       const kick = state.gunRecoil || 0;
-      // Body of gun
-      ctx.fillStyle = '#1a2347';
-      ctx.fillRect(8 - kick, -3, 14, 6);
-      // Highlight strip
-      ctx.fillStyle = '#3a4585';
-      ctx.fillRect(8 - kick, -3, 14, 1.5);
+      // Stock
+      ctx.fillStyle = '#2a1a0e';
+      ctx.fillRect(0 - kick, -2, 8, 5);
+      // Barrel body
+      ctx.fillStyle = '#1a1c20';
+      ctx.fillRect(8 - kick, -3, 16, 6);
+      // Barrel top highlight
+      ctx.fillStyle = '#3a3c40';
+      ctx.fillRect(8 - kick, -3, 16, 1.5);
+      // Iron sight
+      ctx.fillStyle = '#0a0a0c';
+      ctx.fillRect(14 - kick, -5, 2, 2);
       // Muzzle
-      ctx.fillStyle = state.gunFlash > 0 ? '#ffea00' : '#0c0f24';
-      ctx.fillRect(20 - kick, -2.5, 3, 5);
+      ctx.fillStyle = state.gunFlash > 0 ? '#ffea00' : '#000';
+      ctx.fillRect(24 - kick, -2.5, 4, 5);
       if(state.gunFlash > 0){
-        ctx.shadowColor = '#ffea00'; ctx.shadowBlur = 12;
-        ctx.beginPath(); ctx.arc(24 - kick, 0, 3 * state.gunFlash, 0, TAU); ctx.fill();
+        ctx.shadowColor = '#ffea00'; ctx.shadowBlur = 14;
+        ctx.beginPath(); ctx.arc(30 - kick, 0, 4 * state.gunFlash, 0, TAU); ctx.fill();
         ctx.shadowBlur = 0;
       }
       ctx.restore();
