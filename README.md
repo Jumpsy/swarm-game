@@ -27,8 +27,13 @@ python3 -m http.server 5174
 2. Copy your project URL and `anon public` key from Project Settings → API.
 3. Install Vercel CLI: `npm i -g vercel`. Then `vercel link` in this folder.
 4. Set env: `vercel env add SUPABASE_URL` and `vercel env add SUPABASE_ANON_KEY`.
-5. Deploy: `vercel --prod`.
-6. (Optional) Buy a domain in the Vercel dashboard → Domains.
+5. (Optional) Add an AI key for the wish-power-up button. Pick **one**:
+   - `vercel env add GROQ_API_KEY` — **free**, fastest. Get one at https://console.groq.com (free tier ~30 req/min).
+   - `vercel env add GEMINI_API_KEY` — **free**. Get one at https://aistudio.google.com/apikey (1500 req/day free).
+   - `vercel env add ANTHROPIC_API_KEY` — paid (~$0.0008/wish). https://console.anthropic.com.
+   - If none are set, the wish button falls back to a free local procedural generator and still works.
+6. Deploy: `vercel --prod`.
+7. (Optional) Buy a domain in the Vercel dashboard → Domains.
 
 ## Project layout
 

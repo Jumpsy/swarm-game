@@ -1,52 +1,134 @@
 // Vercel serverless function — AI-generated power-ups for SWARM.
-// POST /api/wish  { wish: "more damage please", currentPowers?: [...] }
-//   → { name, description, stat, op, value }
+// Tries providers in cost order: Groq (free) → Gemini Flash (free) → Anthropic Claude (paid).
+// Falls back to procedural generator on the client if none are configured.
 //
-// Requires env var ANTHROPIC_API_KEY in Vercel (free tier works).
-// Client falls back to local procedural generator if this endpoint is unavailable.
-
-import Anthropic from '@anthropic-ai/sdk';
+// Set ONE of these env vars in Vercel:
+//   GROQ_API_KEY        — https://console.groq.com  (free, ~30 req/min, fastest)
+//   GEMINI_API_KEY      — https://aistudio.google.com/apikey  (free, 1500/day)
+//   ANTHROPIC_API_KEY   — https://console.anthropic.com  (paid, ~$0.0008/wish)
 
 const STATS = {
   dmgMult:    { op:'mult', range:[1.05, 1.20], desc:'damage multiplier' },
   moveSpeed:  { op:'mult', range:[1.05, 1.15], desc:'move speed multiplier' },
-  fireRate:   { op:'mult', range:[1.05, 1.15], desc:'fire rate multiplier (currently ~2.4)' },
+  fireRate:   { op:'mult', range:[1.05, 1.15], desc:'fire rate multiplier' },
   pierce:     { op:'add',  range:[1, 1],       desc:'flat +N bullet pierces' },
   magnet:     { op:'mult', range:[1.20, 1.50], desc:'XP pickup range multiplier' },
-  crit:       { op:'add',  range:[0.03, 0.10], desc:'flat +N crit chance (0.0-1.0)' },
+  crit:       { op:'add',  range:[0.03, 0.10], desc:'flat +N crit chance' },
   regen:      { op:'add',  range:[0.3, 0.8],   desc:'flat +N HP/sec regen' },
   maxHp:      { op:'add',  range:[15, 30],     desc:'flat +N max HP' },
   xpMult:     { op:'mult', range:[1.10, 1.20], desc:'XP gain multiplier' },
   bulletSize: { op:'add',  range:[1, 3],       desc:'flat +N bullet size' },
   extraShots: { op:'add',  range:[1, 1],       desc:'flat +1 projectile per volley' },
   chain:      { op:'add',  range:[1, 1],       desc:'flat +1 chain target' },
-  vamp:       { op:'add',  range:[0.03, 0.07], desc:'flat +N lifesteal fraction (0.0-1.0)' },
+  vamp:       { op:'add',  range:[0.03, 0.07], desc:'flat +N lifesteal fraction' },
   armor:      { op:'mult', range:[0.85, 0.94], desc:'damage taken multiplier (<1 = less damage)' },
-  accuracy:   { op:'mult', range:[1.10, 1.25], desc:'accuracy multiplier (tighter bullet spread)' },
+  accuracy:   { op:'mult', range:[1.10, 1.25], desc:'accuracy multiplier (tighter spread)' },
 };
 
-// Per-IP throttle: 1 request / 1.5s
 const last = new Map();
 setInterval(() => { const now = Date.now(); for (const [k,v] of last) if (now - v > 30000) last.delete(k); }, 60000).unref?.();
 
+function buildPrompt(wish) {
+  const statList = Object.entries(STATS).map(([k,v]) => `  - "${k}" (${v.op}, range ${v.range[0]}-${v.range[1]}, ${v.desc})`).join('\n');
+  return `You design balanced power-ups for SWARM, a roguelike browser auto-shooter.
+
+The player just leveled up and asks for: "${wish}"
+
+Generate ONE power-up matching their request. Be creative with the name (sci-fi / military / tactical theme). Numbers MUST stay inside the range for the chosen stat.
+
+Available stats:
+${statList}
+
+Reply with ONLY valid JSON in this exact shape, nothing else, no markdown:
+{"name":"Short Name","description":"+15% damage","stat":"dmgMult","op":"mult","value":1.15}`;
+}
+
 function clampPower(p) {
-  // Defensive clamp so the LLM can't return broken/overpowered values.
   if (!p || typeof p !== 'object') return null;
   const stat = STATS[p.stat];
   if (!stat) return null;
   const op = p.op === 'mult' ? 'mult' : 'add';
   let value = Number(p.value);
   if (!isFinite(value)) return null;
-  // Force into the safe range for that stat
   const [lo, hi] = stat.range;
   value = Math.max(lo, Math.min(hi, value));
   return {
-    name: String(p.name || 'Custom Boost').slice(0, 32),
+    name: String(p.name || 'Custom Boost').slice(0, 28),
     description: String(p.description || '').slice(0, 80),
     stat: p.stat,
     op,
     value: Math.round(value * 1000) / 1000,
+    provider: p.provider || 'unknown',
   };
+}
+
+function extractJson(text) {
+  const m = text.match(/\{[\s\S]*\}/);
+  if (!m) throw new Error('no JSON found');
+  return JSON.parse(m[0]);
+}
+
+// ---- Provider implementations ----
+
+async function callGroq(prompt) {
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.GROQ_API_KEY}` },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 200,
+      temperature: 0.9,
+    }),
+  });
+  if (!res.ok) throw new Error('groq ' + res.status + ' ' + (await res.text()).slice(0, 100));
+  const data = await res.json();
+  const text = data.choices?.[0]?.message?.content || '';
+  const json = extractJson(text);
+  json.provider = 'groq';
+  return json;
+}
+
+async function callGemini(prompt) {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.9, maxOutputTokens: 200 },
+      }),
+    }
+  );
+  if (!res.ok) throw new Error('gemini ' + res.status + ' ' + (await res.text()).slice(0, 100));
+  const data = await res.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const json = extractJson(text);
+  json.provider = 'gemini';
+  return json;
+}
+
+async function callAnthropic(prompt) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': process.env.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 200,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+  if (!res.ok) throw new Error('anthropic ' + res.status + ' ' + (await res.text()).slice(0, 100));
+  const data = await res.json();
+  const text = data.content?.[0]?.text || '';
+  const json = extractJson(text);
+  json.provider = 'anthropic';
+  return json;
 }
 
 export default async function handler(req, res) {
@@ -55,9 +137,6 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return res.status(503).json({ error: 'no_api_key', message: 'Set ANTHROPIC_API_KEY in Vercel env vars.' });
-  }
 
   const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'x';
   const now = Date.now();
@@ -66,42 +145,32 @@ export default async function handler(req, res) {
   last.set(ip, now);
 
   const wish = String((req.body || {}).wish || 'surprise me').slice(0, 100);
+  const prompt = buildPrompt(wish);
 
-  const statList = Object.entries(STATS).map(([k,v]) => `  - "${k}" (${v.op}, ${v.desc})`).join('\n');
-  const prompt = `You design balanced power-ups for an indie roguelike called SWARM (auto-shooter, vampire-survivors style).
+  // Try providers in cost order (cheapest/free first)
+  const providers = [];
+  if (process.env.GROQ_API_KEY) providers.push({ name: 'groq', call: callGroq });
+  if (process.env.GEMINI_API_KEY) providers.push({ name: 'gemini', call: callGemini });
+  if (process.env.ANTHROPIC_API_KEY) providers.push({ name: 'anthropic', call: callAnthropic });
 
-The player just leveled up and wishes for: "${wish}"
-
-Generate ONE power-up that matches their request. Be creative with the name (sci-fi / tactical / military theme) but keep numbers BALANCED — never overpowered.
-
-Available stats:
-${statList}
-
-Reply with ONLY valid JSON in this exact shape, nothing else:
-{
-  "name": "Short cool name (max 24 chars)",
-  "description": "+15% damage" or "+1 pierce" etc,
-  "stat": "<one of the stat keys above>",
-  "op": "mult" or "add",
-  "value": <number within that stat's range>
-}`;
-
-  try {
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    const msg = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 200,
-      messages: [{ role: 'user', content: prompt }],
+  if (!providers.length) {
+    return res.status(503).json({
+      error: 'no_key',
+      message: 'Set GROQ_API_KEY (free) or GEMINI_API_KEY (free) or ANTHROPIC_API_KEY in Vercel env vars.',
     });
-    const text = msg.content?.[0]?.text?.trim() || '';
-    // The LLM should reply with raw JSON. Tolerate a code-fence wrap.
-    const m = text.match(/\{[\s\S]*\}/);
-    if (!m) throw new Error('no JSON in response');
-    const parsed = JSON.parse(m[0]);
-    const safe = clampPower(parsed);
-    if (!safe) throw new Error('invalid power shape');
-    return res.status(200).json(safe);
-  } catch (e) {
-    return res.status(500).json({ error: 'llm_failed', message: String(e.message || e) });
   }
+
+  const errors = [];
+  for (const p of providers) {
+    try {
+      const raw = await p.call(prompt);
+      const safe = clampPower(raw);
+      if (!safe) throw new Error('invalid power shape');
+      return res.status(200).json(safe);
+    } catch (e) {
+      errors.push(p.name + ': ' + String(e.message || e).slice(0, 80));
+      continue;
+    }
+  }
+  return res.status(500).json({ error: 'all_providers_failed', tried: errors });
 }
