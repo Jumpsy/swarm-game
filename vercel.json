@@ -4,6 +4,9 @@
     { "source": "/api/leaderboard", "destination": "/api/leaderboard.js" },
     { "source": "/api/leaderboard/", "destination": "/api/leaderboard.js" },
     { "source": "/api/wish", "destination": "/api/wish.js" },
-    { "source": "/api/wish/", "destination": "/api/wish.js" }
+    { "source": "/api/wish/", "destination": "/api/wish.js" },
+    { "source": "/api/config", "destination": "/api/config.js" },
+    { "source": "/api/config/", "destination": "/api/config.js" },
+    { "source": "/ads.txt", "destination": "/api/ads-txt.js" }
   ]
 }

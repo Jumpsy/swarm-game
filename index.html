@@ -4,9 +4,53 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>SWARM — Horde Survival</title>
-<!-- Google AdSense Programmatic Library -->
-<!-- IMPORTANT: Replace client ID 'ca-pub-XXXXXXXXXXXXXX' below with your actual Google AdSense Publisher ID -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+<!-- Google AdSense Configurable Loader -->
+<script>
+  let adsenseConfig = { adsenseClientId: '', adsenseSlotId: '' };
+  async function loadAdSense() {
+    try {
+      const res = await fetch('/api/config');
+      if (!res.ok) return;
+      adsenseConfig = await res.json();
+      
+      const isConfigured = adsenseConfig.adsenseClientId && 
+                           adsenseConfig.adsenseClientId.trim() !== '' && 
+                           !adsenseConfig.adsenseClientId.includes('XXXXX');
+      
+      if (isConfigured) {
+        // Load programmatic script
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseConfig.adsenseClientId}`;
+        script.crossOrigin = 'anonymous';
+        document.head.appendChild(script);
+
+        // Configure live slot
+        const ins = document.querySelector('#ad-slot ins.adsbygoogle');
+        if (ins) {
+          ins.setAttribute('data-ad-client', adsenseConfig.adsenseClientId);
+          if (adsenseConfig.adsenseSlotId) {
+            ins.setAttribute('data-ad-slot', adsenseConfig.adsenseSlotId);
+          }
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        }
+        console.log('Google AdSense successfully loaded from Vercel config!');
+      } else {
+        // Render fallback visual test ad inside the slot
+        const slot = document.getElementById('ad-slot');
+        if (slot) {
+          slot.innerHTML = `<div style="font-family: monospace; font-size: 10px; color: var(--muted); text-align: center; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span>[ DEMO AD: ADSENSE NOT CONFIG ]</span>
+            <span style="color: var(--accent);">SET ADSENSE_CLIENT_ID ON VERCEL TO ENABLE</span>
+          </div>`;
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load AdSense config:', e);
+    }
+  }
+  window.addEventListener('DOMContentLoaded', loadAdSense);
+</script>
 
 <!-- Vercel Web Analytics -->
 <script>
