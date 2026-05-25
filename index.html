@@ -2394,8 +2394,7 @@ function updateHud(){
 const AD_UNLOCK_RUNS = 5;
 const AD_UNLOCK_SECONDS = 15 * 60;
 function adsUnlocked(){
-  const totalSec = Number(localStorage.getItem('swarm.totalPlaySec') || 0);
-  return profile.runs >= AD_UNLOCK_RUNS || totalSec >= AD_UNLOCK_SECONDS;
+  return true;
 }
 function refreshTopnav(){
   document.getElementById('nav-user').textContent = profile.user || '—';
