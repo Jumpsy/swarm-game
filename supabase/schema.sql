@@ -21,3 +21,44 @@ CREATE POLICY allow_insert_for_all ON runs
 
 CREATE POLICY allow_select_for_all ON runs
   FOR SELECT TO anon USING (true);
+
+-- Lobbies table for online co-op matchmaking
+CREATE TABLE IF NOT EXISTS lobbies (
+  room_id text PRIMARY KEY,
+  players jsonb NOT NULL DEFAULT '[]'::jsonb,
+  last_updated timestamptz DEFAULT now()
+);
+
+ALTER TABLE lobbies ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY allow_insert_lobbies ON lobbies
+  FOR INSERT TO anon WITH CHECK (true);
+
+CREATE POLICY allow_select_lobbies ON lobbies
+  FOR SELECT TO anon USING (true);
+
+CREATE POLICY allow_update_lobbies ON lobbies
+  FOR UPDATE TO anon USING (true) WITH CHECK (true);
+
+-- Global shared AI-generated NPC table
+CREATE TABLE IF NOT EXISTS global_npcs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  color text NOT NULL,
+  skin text NOT NULL,
+  hp int NOT NULL,
+  speed int NOT NULL,
+  xp int NOT NULL,
+  description text NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE global_npcs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY allow_select_npcs ON global_npcs
+  FOR SELECT TO anon USING (true);
+
+CREATE POLICY allow_insert_npcs ON global_npcs
+  FOR INSERT TO anon WITH CHECK (true);
+
+
