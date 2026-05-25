@@ -1393,7 +1393,7 @@ function pickChoices(n){
   for(let i=0; i<n && local.length; i++){
     const tot = local.reduce((s,o)=>s+o.weight, 0);
     let r = Math.random()*tot, idx = 0;
-    while(r > local[idx].weight){ r -= local[idx].weight; idx++; }
+    while(idx < local.length - 1 && r > local[idx].weight){ r -= local[idx].weight; idx++; }
     const pick = local[idx];
     if(pick.kind === 'generated'){
       choices.push({ kind:'generated', generated: generateRandomPower() });
@@ -1408,7 +1408,8 @@ function pickChoices(n){
 function rarityFor(choice){
   if(choice.kind === 'weapon-new') return 'weapon';
   if(choice.kind === 'weapon-up') return 'weapon';
-  return PASSIVE_DEFS[choice.id].rarity || 'common';
+  if(choice.kind === 'generated') return choice.generated?.rarity || 'epic';
+  return PASSIVE_DEFS[choice.id]?.rarity || 'common';
 }
 
 function renderChoices(choices){
