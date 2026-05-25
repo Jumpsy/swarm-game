@@ -231,6 +231,44 @@
     0% { top: 0%; }
     100% { top: 100%; }
   }
+  
+  /* Shop, Skill Tree, Battle Pass and Lobby Visual Styles */
+  .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; width: 100%; max-width: 800px; margin: 12px 0; box-sizing: border-box; }
+  .grid-card { background: rgba(16, 18, 22, 0.9); border: 2px solid #1f2128; border-radius: 6px; padding: 14px; text-align: center; font-family: 'JetBrains Mono', monospace; display: flex; flex-direction: column; align-items: center; justify-content: space-between; min-height: 180px; transition: all 0.12s; box-sizing: border-box; }
+  .grid-card:hover { border-color: var(--accent2); background: rgba(25, 27, 34, 0.98); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(61,163,255,.15); }
+  .grid-card h3 { font-size: 12px; color: var(--fg); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .grid-card p { font-size: 10px; color: var(--muted); margin-bottom: 12px; line-height: 1.4; flex-grow: 1; }
+  .grid-card .price { font-size: 12px; color: var(--accent); font-weight: 800; margin-bottom: 12px; }
+  
+  /* Stage Cards (Battle Cats style) */
+  .stage-card { border-left: 3px solid var(--muted); }
+  .stage-card.unlocked { border-left-color: var(--good); }
+  .stage-card.completed { border-left-color: var(--accent); }
+  .stage-card.active-stage { border-color: var(--accent2); background: rgba(20,28,60,.4); }
+  
+  /* Skill tree elements */
+  .node-level { font-size: 9px; color: var(--accent2); font-weight: 900; margin-top: 4px; text-transform: uppercase; }
+  
+  /* Battle Pass rows */
+  .bp-track { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 760px; max-height: 50vh; overflow-y: auto; background: rgba(10, 14, 31, 0.7); border: 1px solid #2c3870; border-radius: 8px; padding: 14px; box-sizing: border-box; }
+  .bp-row { display: grid; grid-template-columns: 60px 1fr 1fr 110px; gap: 12px; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 8px 0; font-size: 11px; }
+  .bp-row.unlocked { background: rgba(52, 211, 153, 0.05); }
+  .bp-row .tier { font-weight: 900; color: var(--xp); font-size: 14px; text-align: center; }
+  .bp-row .reward { display: flex; align-items: center; gap: 6px; }
+  .bp-row .reward.premium { color: var(--accent); }
+  
+  /* Lobby elements */
+  .lobby-players { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 480px; margin: 14px 0; box-sizing: border-box; }
+  .lobby-player { display: flex; justify-content: space-between; align-items: center; background: rgba(20, 28, 60, 0.6); border: 1px solid #2c3870; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+  .lobby-player .ready-badge { padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 900; letter-spacing: 1px; }
+  .lobby-player .ready-badge.yes { background: rgba(52, 211, 153, 0.2); color: var(--good); border: 1px solid var(--good); }
+  .lobby-player .ready-badge.no { background: rgba(255, 77, 109, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+  
+  /* Skin chip select in Lobby */
+  .skin-chip { background: rgba(20, 28, 60, 0.5); border: 1px solid #2c3870; padding: 6px 12px; border-radius: 4px; font-size: 10px; font-weight: 700; color: var(--muted); cursor: pointer; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+  .skin-chip:hover { border-color: var(--accent2); color: var(--fg); }
+  .skin-chip.active { background: var(--accent2); color: #000; border-color: var(--accent2); }
+  .skin-chip.locked { opacity: 0.5; cursor: not-allowed; border-color: #1f2128; background: #111; }
 </style>
 </head>
 <body>
@@ -245,6 +283,11 @@
     <button class="nav" id="nav-leaderboard"><span data-ico="trophy"></span>Leaderboard</button>
     <button class="nav" id="nav-settings"><span data-ico="gear"></span>Settings</button>
     <button class="nav" id="nav-legal"><span data-ico="doc"></span>Legal</button>
+    <button class="nav" id="nav-campaign"><span data-ico="target"></span>Campaign</button>
+    <button class="nav" id="nav-shop"><span data-ico="coin"></span>Shop</button>
+    <button class="nav" id="nav-skilltree"><span data-ico="power"></span>Skills</button>
+    <button class="nav" id="nav-battlepass"><span data-ico="book"></span>Battle Pass</button>
+    <button class="nav" id="nav-lobby"><span data-ico="user"></span>Multiplayer</button>
     <button class="nav" id="nav-changeuser">Change Name</button>
   </div>
 
@@ -431,6 +474,100 @@
       <label style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;color:var(--muted);font-size:13px">Show ad slot <input type="checkbox" id="set-ads" checked></label>
     </div>
     <button class="primary" id="settings-back">Back</button>
+  </div>
+
+  <!-- Progressive Story Campaign -->
+  <div id="campaign" class="overlay">
+    <h2 style="font-size:32px; letter-spacing:4px; font-family:'JetBrains Mono',monospace; color:var(--accent2); margin-bottom:4px;">CHAPTER 1: THE INVASION</h2>
+    <div style="font-size:10px; color:var(--muted); letter-spacing:2px; margin-bottom:20px; text-transform:uppercase;">Select Combat Theatre</div>
+    <div class="grid-container" id="campaign-stages">
+      <!-- Stages loaded dynamically -->
+    </div>
+    
+    <div id="campaign-stage-detail" style="display:none; background:rgba(10,14,31,.85); border:1px solid #2c3870; border-radius:8px; padding:16px 24px; width:100%; max-width:520px; text-align:center; margin-bottom:18px; font-family:'JetBrains Mono',monospace;">
+      <h3 id="campaign-detail-title" style="color:var(--accent); font-size:16px; margin-bottom:8px; text-transform:uppercase;"></h3>
+      <p id="campaign-detail-desc" style="font-size:11px; color:var(--muted); line-height:1.5; margin-bottom:14px;"></p>
+      <div style="display:flex; justify-content:space-around; font-size:11px; margin-bottom:16px; text-transform:uppercase;">
+        <span>🎯 Goal: <b id="campaign-detail-goal" style="color:var(--accent2);"></b></span>
+        <span>💥 Multiplier: <b id="campaign-detail-hostility" style="color:var(--danger);"></b></span>
+      </div>
+      <button class="primary" id="campaign-deploy" style="min-width:240px; margin:0;">DEPLOY ARMY (10 CR)</button>
+    </div>
+    
+    <button class="danger small" id="campaign-back">Back to menu</button>
+  </div>
+
+  <!-- Permanent Shop -->
+  <div id="shop" class="overlay">
+    <h2>CYBER MARKET</h2>
+    <div style="font-size:10px; color:var(--muted); letter-spacing:2px; margin-bottom:20px; text-transform:uppercase;">Spend coins on gear & boosters</div>
+    <div class="grid-container" id="shop-items-container">
+      <!-- Shop cards loaded dynamically -->
+    </div>
+    <button class="primary" id="shop-back" style="margin-top:14px;">Back</button>
+  </div>
+
+  <!-- Permanent Upgrade Skill Tree -->
+  <div id="skilltree" class="overlay">
+    <h2>ABILITIES RESEARCH</h2>
+    <div style="font-size:10px; color:var(--muted); letter-spacing:2px; margin-bottom:20px; text-transform:uppercase;">Invest coins in permanent tech nodes</div>
+    <div class="grid-container" id="skilltree-container">
+      <!-- Nodes loaded dynamically -->
+    </div>
+    <button class="primary" id="skilltree-back" style="margin-top:14px;">Back</button>
+  </div>
+
+  <!-- Battle Pass -->
+  <div id="battlepass" class="overlay">
+    <h2>BATTLE PASS</h2>
+    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:760px; margin-bottom:14px; font-family:'JetBrains Mono',monospace;">
+      <div style="font-size:12px; font-weight:800;">
+        BP XP: <span id="bp-xp-display" style="color:var(--xp);">0 / 500</span> (TIER <span id="bp-tier-display" style="color:var(--accent);">1</span>)
+      </div>
+      <button class="primary small" id="bp-buy-premium" style="margin:0;">BUY PREMIUM TRACK (500 CR)</button>
+    </div>
+    <div class="bp-track" id="bp-rows-container">
+      <!-- 10 Tiers loaded dynamically -->
+    </div>
+    <button class="primary" id="bp-back" style="margin-top:14px;">Back</button>
+  </div>
+
+  <!-- Multiplayer Room Lobby -->
+  <div id="lobby" class="overlay">
+    <h2>MULTIPLAYER ROOM</h2>
+    <div style="display:flex; gap:12px; margin-bottom:14px; font-family:'JetBrains Mono',monospace;">
+      <button id="lobby-btn-create" class="small primary">CREATE ROOM</button>
+      <div style="display:flex; border:1px solid #2c3870; border-radius:6px; background:rgba(20,28,60,.5); padding:2px;">
+        <input id="lobby-join-input" type="text" maxlength="6" placeholder="ROOM CODE" style="background:transparent; border:none; color:var(--fg); padding:0 8px; width:90px; outline:none; text-align:center; font-family:inherit; font-size:12px; font-weight:700;" />
+        <button id="lobby-btn-join" class="small" style="margin:0; padding:6px 12px; font-size:10px;">JOIN</button>
+      </div>
+    </div>
+    
+    <div id="lobby-active-info" style="display:none; font-family:'JetBrains Mono',monospace; font-size:11px; margin-bottom:12px; background:rgba(61,163,255,.1); border:1px solid var(--accent2); padding:6px 12px; border-radius:6px;">
+      CONNECTED ROOM: <span id="lobby-room-id" style="color:var(--accent); font-weight:900;">------</span>
+    </div>
+    
+    <div class="lobby-players" id="lobby-players-list">
+      <!-- Dynamic list -->
+    </div>
+    
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:18px; font-family:'JetBrains Mono',monospace; font-size:11px;">
+      <label style="display:flex; align-items:center; gap:6px; color:var(--muted); cursor:pointer;">
+        <input type="checkbox" id="lobby-bot-toggle" checked /> SPAWN CO-OP AI TEAMMATE (BOT)
+      </label>
+    </div>
+
+    <div style="margin-bottom:20px; text-align:center; width:100%; max-width:480px;">
+      <div style="font-size:10px; color:var(--muted); letter-spacing:1px; margin-bottom:8px; text-transform:uppercase;">Select Combat Skin</div>
+      <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;" id="lobby-skin-select">
+        <!-- Skin choices -->
+      </div>
+    </div>
+    
+    <div style="display:flex; gap:12px;">
+      <button class="primary" id="lobby-ready" style="min-width:180px;">READY UP</button>
+      <button class="danger" id="lobby-back" style="min-width:180px;">EXIT</button>
+    </div>
   </div>
 
   <div id="levelup" class="overlay">
@@ -877,6 +1014,7 @@ const ENEMY_TYPES = {
   shielded: { hp:140, speed:38,  dmg:14, r:27, color:'#6e8090', skin:'#a08060', shape:'hexagon',  xp:6, score:4, shield:true, label:'Armored' },
   spitter:  { hp:14,  speed:55,  dmg:4,  r:18, color:'#8aaa3a', skin:'#a8a060', shape:'diamond',  xp:2, score:2, ranged:true, lobShots:true, label:'Acid' },
   boss:     { hp:600, speed:40,  dmg:24, r:66, color:'#7a1c1c', skin:'#702a30', shape:'boss',     xp:80, score:50, boss:true, ranged:true, name:'OVERLORD', label:'Overlord' },
+  dynamic_npc: { hp:35, speed:85, dmg:10, r:20, color:'#a85aa5', skin:'#222222', shape:'circle', xp:3, score:2, label:'Dynamic Grunt' }
 };
 
 // ============================================================
@@ -1065,6 +1203,7 @@ function tickSpawn(dt){
     state.lastSpawn -= ivl;
     const t = state.time, r = Math.random();
     let type = 'grunt';
+    if(typeof dynamicNpcDef !== 'undefined' && dynamicNpcDef && r < 0.10) type = 'dynamic_npc';
     if(t > 12 && r < 0.30) type = 'swift';
     if(t > 30 && r < 0.12) type = 'tank';
     if(t > 45 && r < 0.08) type = 'shooter';
@@ -2039,98 +2178,96 @@ function drawZombieSprite(g, size, def, id){
 }
 
 // Soldier sprite — clear, bold human silhouette so player stands out on the war-field tile.
-const PLAYER_SPRITE = document.createElement('canvas');
-PLAYER_SPRITE.width = 80; PLAYER_SPRITE.height = 80;
-{
-  const g = PLAYER_SPRITE.getContext('2d');
-  g.imageSmoothingEnabled = false;
-  const cx = 40, cy = 40, r = 26;
-  // Soft shadow ellipse at feet
-  g.fillStyle = 'rgba(0,0,0,.55)';
-  g.beginPath(); g.ellipse(cx, cy + r*0.95, r*0.7, r*0.22, 0, 0, TAU); g.fill();
+// Soldier sprites caching - drawn once per skin into canvas libraries
+const PLAYER_SPRITES = {};
+function buildPlayerSprites(){
+  const skinsDef = {
+    soldier:  { pants:'#3a4a28', vest:'#3e5028', vestHi:'#5a6e36', pouches:'#1c2410', buckle:'#8a9560', arms:'#3e5028', visor:'#ffb13d', head:'#bf9e7e', backpack:'#2a361c' },
+    cyber:    { pants:'#122244', vest:'#00ffff', vestHi:'#ffffff', pouches:'#006688', buckle:'#00ffff', arms:'#122244', visor:'#ffb13d', head:'#122244', backpack:'#006688', neon:'#00ffff' },
+    ghost:    { pants:'#0f1224', vest:'#1b203a', vestHi:'#3da3ff', pouches:'#0d0f1a', buckle:'#3da3ff', arms:'#0f1224', visor:'#3da3ff', head:'#1a2347', backpack:'#0d0f1a' },
+    gold:     { pants:'#3a2b00', vest:'#ffe289', vestHi:'#ffffff', pouches:'#b58a00', buckle:'#ffe289', arms:'#ffe289', visor:'#ffb13d', head:'#3a2b00', backpack:'#b58a00' },
+    robotic:  { pants:'#222222', vest:'#444444', vestHi:'#ff4d6d', pouches:'#111111', buckle:'#ff4d6d', arms:'#444444', visor:'#ff4d6d', head:'#222222', backpack:'#111111' }
+  };
 
-  // Legs (combat pants — olive)
-  g.fillStyle = '#3a4a28';
-  g.fillRect(cx - r*0.4, cy + r*0.3, r*0.32, r*0.55);
-  g.fillRect(cx + r*0.08, cy + r*0.3, r*0.32, r*0.55);
-  // Knee pads
-  g.fillStyle = '#222a14';
-  g.fillRect(cx - r*0.38, cy + r*0.55, r*0.28, r*0.1);
-  g.fillRect(cx + r*0.1, cy + r*0.55, r*0.28, r*0.1);
-  // Boots
-  g.fillStyle = '#15100a';
-  g.fillRect(cx - r*0.42, cy + r*0.78, r*0.36, r*0.16);
-  g.fillRect(cx + r*0.06, cy + r*0.78, r*0.36, r*0.16);
+  for(const [id, def] of Object.entries(skinsDef)){
+    const canvas = document.createElement('canvas');
+    canvas.width = 80; canvas.height = 80;
+    const g = canvas.getContext('2d');
+    g.imageSmoothingEnabled = false;
+    const cx = 40, cy = 40, r = 26;
 
-  // Torso (tactical vest — bigger, darker olive with edge highlight)
-  g.fillStyle = '#3e5028';
-  g.fillRect(cx - r*0.58, cy - r*0.18, r*1.16, r*0.62);
-  // Vest edge highlight (left)
-  g.fillStyle = '#5a6e36';
-  g.fillRect(cx - r*0.58, cy - r*0.18, r*0.08, r*0.62);
-  // Vest pouches (4 of them, 2x2)
-  g.fillStyle = '#1c2410';
-  g.fillRect(cx - r*0.48, cy - r*0.04, r*0.32, r*0.2);
-  g.fillRect(cx + r*0.16, cy - r*0.04, r*0.32, r*0.2);
-  g.fillRect(cx - r*0.48, cy + r*0.22, r*0.32, r*0.18);
-  g.fillRect(cx + r*0.16, cy + r*0.22, r*0.32, r*0.18);
-  // Pouch buckles
-  g.fillStyle = '#8a9560';
-  g.fillRect(cx - r*0.36, cy + r*0.04, r*0.08, r*0.04);
-  g.fillRect(cx + r*0.28, cy + r*0.04, r*0.08, r*0.04);
+    // Shadow
+    g.fillStyle = 'rgba(0,0,0,.55)';
+    g.beginPath(); g.ellipse(cx, cy + r*0.95, r*0.7, r*0.22, 0, 0, TAU); g.fill();
 
-  // Arms (held close, gripping rifle)
-  g.fillStyle = '#3e5028';
-  g.fillRect(cx - r*0.74, cy - r*0.12, r*0.24, r*0.42);
-  g.fillRect(cx + r*0.5, cy - r*0.12, r*0.24, r*0.42);
-  // Forearm highlights
-  g.fillStyle = '#5a6e36';
-  g.fillRect(cx - r*0.74, cy - r*0.12, r*0.06, r*0.42);
+    // Legs
+    g.fillStyle = def.pants;
+    g.fillRect(cx - r*0.4, cy + r*0.3, r*0.32, r*0.55);
+    g.fillRect(cx + r*0.08, cy + r*0.3, r*0.32, r*0.55);
+    
+    // Knee pads
+    g.fillStyle = 'rgba(0,0,0,.25)';
+    g.fillRect(cx - r*0.38, cy + r*0.55, r*0.28, r*0.1);
+    g.fillRect(cx + r*0.1, cy + r*0.55, r*0.28, r*0.1);
+    
+    // Boots
+    g.fillRect(cx - r*0.42, cy + r*0.78, r*0.36, r*0.16);
+    g.fillRect(cx + r*0.06, cy + r*0.78, r*0.36, r*0.16);
 
-  // Hands (gloved, dark)
-  g.fillStyle = '#1c1408';
-  g.fillRect(cx - r*0.76, cy + r*0.26, r*0.24, r*0.18);
-  g.fillRect(cx + r*0.52, cy + r*0.26, r*0.24, r*0.18);
+    // Torso (vest)
+    g.fillStyle = def.vest;
+    g.fillRect(cx - r*0.58, cy - r*0.18, r*1.16, r*0.62);
+    g.fillStyle = def.vestHi;
+    g.fillRect(cx - r*0.58, cy - r*0.18, r*0.08, r*0.62);
 
-  // Neck/skin
-  g.fillStyle = '#c8a078';
-  g.fillRect(cx - r*0.18, cy - r*0.24, r*0.36, r*0.12);
+    // Pouches
+    g.fillStyle = def.pouches;
+    g.fillRect(cx - r*0.48, cy - r*0.04, r*0.32, r*0.2);
+    g.fillRect(cx + r*0.16, cy - r*0.04, r*0.32, r*0.2);
+    g.fillRect(cx - r*0.48, cy + r*0.22, r*0.32, r*0.18);
+    g.fillRect(cx + r*0.16, cy + r*0.22, r*0.32, r*0.18);
+    
+    // Buckles
+    g.fillStyle = def.buckle;
+    g.fillRect(cx - r*0.36, cy + r*0.04, r*0.08, r*0.04);
+    g.fillRect(cx + r*0.28, cy + r*0.04, r*0.08, r*0.04);
 
-  // Face / head
-  g.fillStyle = '#c8a078';
-  g.fillRect(cx - r*0.36, cy - r*0.6, r*0.72, r*0.42);
-  // Face shadow (right cheek)
-  g.fillStyle = 'rgba(0,0,0,.25)';
-  g.fillRect(cx + r*0.08, cy - r*0.6, r*0.28, r*0.42);
+    // Arms
+    g.fillStyle = def.arms;
+    g.fillRect(cx - r*0.74, cy - r*0.12, r*0.24, r*0.42);
+    g.fillRect(cx + r*0.5, cy - r*0.12, r*0.24, r*0.42);
 
-  // Combat helmet (top half)
-  g.fillStyle = '#3e5028';
-  g.fillRect(cx - r*0.44, cy - r*0.86, r*0.88, r*0.36);
-  // Helmet brim shadow line
-  g.fillStyle = '#222a14';
-  g.fillRect(cx - r*0.44, cy - r*0.52, r*0.88, r*0.08);
-  // Helmet highlight
-  g.fillStyle = '#5a6e36';
-  g.fillRect(cx - r*0.44, cy - r*0.86, r*0.88, r*0.06);
-  // Helmet strap
-  g.fillStyle = '#15100a';
-  g.fillRect(cx - r*0.42, cy - r*0.52, r*0.04, r*0.18);
+    // Hands
+    g.fillStyle = def.head;
+    g.fillRect(cx - r*0.74, cy + r*0.28, r*0.22, r*0.12);
+    g.fillRect(cx + r*0.52, cy + r*0.28, r*0.22, r*0.12);
 
-  // Dark visor / eyes
-  g.fillStyle = '#0a0a0c';
-  g.fillRect(cx - r*0.26, cy - r*0.35, r*0.16, r*0.08);
-  g.fillRect(cx + r*0.1, cy - r*0.35, r*0.16, r*0.08);
+    // Helmet
+    g.fillStyle = def.vest;
+    g.beginPath(); g.arc(cx, cy - r*0.4, r*0.44, 0, TAU); g.fill();
 
-  // Insignia on vest (orange chevron)
-  g.fillStyle = '#c25a2a';
-  g.fillRect(cx - r*0.06, cy - r*0.02, r*0.12, r*0.04);
-  g.fillRect(cx - r*0.04, cy + r*0.02, r*0.08, r*0.04);
+    // Visor
+    g.fillStyle = def.visor;
+    g.fillRect(cx - r*0.26, cy - r*0.52, r*0.52, r*0.18);
+    
+    // Glowing neon highlight
+    if(def.neon){
+      g.shadowColor = def.neon;
+      g.shadowBlur = 10;
+      g.fillStyle = def.neon;
+      g.fillRect(cx - r*0.26, cy - r*0.52, r*0.52, r*0.04);
+      g.shadowBlur = 0;
+    }
 
-  // Black outline pass — read against busy background
-  g.strokeStyle = '#000'; g.lineWidth = 1.5;
-  g.strokeRect(cx - r*0.58, cy - r*0.18, r*1.16, r*0.62); // vest outline
-  g.strokeRect(cx - r*0.44, cy - r*0.86, r*0.88, r*0.36); // helmet outline
+    // Outline
+    g.strokeStyle = '#000'; g.lineWidth = 1.5;
+    g.strokeRect(cx - r*0.58, cy - r*0.18, r*1.16, r*0.62);
+    g.beginPath(); g.arc(cx, cy - r*0.4, r*0.44, 0, TAU); g.stroke();
+    
+    PLAYER_SPRITES[id] = canvas;
+  }
 }
+buildPlayerSprites();
 buildZombieSprites();
 
 function drawEnemy(e){
@@ -2319,7 +2456,9 @@ function render(){
     if(state.iframes > 0){
       ctx.globalAlpha = 0.5 + Math.sin(state.time*30)*0.5;
     }
-    ctx.drawImage(PLAYER_SPRITE, state.pos.x - 40, state.pos.y - 40);
+    const activeSkin = state.activeSkin || profile.activeSkin || 'soldier';
+    const activeSprite = PLAYER_SPRITES[activeSkin] || PLAYER_SPRITES.soldier;
+    ctx.drawImage(activeSprite, state.pos.x - 40, state.pos.y - 40);
     // Rifle — offset to the right side of the soldier, not over their face.
     if(state.aimDir !== undefined){
       ctx.save();
@@ -2354,8 +2493,36 @@ function render(){
       ctx.strokeRect(baseX, baseY - 2, 8, 5);
       ctx.strokeRect(baseX + 8, baseY - 3, 18, 6);
       ctx.restore();
-    }
     ctx.globalAlpha = 1;
+
+    // Render smart AI Co-Op Bots
+    drawBots();
+
+    // Render online multiplayer peers
+    if(lobbyState.active && lobbyState.peers && lobbyState.peers.length){
+      lobbyState.peers.forEach(p => {
+        if(p.x !== undefined && p.y !== undefined){
+          const pSprite = PLAYER_SPRITES[p.skin] || PLAYER_SPRITES.soldier;
+          ctx.drawImage(pSprite, p.x - 40, p.y - 40);
+          
+          // Draw floating name tags
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '10px monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(p.name || 'Soldier', p.x, p.y - 44);
+          
+          // Simple peer weapon rendering
+          if(p.aimDir !== undefined){
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.aimDir);
+            ctx.fillStyle = p.firing ? '#ffea00' : '#1a1c20';
+            ctx.fillRect(14, 4, 16, 5);
+            ctx.restore();
+          }
+        }
+      });
+    }
 
     // Particles
     for(const p of state.particles){
@@ -2540,6 +2707,720 @@ document.getElementById('settings-back').onclick = ()=>{ hideAllOverlays(); docu
 document.getElementById('set-shake').checked = settings.shake !== false;
 document.getElementById('set-ads').checked = settings.ads !== false;
 
+// ============================================================
+// SYSTEM EXPANSION — Skins, Shop, Skill Tree, Campaign, Co-Op Sync
+// ============================================================
+
+// --- Profile Expansions ---
+profile.totalXp = profile.totalXp || 0;
+profile.battlePassXp = profile.battlePassXp || 0;
+profile.battlePassPremium = profile.battlePassPremium || false;
+profile.ownedSkins = profile.ownedSkins || ['soldier'];
+profile.activeSkin = profile.activeSkin || 'soldier';
+profile.skillTree = profile.skillTree || { hp: 0, speed: 0, firing: 0, magnet: 0 };
+profile.completedStages = profile.completedStages || [];
+
+const SKINS = {
+  soldier: { name: 'Standard Issue', desc: 'Standard army gear.' },
+  cyber:   { name: 'Neon Cyberpunk', desc: 'Glowing plates & golden visors.' },
+  ghost:   { name: 'Stealth Phantom', desc: 'Cloaked elite operator suit.' },
+  gold:    { name: 'Aurum Emperor', desc: 'Heavy golden-forged plates.' },
+  robotic: { name: 'Mech Infantry', desc: 'Chrome piston powered armor.' }
+};
+
+const SKILL_NODES = {
+  hp:     { name: 'Heavy Plating', desc: '+15 Max HP per node', cost: 100, max: 5 },
+  speed:  { name: 'Overclock Core', desc: '+5% Move Speed per node', cost: 150, max: 5 },
+  firing: { name: 'Trigger Mod', desc: '+5% Firing Speed per node', cost: 200, max: 5 },
+  magnet: { name: 'Magnet Grip', desc: '+25% Collect Range per node', cost: 100, max: 4 }
+};
+
+const SHOP_ITEMS = [
+  { id: 'lootbox', name: 'Mystery Lootbox', desc: 'Unlocks a random skin (15%) or 150-400 coins.', cost: 100 },
+  { id: 'skin_gold', name: 'Aurum Emperor Skin', desc: 'Directly buy the solid gilded heavy armor skin.', cost: 500 },
+  { id: 'skin_robotic', name: 'Mech Infantry Skin', desc: 'Directly buy the heavy chrome steel mechanical skin.', cost: 600 },
+  { id: 'premium_bp', name: 'Premium Battle Pass', desc: 'Unlocks premium tracks for cosmetics.', cost: 500 }
+];
+
+const CAMPAIGN_STAGES = [
+  { id: '1-1', name: 'Sector 4 Outpost', desc: 'Outpost perimeter. Clear the first wave threat.', timeGoal: 60, bossName: 'TITAN GRUNT', mult: 1.0, reward: { coins: 150 } },
+  { id: '1-2', name: 'Cyber Grid Ruins', desc: 'Hostile grid. Swifter runner units detected.', timeGoal: 90, bossName: 'APEX SWIFT', mult: 1.3, reward: { coins: 300, skin: 'cyber' } },
+  { id: '1-3', name: 'The Hive Core', desc: 'Swarm factory heart. Survive the heaviest core pressure.', timeGoal: 120, bossName: 'MECH-BEAST X', mult: 1.7, reward: { coins: 500, skin: 'ghost' } }
+];
+
+let selectedStageId = '1-1';
+let lobbyState = { active: false, roomId: null, playerId: null, peers: [], isReady: false, syncInterval: null, useBot: true };
+
+// --- 1. Campaign & Stage select UI ---
+function renderCampaignStages(){
+  const container = document.getElementById('campaign-stages');
+  container.innerHTML = '';
+  CAMPAIGN_STAGES.forEach((stage, idx) => {
+    const card = document.createElement('div');
+    const isUnlocked = idx === 0 || profile.completedStages.includes(CAMPAIGN_STAGES[idx-1].id);
+    const isCompleted = profile.completedStages.includes(stage.id);
+    
+    card.className = `grid-card stage-card ${isUnlocked ? 'unlocked' : ''} ${isCompleted ? 'completed' : ''} ${selectedStageId === stage.id ? 'active-stage' : ''}`;
+    
+    let statusText = '🔒 LOCKED';
+    if(isCompleted) statusText = '✅ COMPLETED';
+    else if(isUnlocked) statusText = '🔓 UNLOCKED';
+    
+    card.innerHTML = `
+      <h3>${stage.name}</h3>
+      <p>${stage.desc}</p>
+      <div style="font-size:9px; font-weight:900; color:var(--accent2); margin-top:8px;">${statusText}</div>
+    `;
+    
+    if(isUnlocked){
+      card.onclick = () => {
+        selectedStageId = stage.id;
+        renderCampaignStages();
+        showStageDetail(stage);
+      };
+    }
+  });
+  
+  const current = CAMPAIGN_STAGES.find(s => s.id === selectedStageId);
+  if(current) showStageDetail(current);
+}
+
+function showStageDetail(stage){
+  const detail = document.getElementById('campaign-stage-detail');
+  detail.style.display = 'block';
+  document.getElementById('campaign-detail-title').textContent = stage.name;
+  document.getElementById('campaign-detail-desc').textContent = stage.desc;
+  document.getElementById('campaign-detail-goal').textContent = `BEAT ${stage.bossName} AT ${stage.timeGoal}S`;
+  document.getElementById('campaign-detail-hostility').textContent = `×${stage.mult.toFixed(1)} HP/DMG`;
+  
+  const deployBtn = document.getElementById('campaign-deploy');
+  const cost = 10;
+  deployBtn.textContent = `DEPLOY ARMY (${cost} CR)`;
+  deployBtn.disabled = profile.coins < cost;
+  deployBtn.onclick = () => {
+    profile.coins -= cost;
+    saveProfile({ coins: profile.coins });
+    refreshTopnav();
+    state.activeStage = stage;
+    startRun();
+  };
+}
+
+// --- 2. Cosmetic Shop UI ---
+function renderShop(){
+  const container = document.getElementById('shop-items-container');
+  container.innerHTML = '';
+  SHOP_ITEMS.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'grid-card';
+    
+    let buyText = `🛒 BUY (${item.cost} 🪙)`;
+    let disabled = profile.coins < item.cost;
+    
+    if(item.id.startsWith('skin_')){
+      const skinId = item.id.replace('skin_', '');
+      if(profile.ownedSkins.includes(skinId)){
+        buyText = '✅ OWNED';
+        disabled = true;
+      }
+    } else if(item.id === 'premium_bp' && profile.battlePassPremium){
+      buyText = '✅ PASS OWNED';
+      disabled = true;
+    }
+    
+    card.innerHTML = `
+      <h3>${item.name}</h3>
+      <p>${item.desc}</p>
+      <div class="price">${item.cost} CR</div>
+      <button class="primary small" id="buy-${item.id}" ${disabled ? 'disabled' : ''} style="margin:0; min-width:120px;">${buyText}</button>
+    `;
+    
+    container.appendChild(card);
+    
+    const btn = document.getElementById(`buy-${item.id}`);
+    if(btn && !disabled){
+      btn.onclick = () => buyShopItem(item);
+    }
+  });
+}
+
+function buyShopItem(item){
+  if(profile.coins < item.cost) return;
+  profile.coins -= item.cost;
+  
+  if(item.id === 'lootbox'){
+    const r = Math.random();
+    if(r < 0.15){
+      // Unlock solid Gold Emperor skin
+      if(!profile.ownedSkins.includes('gold')){
+        profile.ownedSkins.push('gold');
+        pickup('🎁 UNLOCKED AURUM EMPEROR!');
+      } else {
+        profile.coins += 250;
+        pickup('🎁 LOOTBOX: DUP SKIN → +250 COINS');
+      }
+    } else {
+      const added = irnd(150, 400);
+      profile.coins += added;
+      pickup(`🎁 LOOTBOX AWARDED +${added} COINS!`);
+    }
+  } else if(item.id.startsWith('skin_')){
+    const skinId = item.id.replace('skin_', '');
+    if(!profile.ownedSkins.includes(skinId)) profile.ownedSkins.push(skinId);
+    pickup(`🎁 UNLOCKED ${SKINS[skinId].name}!`);
+  } else if(item.id === 'premium_bp'){
+    profile.battlePassPremium = true;
+    pickup('💎 PREMIUM BATTLE PASS ACTIVATED!');
+  }
+  
+  saveProfile({ coins: profile.coins, ownedSkins: profile.ownedSkins, battlePassPremium: profile.battlePassPremium });
+  refreshTopnav();
+  renderShop();
+  renderBattlePass();
+}
+
+// --- 3. Skill Tree UI ---
+function renderSkillTree(){
+  const container = document.getElementById('skilltree-container');
+  container.innerHTML = '';
+  Object.entries(SKILL_NODES).forEach(([key, node]) => {
+    const card = document.createElement('div');
+    card.className = 'grid-card';
+    
+    const currentLvl = profile.skillTree[key] || 0;
+    const isMax = currentLvl >= node.max;
+    const nextCost = node.cost * (currentLvl + 1);
+    
+    let btnText = isMax ? 'MAXED' : `🔋 UPGRADE (${nextCost} 🪙)`;
+    let disabled = isMax || profile.coins < nextCost;
+    
+    card.innerHTML = `
+      <h3>${node.name}</h3>
+      <p>${node.desc}</p>
+      <div class="node-level">Level ${currentLvl} / ${node.max}</div>
+      <button class="primary small" id="upgrade-${key}" ${disabled ? 'disabled' : ''} style="margin-top:12px; min-width:120px;">${btnText}</button>
+    `;
+    
+    container.appendChild(card);
+    
+    const btn = document.getElementById(`upgrade-${key}`);
+    if(btn && !disabled){
+      btn.onclick = () => upgradeSkillNode(key, nextCost);
+    }
+  });
+}
+
+function upgradeSkillNode(key, cost){
+  if(profile.coins < cost) return;
+  profile.coins -= cost;
+  profile.skillTree[key] = (profile.skillTree[key] || 0) + 1;
+  
+  saveProfile({ coins: profile.coins, skillTree: profile.skillTree });
+  refreshTopnav();
+  renderSkillTree();
+  pickup('🔋 Permanent ability researched!');
+}
+
+// --- 4. Battle Pass progress ---
+function addBPXP(amount){
+  profile.battlePassXp = (profile.battlePassXp || 0) + amount;
+  saveProfile({ battlePassXp: profile.battlePassXp });
+}
+
+function getBPTier(){
+  // 1 Tier per 500 XP
+  return Math.min(10, Math.floor(profile.battlePassXp / 500) + 1);
+}
+
+function renderBattlePass(){
+  const bpXp = profile.battlePassXp || 0;
+  const currentTier = getBPTier();
+  document.getElementById('bp-xp-display').textContent = `${bpXp} / 5000 XP`;
+  document.getElementById('bp-tier-display').textContent = currentTier;
+  
+  const buyPassBtn = document.getElementById('bp-buy-premium');
+  if(profile.battlePassPremium){
+    buyPassBtn.textContent = '💎 PREMIUM ACTIVE';
+    buyPassBtn.disabled = true;
+  } else {
+    buyPassBtn.disabled = profile.coins < 500;
+  }
+  
+  const container = document.getElementById('bp-rows-container');
+  container.innerHTML = '';
+  
+  for(let tier = 1; tier <= 10; tier++){
+    const row = document.createElement('div');
+    const isUnlocked = currentTier >= tier;
+    row.className = `bp-row ${isUnlocked ? 'unlocked' : ''}`;
+    
+    // Rewards table
+    let freeRewardDesc = '50 COINS 🪙';
+    let premRewardDesc = '100 COINS 🪙';
+    if(tier === 5) {
+      freeRewardDesc = '🤖 MECH INFANTRY SKIN (FREE!)';
+      premRewardDesc = 'Double XP boost';
+    } else if(tier === 10) {
+      freeRewardDesc = '250 Coins';
+      premRewardDesc = '💎 SPECIAL BLASTER CARD';
+    }
+    
+    row.innerHTML = `
+      <div class="tier">T${tier}</div>
+      <div class="reward">🎁 Free: ${freeRewardDesc}</div>
+      <div class="reward premium">💎 Premium: ${premRewardDesc}</div>
+      <div style="text-align:right;">
+        <span style="font-weight:bold; color:${isUnlocked?'var(--good)':'var(--muted)'}">${isUnlocked ? 'UNLOCKED' : 'LOCKED'}</span>
+      </div>
+    `;
+    
+    // Automatically credit unlocked rewards once per profile session
+    if(isUnlocked){
+      const claimedKey = `claimed_bp_t${tier}`;
+      if(!localStorage.getItem(claimedKey)){
+        localStorage.setItem(claimedKey, '1');
+        // Credit standard tier items
+        if(tier === 5) {
+          if(!profile.ownedSkins.includes('robotic')) profile.ownedSkins.push('robotic');
+        } else {
+          profile.coins += 50;
+        }
+        if(profile.battlePassPremium){
+          profile.coins += 100;
+        }
+        saveProfile({ coins: profile.coins, ownedSkins: profile.ownedSkins });
+      }
+    }
+    
+    container.appendChild(row);
+  }
+}
+
+// --- 5. Multiplayer Room Lobby & Networking ---
+async function createLobby(){
+  try{
+    const res = await fetch('/api/lobby', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'create' }),
+    });
+    if(!res.ok) throw new Error('Create room failed');
+    const data = await res.json();
+    joinLobby(data.roomId);
+  }catch(e){
+    console.warn(e);
+    // Fake local room code if Vercel server offline
+    joinLobby(String(Math.floor(100000 + Math.random() * 900000)));
+  }
+}
+
+async function joinLobby(roomIdCode){
+  if(!roomIdCode) return;
+  const cleanRoom = String(roomIdCode).trim();
+  lobbyState.active = true;
+  lobbyState.roomId = cleanRoom;
+  lobbyState.playerId = lobbyState.playerId || 'p_' + Math.random().toString(36).substring(2, 9);
+  
+  document.getElementById('lobby-room-id').textContent = cleanRoom;
+  document.getElementById('lobby-active-info').style.display = 'block';
+  
+  try{
+    const res = await fetch('/api/lobby', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'join',
+        roomId: cleanRoom,
+        playerId: lobbyState.playerId,
+        name: profile.user,
+        skin: profile.activeSkin
+      }),
+    });
+    if(res.ok){
+      const data = await res.json();
+      lobbyState.playerId = data.playerId;
+      updateLobbyUI(data.players || []);
+    }
+  }catch(e){
+    console.warn('Lobby join error, using local fallback:', e.message);
+    // Local Co-Op Match simulation (smart Bots)
+    updateLobbyUI([{ id: lobbyState.playerId, name: profile.user, skin: profile.activeSkin, ready: lobbyState.isReady }]);
+  }
+  
+  // Start active room synchronization loop (every 250ms)
+  if(lobbyState.syncInterval) clearInterval(lobbyState.syncInterval);
+  lobbyState.syncInterval = setInterval(syncLobby, 250);
+  
+  renderLobbySkins();
+}
+
+async function syncLobby(){
+  if(!lobbyState.active || !lobbyState.roomId) return;
+  
+  // If we are currently in an active game session, sync positional coordinates!
+  const playerPayload = state.mode === 'playing' ? {
+    x: state.pos.x, y: state.pos.y,
+    hp: state.hp, maxHp: state.passives.maxHp,
+    aimDir: state.aimDir, skin: profile.activeSkin,
+    firing: state.gunFlash > 0
+  } : {
+    ready: lobbyState.isReady,
+    skin: profile.activeSkin,
+    name: profile.user
+  };
+  
+  try{
+    const res = await fetch('/api/lobby', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'sync',
+        roomId: lobbyState.roomId,
+        playerId: lobbyState.playerId,
+        playerState: playerPayload
+      }),
+    });
+    if(res.ok){
+      const data = await res.json();
+      const peers = data.players || [];
+      lobbyState.peers = peers;
+      
+      if(state.mode !== 'playing'){
+        updateLobbyUI([
+          { id: lobbyState.playerId, name: profile.user, skin: profile.activeSkin, ready: lobbyState.isReady },
+          ...peers
+        ]);
+        
+        // Matchmaking verification check: if everyone is ready, deploy!
+        const allReady = [lobbyState.isReady, ...peers.map(p => p.ready)].every(r => r === true);
+        if(allReady && lobbyState.isReady && peers.length > 0){
+          clearInterval(lobbyState.syncInterval);
+          lobbyState.syncInterval = setInterval(syncLobby, 150); // Faster position sync during combat loop
+          startRun();
+        }
+      }
+    }
+  }catch(e){
+    // Simulate BOT ready state if offline
+    if(state.mode !== 'playing'){
+      const simulateList = [{ id: lobbyState.playerId, name: profile.user, skin: profile.activeSkin, ready: lobbyState.isReady }];
+      if(lobbyState.useBot){
+        simulateList.push({ id: 'bot_partner', name: 'CO-OP BLASTER [AI]', skin: 'robotic', ready: true });
+      }
+      updateLobbyUI(simulateList);
+      
+      const allReady = lobbyState.isReady && (!lobbyState.useBot || true);
+      if(allReady && lobbyState.isReady){
+        startRun();
+      }
+    }
+  }
+}
+
+function updateLobbyUI(players){
+  const list = document.getElementById('lobby-players-list');
+  list.innerHTML = '';
+  
+  players.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'lobby-player';
+    
+    const skinName = SKINS[p.skin]?.name || 'Standard';
+    const isYou = p.id === lobbyState.playerId;
+    const readyStateText = p.ready ? 'READY' : 'WAITING';
+    
+    row.innerHTML = `
+      <span>👤 ${p.name || 'Soldier'} <span style="font-size:9px; color:var(--muted)">[${skinName}${isYou ? ' - YOU' : ''}]</span></span>
+      <span class="ready-badge ${p.ready ? 'yes' : 'no'}">${readyStateText}</span>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function renderLobbySkins(){
+  const container = document.getElementById('lobby-skin-select');
+  container.innerHTML = '';
+  Object.entries(SKINS).forEach(([id, skin]) => {
+    const chip = document.createElement('div');
+    const isOwned = profile.ownedSkins.includes(id);
+    const isActive = profile.activeSkin === id;
+    
+    chip.className = `skin-chip ${isActive ? 'active' : ''} ${!isOwned ? 'locked' : ''}`;
+    chip.textContent = skin.name;
+    
+    if(isOwned){
+      chip.onclick = () => {
+        profile.activeSkin = id;
+        saveProfile({ activeSkin: id });
+        renderLobbySkins();
+        syncLobby();
+      };
+    }
+    container.appendChild(chip);
+  });
+}
+
+function toggleReady(){
+  lobbyState.isReady = !lobbyState.isReady;
+  const btn = document.getElementById('lobby-ready');
+  btn.textContent = lobbyState.isReady ? 'UNREADY' : 'READY UP';
+  btn.className = lobbyState.isReady ? 'primary small' : 'primary';
+  syncLobby();
+}
+
+function exitLobby(){
+  lobbyState.active = false;
+  if(lobbyState.syncInterval) { clearInterval(lobbyState.syncInterval); lobbyState.syncInterval = null; }
+  hideAllOverlays();
+  document.getElementById('menu').classList.add('visible');
+}
+
+// --- 6. Smart CO-OP AI Bots Routine ---
+function initCoOpBot(){
+  state.bots = [];
+  if(lobbyState.useBot){
+    state.bots.push({
+      x: state.pos.x - 40, y: state.pos.y - 40,
+      targetX: state.pos.x, targetY: state.pos.y,
+      hp: 120, maxHp: 120,
+      skin: 'robotic',
+      aimDir: 0, gunRecoil: 0,
+      shootCd: 0,
+      active: true
+    });
+  }
+}
+
+function updateBots(dt){
+  if(!state.bots || !state.bots.length) return;
+  state.bots.forEach(bot => {
+    if(bot.hp <= 0) return;
+    
+    // Smoothly follow player slightly behind
+    const targetDist = 70;
+    const dx = state.pos.x - bot.x;
+    const dy = state.pos.y - bot.y;
+    const d = Math.hypot(dx, dy);
+    
+    if(d > targetDist){
+      const speed = 160 * state.passives.moveSpeed;
+      bot.x += (dx / d) * speed * dt;
+      bot.y += (dy / d) * speed * dt;
+    }
+    
+    // Shoot nearest enemy
+    bot.shootCd -= dt;
+    const t = nearestEnemy(bot, 380);
+    if(t){
+      bot.aimDir = Math.atan2(t.y - bot.y, t.x - bot.x);
+      if(bot.shootCd <= 0){
+        bot.shootCd = 0.45; // Auto blast rate
+        bot.gunRecoil = 4;
+        sfx.shoot();
+        
+        // Spawn a companion helper bullet
+        state.bullets.push({
+          x: bot.x + Math.cos(bot.aimDir)*12,
+          y: bot.y + Math.sin(bot.aimDir)*12,
+          vx: Math.cos(bot.aimDir) * 480,
+          vy: Math.sin(bot.aimDir) * 480,
+          dmg: 12 * state.passives.dmgMult,
+          size: 4,
+          life: 0.9,
+          color: '#ffb13d',
+          fromPlayer: true
+        });
+      }
+    }
+    if(bot.gunRecoil > 0) bot.gunRecoil -= dt*20;
+  });
+}
+
+function drawBots(){
+  if(!state.bots || !state.bots.length) return;
+  state.bots.forEach(bot => {
+    if(bot.hp <= 0) return;
+    
+    const sprite = PLAYER_SPRITES[bot.skin] || PLAYER_SPRITES.soldier;
+    ctx.drawImage(sprite, bot.x - 40, bot.y - 40);
+    
+    // Render bot rifle pointing
+    if(bot.aimDir !== undefined){
+      ctx.save();
+      ctx.translate(bot.x, bot.y);
+      ctx.rotate(bot.aimDir);
+      const kick = bot.gunRecoil || 0;
+      const baseX = 14 - kick;
+      const baseY = 6;
+      ctx.fillStyle = '#ff4d6d'; // mechanical red accents
+      ctx.fillRect(baseX, baseY - 2, 8, 4);
+      ctx.fillStyle = '#1a1c20';
+      ctx.fillRect(baseX + 8, baseY - 3, 16, 5);
+      ctx.restore();
+    }
+  });
+}
+
+// Bind UI nav events
+document.getElementById('nav-campaign').onclick = () => { renderCampaignStages(); hideAllOverlays(); document.getElementById('campaign').classList.add('visible'); };
+document.getElementById('campaign-back').onclick = () => { hideAllOverlays(); document.getElementById('menu').classList.add('visible'); };
+
+document.getElementById('nav-shop').onclick = () => { renderShop(); hideAllOverlays(); document.getElementById('shop').classList.add('visible'); };
+document.getElementById('shop-back').onclick = () => { hideAllOverlays(); document.getElementById('menu').classList.add('visible'); };
+
+document.getElementById('nav-skilltree').onclick = () => { renderSkillTree(); hideAllOverlays(); document.getElementById('skilltree').classList.add('visible'); };
+document.getElementById('skilltree-back').onclick = () => { hideAllOverlays(); document.getElementById('menu').classList.add('visible'); };
+
+document.getElementById('nav-battlepass').onclick = () => { renderBattlePass(); hideAllOverlays(); document.getElementById('battlepass').classList.add('visible'); };
+document.getElementById('bp-back').onclick = () => { hideAllOverlays(); document.getElementById('menu').classList.add('visible'); };
+document.getElementById('bp-buy-premium').onclick = () => {
+  if(profile.coins >= 500 && !profile.battlePassPremium){
+    profile.coins -= 500;
+    profile.battlePassPremium = true;
+    saveProfile({ coins: profile.coins, battlePassPremium: true });
+    pickup('💎 PREMIUM BATTLE PASS ACTIVATED!');
+    refreshTopnav();
+    renderBattlePass();
+  }
+};
+
+document.getElementById('nav-lobby').onclick = () => { renderLobbySkins(); hideAllOverlays(); document.getElementById('lobby').classList.add('visible'); };
+document.getElementById('lobby-btn-create').onclick = () => createLobby();
+document.getElementById('lobby-btn-join').onclick = () => {
+  const code = document.getElementById('lobby-join-input').value.trim();
+  if(code.length === 6) joinLobby(code);
+};
+document.getElementById('lobby-ready').onclick = () => toggleReady();
+document.getElementById('lobby-back').onclick = () => exitLobby();
+document.getElementById('lobby-bot-toggle').onchange = e => { lobbyState.useBot = e.target.checked; };
+
+// --- 7. Injection of Skill upgrades inside initState() ---
+const originalInitState = initState;
+initState = function() {
+  originalInitState();
+  
+  // Apply permanent Skill Tree upgrades to baseline stats
+  const tree = profile.skillTree || {};
+  state.passives.maxHp += (tree.hp || 0) * 15;
+  state.hp = state.passives.maxHp;
+  state.passives.moveSpeed *= Math.pow(1.05, tree.speed || 0);
+  state.passives.fireRate *= Math.pow(1.05, tree.firing || 0);
+  state.passives.magnet += (tree.magnet || 0) * 35;
+  
+  // Custom Co-Op Bots initializing
+  initCoOpBot();
+  
+  // If playing campaign stage, configure custom objectives
+  if(state.activeStage){
+    state.time = 0;
+    // Set custom boss and survival goals
+  }
+};
+
+// --- Hook Victory & Boss trigger inside main update loop ---
+const originalUpdate = update;
+update = function(dt) {
+  originalUpdate(dt);
+  
+  // Update AI Bots
+  updateBots(dt);
+  
+  // Check Story Mode stage objectives
+  if(state.activeStage && state.mode === 'playing'){
+    // Deploy boss once goal timer completes
+    if(state.time >= state.activeStage.timeGoal && !state.bossActive && !state.stageBossSpawned){
+      state.stageBossSpawned = true;
+      spawnBoss(state.activeStage.bossName);
+    }
+    
+    // Defeating the Stage Boss awards Chapter VICTORY!
+    if(state.stageBossSpawned && !state.bossActive && state.time > state.activeStage.timeGoal + 2){
+      state.mode = 'gameover'; state.paused = true;
+      
+      // Award stage rewards!
+      if(!profile.completedStages.includes(state.activeStage.id)){
+        profile.completedStages.push(state.activeStage.id);
+        const reward = state.activeStage.reward;
+        profile.coins += reward.coins || 0;
+        if(reward.skin && !profile.ownedSkins.includes(reward.skin)){
+          profile.ownedSkins.push(reward.skin);
+        }
+        saveProfile({ coins: profile.coins, completedStages: profile.completedStages, ownedSkins: profile.ownedSkins });
+      }
+      
+      // Render Victory overlay screen
+      document.getElementById('go-time').textContent = 'VICTORY!';
+      document.getElementById('go-kills').textContent = state.kills;
+      document.getElementById('go-level').textContent = state.level;
+      document.getElementById('go-wave').textContent = 'STAGE CLEAR';
+      document.getElementById('go-coins').textContent = `+${state.activeStage.reward.coins} CR (STAGE BONUS!)`;
+      
+      refreshTopnav();
+      hideAllOverlays();
+      document.getElementById('gameover').classList.add('visible');
+      state.activeStage = null;
+      state.stageBossSpawned = false;
+    }
+  }
+  
+  // Check Battle Pass XP awards during play
+  if(state.mode === 'playing' && Math.random() < 0.005){
+    addBPXP(1); // 1 BP XP for combat loops
+  }
+};
+
+// --- Render bots during normal drawing loops ---
+const originalDraw = tick; // Wait, tick contains drawing? Yes, let's inject into draw loops
+// Let's hook the drawings inside the canvas loops!
+// In draw loop in index.html, bots are rendered. Let's find exactly where we can render them.
+// We added the helper function drawBots(), which will be called inside index.html's loop directly.
+// Let's hook drawBots right under drawEnemy or inside the playing block.
+
+let dynamicNpcDef = null;
+async function loadGlobalNpc(){
+  try{
+    const res = await fetch('/api/npc');
+    if(!res.ok) return;
+    const data = await res.json();
+    dynamicNpcDef = data;
+    ENEMY_TYPES.dynamic_npc = {
+      hp: data.hp || 35,
+      speed: data.speed || 85,
+      dmg: 10,
+      r: 20,
+      color: data.color || '#a85aa5',
+      skin: data.skin || '#222222',
+      shape: 'circle',
+      xp: data.xp || 3,
+      score: 2,
+      label: data.name || 'AI Mutant'
+    };
+    buildZombieSprites();
+    console.log('[NPC] Successfully loaded global dynamic AI NPC:', data.name);
+  }catch(e){
+    console.warn('Could not load global AI NPC:', e.message);
+  }
+}
+
+// Auto-Pause when switching tabs, window blur, or mouse leaves the screen
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && state.mode === 'playing' && !state.paused) {
+    pauseGame();
+  }
+});
+window.addEventListener('blur', () => {
+  if (state.mode === 'playing' && !state.paused) {
+    pauseGame();
+  }
+});
+document.addEventListener('mouseleave', () => {
+  if (state.mode === 'playing' && !state.paused) {
+    pauseGame();
+  }
+});
+
+// Start Up Sequence
+loadGlobalNpc();
 initState();
 refreshTopnav();
 refreshMenuStats();
