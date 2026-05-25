@@ -1095,6 +1095,7 @@ function nearestEnemy(pos, maxDist=Infinity){
   return best;
 }
 function damageEnemy(e, dmg, isCrit, fromBullet){
+  if(e.dead) return;
   e.hp -= dmg; e.hitFlash = 0.12; state.damageDealt += dmg;
   floatNumber(e.x, e.y - e.def.r, Math.ceil(dmg), isCrit?'crit':'');
   // Blood splatter
@@ -1120,6 +1121,8 @@ function chainTo(from, ignore, dmg, hops){
   if(hops > 0 && best.hp > 0) chainTo(best, ignore, dmg*0.85, hops-1);
 }
 function killEnemy(e, fromBullet){
+  if(e.dead) return;
+  e.dead = true;
   sfx.kill();
   state.kills += 1; state.combo += 1; state.comboTimer = 3;
   if(state.combo > state.maxCombo) state.maxCombo = state.combo;
@@ -1565,8 +1568,8 @@ function renderChoices(choices){
     document.getElementById('wish-decline').onclick = () => {
       confirmOverlay.classList.remove('visible');
       document.getElementById('levelup').classList.add('visible');
-      state.paused = false;
-      state.mode = 'playing';
+      state.paused = true;
+      state.mode = 'levelup';
       wishBar.remove();
     };
   };
