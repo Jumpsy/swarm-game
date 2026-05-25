@@ -233,7 +233,7 @@
   }
   
   /* Shop, Skill Tree, Battle Pass and Lobby Visual Styles */
-  .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; width: 100%; max-width: 800px; margin: 12px 0; box-sizing: border-box; }
+  .grid-container { display: flex; flex-wrap: wrap; gap: 12px; width: 100%; max-width: 800px; margin: 12px 0; box-sizing: border-box; justify-content: center; position: relative; }
   .grid-card { background: rgba(16, 18, 22, 0.9); border: 2px solid #1f2128; border-radius: 6px; padding: 14px; text-align: center; font-family: 'JetBrains Mono', monospace; display: flex; flex-direction: column; align-items: center; justify-content: space-between; min-height: 180px; transition: all 0.12s; box-sizing: border-box; }
   .grid-card:hover { border-color: var(--accent2); background: rgba(25, 27, 34, 0.98); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(61,163,255,.15); }
   .grid-card h3 { font-size: 12px; color: var(--fg); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
@@ -808,7 +808,6 @@ addEventListener('keydown', e=>{
   keys.add(e.code);
   if(e.code==='Escape'){ if(state.mode==='playing')pauseGame(); else if(state.mode==='paused')resumeGame(); }
   if(e.code==='Space'){
-    if(state.mode==='menu') return startRun();
     if(state.mode==='gameover') return startRun();
     if(state.mode==='playing') doDash();
   }
@@ -2679,7 +2678,7 @@ async function gameOver(){
   hideAllOverlays();
   document.getElementById('gameover').classList.add('visible');
 }
-function hideAllOverlays(){['username','menu','leaderboard','settings','levelup','pause','gameover','howto','legal','ad-player','wish-confirm'].forEach(id => document.getElementById(id).classList.remove('visible'))}
+function hideAllOverlays(){['username','menu','leaderboard','settings','levelup','pause','gameover','howto','legal','ad-player','wish-confirm','campaign','shop','skilltree','battlepass','lobby'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.remove('visible'); })}
 function promptUsername(){ hideAllOverlays(); document.getElementById('username').classList.add('visible'); document.getElementById('username-input').value = profile.user || ''; setTimeout(()=> document.getElementById('username-input').focus(), 50); }
 
 // ----------------- Wire UI -----------------
@@ -3250,7 +3249,8 @@ function exitLobby(){
 // --- 6. Smart CO-OP AI Bots Routine ---
 function initCoOpBot(){
   state.bots = [];
-  if(lobbyState.useBot){
+  // Only spawn co-op bot in multiplayer lobby mode, not solo
+  if(lobbyState.active && lobbyState.useBot){
     state.bots.push({
       x: state.pos.x - 40, y: state.pos.y - 40,
       targetX: state.pos.x, targetY: state.pos.y,
@@ -3275,7 +3275,7 @@ function updateBots(dt){
     const d = Math.hypot(dx, dy);
     
     if(d > targetDist){
-      const speed = 160 * state.passives.moveSpeed;
+      const speed = 160;
       bot.x += (dx / d) * speed * dt;
       bot.y += (dy / d) * speed * dt;
     }
@@ -3300,7 +3300,11 @@ function updateBots(dt){
           size: 4,
           life: 0.9,
           color: '#ffb13d',
-          fromPlayer: true
+          pierce: 0,
+          hit: new Set(),
+          chain: 0,
+          homing: 0,
+          crit: false,
         });
       }
     }
@@ -3394,8 +3398,8 @@ const originalUpdate = update;
 update = function(dt) {
   originalUpdate(dt);
   
-  // Update AI Bots
-  updateBots(dt);
+  // Update AI Bots (only in multiplayer)
+  if(lobbyState.active) updateBots(dt);
   
   // Check Story Mode stage objectives
   if(state.activeStage && state.mode === 'playing'){
