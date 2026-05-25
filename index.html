@@ -4,6 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>SWARM — Horde Survival</title>
+<!-- Google AdSense Programmatic Library -->
+<!-- IMPORTANT: Replace client ID 'ca-pub-XXXXXXXXXXXXXX' below with your actual Google AdSense Publisher ID -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 <style>
   :root {
     --bg:#07091a; --bg2:#15171c; --fg:#ecf0ff; --muted:#8a93b8;
@@ -164,6 +167,10 @@
   .vignette{position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 0 0 rgba(255,77,79,0);transition:box-shadow .3s}
   .vignette.hit{box-shadow:inset 0 0 220px 80px rgba(255,77,79,.7)}
   .vignette.levelup{box-shadow:inset 0 0 240px 80px rgba(200,85,255,.5)}
+  @keyframes scanline {
+    0% { top: 0%; }
+    100% { top: 100%; }
+  }
 </style>
 </head>
 <body>
@@ -181,7 +188,17 @@
     <button class="nav" id="nav-changeuser">Change Name</button>
   </div>
 
-  <div class="ad-slot hidden" id="ad-slot">Advert slot · 728 × 60</div>
+  <div class="ad-slot hidden" id="ad-slot" style="pointer-events: auto;">
+    <!-- Google AdSense 728x60 Leaderboard Unit -->
+    <!-- IMPORTANT: Replace data-ad-client and data-ad-slot with your actual AdSense credentials -->
+    <ins class="adsbygoogle"
+         style="display:inline-block;width:728px;height:60px"
+         data-ad-client="ca-pub-XXXXXXXXXXXXXX"
+         data-ad-slot="YYYYYYYYYY"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
 
   <div id="hud" class="hidden">
     <div class="topbar">
@@ -391,6 +408,40 @@
     </div>
   </div>
 
+  <div id="ad-player" class="overlay" style="background: rgba(4, 5, 12, 0.98); border: 2px solid var(--accent);">
+    <div style="text-align: center; max-width: 500px; padding: 30px; display: flex; flex-direction: column; align-items: center;">
+      <div style="font-size: 11px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; margin-bottom: 20px;">// INCOMING TRANSMISSION //</div>
+      <h2 style="font-size: 32px; font-weight: 900; letter-spacing: 4px; color: var(--accent); margin-bottom: 24px; text-transform: uppercase;" id="ad-title">MEGACORP ADVERT</h2>
+      
+      <div style="width: 320px; height: 200px; background: #080a14; border: 1px solid #2c3870; border-radius: 8px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 24px;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: rgba(255, 177, 61, 0.4); box-shadow: 0 0 8px var(--accent); animation: scanline 2.5s linear infinite;"></div>
+        <div id="ad-video-content" style="font-family: 'JetBrains Mono', monospace; font-size: 13px; text-align: center; color: var(--fg); padding: 20px; line-height: 1.6;">
+          Loading commercial feed...
+        </div>
+        <div style="position: absolute; bottom: 0; left: 0; height: 4px; background: var(--accent); width: 0%; transition: width 0.1s linear;" id="ad-progress"></div>
+      </div>
+      
+      <div style="font-size: 18px; font-weight: 900; letter-spacing: 2px; color: var(--muted);" id="ad-timer">5s remaining</div>
+    </div>
+  </div>
+
+  <div id="wish-confirm" class="overlay" style="background: rgba(4, 5, 12, 0.98); border: 2px solid var(--accent2);">
+    <div style="text-align: center; max-width: 500px; padding: 30px; display: flex; flex-direction: column; align-items: center;">
+      <h2 style="font-size: 28px; font-weight: 900; letter-spacing: 4px; color: var(--accent2); margin-bottom: 8px; text-transform: uppercase;">POWER-UP GENERATED</h2>
+      <div style="font-size: 11px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 32px;">Do you want to apply this custom power-up?</div>
+      
+      <!-- Power card preview -->
+      <div id="wish-card-preview" class="choice legendary" style="cursor: default; pointer-events: none; transform: scale(1.05); margin-bottom: 36px; border-left: 3px solid var(--accent2); box-sizing: border-box;">
+        <!-- Injected dynamically -->
+      </div>
+      
+      <div style="display: flex; gap: 16px;">
+        <button class="primary" id="wish-accept" style="min-width: 180px; margin: 0;">ACCEPT & INSTALL</button>
+        <button class="danger" id="wish-decline" style="min-width: 180px; margin: 0;">DECLINE</button>
+      </div>
+    </div>
+  </div>
+
 <script>
 // ============================================================
 // SWARM v1.3 — multi-weapon roguelite (tactical visual style)
@@ -575,7 +626,7 @@ const WEAPON_DEFS = {
     init(w){ w.cd = 0; },
     update(w, dt, st){
       w.cd -= dt;
-      const rate = 2 + w.level*0.5;
+      const rate = (2 + w.level*0.5) * (st.passives.fireRate / 2.4);
       if(w.cd > 0) return;
       const t = nearestEnemy(st.pos, 420);
       if(!t) return;
@@ -639,7 +690,7 @@ const WEAPON_DEFS = {
     update(w, dt, st){
       w.cd -= dt;
       if(w.cd > 0) return;
-      w.cd = Math.max(0.8, 2.4 - w.level*0.2);
+      w.cd = Math.max(0.4, (2.4 - w.level*0.2) / (st.passives.fireRate / 2.4));
       const t = nearestEnemy(st.pos, 400);
       if(!t) return;
       sfx.zap();
@@ -657,7 +708,7 @@ const WEAPON_DEFS = {
     update(w, dt, st){
       w.cd -= dt;
       if(w.cd > 0) return;
-      w.cd = Math.max(0.8, 2 - w.level*0.2);
+      w.cd = Math.max(0.4, (2 - w.level*0.2) / (st.passives.fireRate / 2.4));
       st.mines.push({ x:st.pos.x, y:st.pos.y, life:8, dmg:(30+w.level*15)*st.passives.dmgMult, radius:60+w.level*8, armed:0.4 });
     },
   },
@@ -709,7 +760,7 @@ const WEAPON_DEFS = {
         if(d.cd <= 0){
           const tgt = nearestEnemy(d, 320);
           if(tgt){
-            d.cd = 1/(1.5 + w.level*0.3);
+            d.cd = 1/((1.5 + w.level*0.3) * (st.passives.fireRate / 2.4));
             const ang = Math.atan2(tgt.y-d.y, tgt.x-d.x);
             st.bullets.push({
               x:d.x, y:d.y, vx:Math.cos(ang)*460, vy:Math.sin(ang)*460,
@@ -795,7 +846,66 @@ function initState(){
     aimDir:0, gunRecoil:0, gunFlash:0,
     nextSupplyDrop:30, nextLootBox:15,
     wishesLeft:3, // "Ask AI" requests per run
+    adsWatched:0, // Ads watched this run
   };
+}
+
+let adTimerInterval = null;
+function playAd(onComplete) {
+  const prevMode = state.mode;
+  state.paused = true;
+  state.mode = 'ad-playing';
+  
+  const ads = [
+    { title: "CYBER-IMPLANTS LLC", text: "Upgrade your human shell today! 50% off tactical optical receptors at your nearest Megastructure." },
+    { title: "NANO-REPAIR MATRIX", text: "Feeling rotted? Inject nano-repair bots! Guaranteed 98% regeneration rate or your credits back." },
+    { title: "APEX GUNWORKS", text: "Why fire bullets when you can fire micro-missiles? Try the new Aegis pulse rifle series today!" },
+    { title: "CHRONO-LOCK TEC", text: "Dash through time! Buy Chrono-Lock tactical gear. Live forever, or die trying." },
+    { title: "SUPREME MAGNETO", text: "Attract everything! Magneto-Grip gloves pull materials from 30 meters away. Now only 2000 CR." }
+  ];
+  const commercial = ads[Math.floor(Math.random() * ads.length)];
+  
+  document.getElementById('ad-title').textContent = commercial.title;
+  document.getElementById('ad-video-content').textContent = commercial.text;
+  
+  const overlay = document.getElementById('ad-player');
+  overlay.classList.add('visible');
+  
+  let remaining = 5;
+  const progressEl = document.getElementById('ad-progress');
+  const timerEl = document.getElementById('ad-timer');
+  
+  progressEl.style.width = '0%';
+  timerEl.textContent = `${remaining}s remaining`;
+  
+  sfx.zap?.();
+  
+  const start = performance.now();
+  const duration = 5000;
+  
+  if (adTimerInterval) clearInterval(adTimerInterval);
+  adTimerInterval = setInterval(() => {
+    const elapsed = performance.now() - start;
+    const pct = Math.min(100, (elapsed / duration) * 100);
+    progressEl.style.width = `${pct}%`;
+    
+    const rem = Math.ceil(Math.max(0, (duration - elapsed) / 1000));
+    timerEl.textContent = `${rem}s remaining`;
+    
+    if (elapsed >= duration) {
+      clearInterval(adTimerInterval);
+      overlay.classList.remove('visible');
+      sfx.levelup?.();
+      
+      state.adsWatched = (state.adsWatched || 0) + 1;
+      const lifetime = Number(localStorage.getItem('swarm.lifetimeAds') || 0) + 1;
+      try { localStorage.setItem('swarm.lifetimeAds', String(lifetime)); } catch(e){}
+      
+      state.paused = false;
+      state.mode = prevMode;
+      if (onComplete) onComplete();
+    }
+  }, 100);
 }
 
 // ----------------- Leaderboard (local + global via /api/leaderboard) -----------------
@@ -994,6 +1104,14 @@ const PICKUP_DEFS = {
                onPick:()=> { sfx.levelup(); pickup('SUPPLY DROP'); openSupplyDrop(); } },
 };
 
+function pickup(text){
+  const el = document.createElement('div');
+  el.className = 'pickup-popup';
+  el.textContent = text;
+  document.body.appendChild(el);
+  setTimeout(()=> el.remove(), 900);
+}
+
 function spawnSupplyDrop(){
   // Drop near the player but not on top
   const a = Math.random() * TAU;
@@ -1066,6 +1184,92 @@ function doDash(){
   state.dashDir = { x:dx, y:dy };
   sfx.dash();
   burst(state.pos.x, state.pos.y, 18, '#52d3ff', 6);
+}
+
+// ----------------- Procedural Generation & Wish Stats -----------------
+const STATS = {
+  dmgMult:    { op:'mult', range:[1.05, 1.20], desc:'damage multiplier' },
+  moveSpeed:  { op:'mult', range:[1.05, 1.15], desc:'move speed multiplier' },
+  fireRate:   { op:'mult', range:[1.05, 1.15], desc:'fire rate multiplier' },
+  pierce:     { op:'add',  range:[1, 1],       desc:'flat +N bullet pierces' },
+  magnet:     { op:'mult', range:[1.20, 1.50], desc:'XP pickup range multiplier' },
+  crit:       { op:'add',  range:[0.03, 0.10], desc:'flat +N crit chance' },
+  regen:      { op:'add',  range:[0.3, 0.8],   desc:'flat +N HP/sec regen' },
+  maxHp:      { op:'add',  range:[15, 30],     desc:'flat +N max HP' },
+  xpMult:     { op:'mult', range:[1.10, 1.20], desc:'XP gain multiplier' },
+  bulletSize: { op:'add',  range:[1, 3],       desc:'flat +N bullet size' },
+  extraShots: { op:'add',  range:[1, 1],       desc:'flat +1 projectile per volley' },
+  chain:      { op:'add',  range:[1, 1],       desc:'flat +1 chain target' },
+  vamp:       { op:'add',  range:[0.03, 0.07], desc:'flat +N lifesteal fraction' },
+  armor:      { op:'mult', range:[0.85, 0.94], desc:'damage taken multiplier (<1 = less damage)' },
+  accuracy:   { op:'mult', range:[1.10, 1.25], desc:'accuracy multiplier (tighter spread)' },
+};
+
+function generateRandomPower() {
+  const keys = Object.keys(STATS);
+  const key = keys[Math.floor(Math.random() * keys.length)];
+  const statDef = STATS[key];
+  
+  const lo = statDef.range[0];
+  const hi = statDef.range[1];
+  const val = Math.round((lo + Math.random() * (hi - lo)) * 1000) / 1000;
+  
+  let description = '';
+  if (statDef.op === 'mult') {
+    const pct = Math.round((val - 1) * 100);
+    if (key === 'armor') {
+      description = `-${Math.round((1 - val) * 100)}% damage taken`;
+    } else {
+      description = `+${pct}% ${statDef.desc.replace(' multiplier', '')}`;
+    }
+  } else {
+    description = `+${val} ${statDef.desc.replace('flat ', '')}`;
+  }
+  
+  const prefixes = ["Quantum", "Nano", "Cybernetic", "Hyper", "Vortex", "Singularity", "Plasma", "Magnetic", "Temporal", "Apex", "Thermal", "Sonic", "Overdrive", "Aegis", "Titanium", "Spectre", "Void", "Fusion", "Neutron", "Tachyon", "Dynamic", "Enhanced", "Chrono", "Phase", "Entropy"];
+  const suffixes = ["Core", "Matrix", "Accelerator", "Capacitor", "Module", "Rounds", "Thruster", "Shield", "Plating", "Sensors", "Battery", "Injector", "Stabilizer", "Amplifier", "Inductor", "Field", "Grid", "Catalyst", "Diffuser"];
+  const name = prefixes[Math.floor(Math.random() * prefixes.length)] + " " + suffixes[Math.floor(Math.random() * suffixes.length)];
+  
+  const rarities = ['common', 'rare', 'epic', 'legendary'];
+  let rarity = 'rare';
+  const r = Math.random();
+  if (r < 0.4) rarity = 'common';
+  else if (r < 0.75) rarity = 'rare';
+  else if (r < 0.95) rarity = 'epic';
+  else rarity = 'legendary';
+  
+  let icon = 'target';
+  if (key === 'dmgMult') icon = 'power';
+  else if (key === 'moveSpeed') icon = 'boots';
+  else if (key === 'pierce') icon = 'pierce';
+  else if (key === 'magnet') icon = 'magnet';
+  else if (key === 'crit') icon = 'crit';
+  else if (key === 'regen') icon = 'heart';
+  else if (key === 'maxHp') icon = 'shield';
+  else if (key === 'xpMult') icon = 'book';
+  else if (key === 'bulletSize') icon = 'bullet';
+  else if (key === 'extraShots') icon = 'target';
+  else if (key === 'chain') icon = 'chain';
+  else if (key === 'vamp') icon = 'blood';
+  else if (key === 'armor') icon = 'armor';
+  
+  return {
+    name,
+    icon,
+    description: description.charAt(0).toUpperCase() + description.slice(1),
+    rarity,
+    apply: () => {
+      const p = state.passives;
+      if (statDef.op === 'mult') {
+        p[key] *= val;
+      } else {
+        p[key] += val;
+      }
+      if (key === 'maxHp') {
+        state.hp = Math.min(p.maxHp, state.hp + val);
+      }
+    }
+  };
 }
 
 // ----------------- Level-up choices -----------------
@@ -1181,28 +1385,78 @@ function renderChoices(choices){
     card.onclick = () => applyChoice(c);
     box.appendChild(card);
   }
-  // "Ask AI" wish button at the bottom
-  // Remove stale wish bar(s) from previous level-ups
+  // "Ask AI" wish bar at the bottom
   document.querySelectorAll('.wish-bar').forEach(el => el.remove());
   const wishBar = document.createElement('div');
   wishBar.className = 'wish-bar';
-  wishBar.style.cssText = 'margin-top:20px;display:flex;justify-content:center';
+  wishBar.style.cssText = 'margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:500px;margin-left:auto;margin-right:auto;';
+  
   const remaining = state.wishesLeft || 0;
+  const ADS_PER_WISH = 3;
+  const currentAds = state.adsWatched || 0;
+  const hasEnoughAds = currentAds >= ADS_PER_WISH;
+  
+  // Row 1: Ads counter and Ad button
+  const adRow = document.createElement('div');
+  adRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;width:100%;background:rgba(20,28,60,.5);border:1px solid #2c3870;padding:8px 12px;border-radius:6px;box-sizing:border-box;';
+  
+  const adCounter = document.createElement('div');
+  adCounter.style.cssText = 'font-size:10px;font-family:\'JetBrains Mono\',monospace;letter-spacing:1px;font-weight:700;color:var(--muted);';
+  adCounter.innerHTML = `AI CHARGE COST: <span style="color:var(--accent)">${ADS_PER_WISH} ADS</span> | CHARGED: <span style="color:${hasEnoughAds?'var(--good)':'var(--danger)'}">${currentAds}/${ADS_PER_WISH}</span>`;
+  
+  const adBtn = document.createElement('button');
+  adBtn.className = 'small';
+  adBtn.style.cssText = 'margin:0;padding:6px 12px;font-size:10px;letter-spacing:1px;border-color:var(--accent2);color:var(--accent2);min-width:auto;';
+  adBtn.textContent = '📺 WATCH SPONSORED AD (+1)';
+  adBtn.onclick = () => {
+    document.getElementById('levelup').classList.remove('visible');
+    playAd(() => {
+      document.getElementById('levelup').classList.add('visible');
+      renderChoices(choices);
+    });
+  };
+  
+  adRow.appendChild(adCounter);
+  adRow.appendChild(adBtn);
+  wishBar.appendChild(adRow);
+  
+  // Row 2: Input and Submit wish
+  const inputWrapper = document.createElement('div');
+  inputWrapper.style.cssText = 'display:flex;width:100%;gap:8px;';
+  
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.maxLength = 50;
+  input.placeholder = remaining <= 0 
+    ? "NO WISHES LEFT THIS RUN" 
+    : (hasEnoughAds ? "TYPE YOUR AI WISH (e.g. 'speed boost', 'chain zaps')" : "WATCH ADS TO CHARGE WISH CONNECTOR");
+  input.disabled = remaining <= 0 || !hasEnoughAds;
+  input.style.cssText = 'flex:1;background:rgba(20,28,60,.85);border:2px solid #2c3870;color:var(--fg);padding:10px 14px;font-size:12px;border-radius:6px;outline:none;font-weight:700;letter-spacing:1px;font-family:inherit;';
+  
   const btn = document.createElement('button');
   btn.className = 'small';
-  btn.style.cssText = 'border-color:var(--accent2);color:var(--accent2);min-width:300px;letter-spacing:3px;padding:12px 20px;font-size:12px';
-  btn.disabled = remaining <= 0;
-  btn.textContent = `✨ ASK AI FOR POWER-UP (${remaining} LEFT)`;
-  btn.addEventListener('click', async () => {
-    if(state.wishesLeft <= 0 || btn.disabled) return;
+  btn.disabled = remaining <= 0 || !hasEnoughAds;
+  btn.style.cssText = 'border-color:var(--accent2);color:var(--accent2);min-width:180px;letter-spacing:2px;padding:10px 16px;font-size:11px;margin:0;';
+  btn.textContent = `✨ ASK AI (${remaining} LEFT)`;
+  
+  inputWrapper.appendChild(input);
+  inputWrapper.appendChild(btn);
+  wishBar.appendChild(inputWrapper);
+  
+  const executeWish = async () => {
+    if(state.wishesLeft <= 0 || btn.disabled || !hasEnoughAds) return;
+    const wishText = input.value.trim() || 'surprise me';
     btn.disabled = true;
+    input.disabled = true;
     btn.textContent = '⏳ AI THINKING…';
     state.wishesLeft -= 1;
+    state.adsWatched -= ADS_PER_WISH;
+    
     let gen;
     try {
       const res = await fetch('/api/wish', {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ wish: 'surprise me' }),
+        body: JSON.stringify({ wish: wishText }),
       });
       if(!res.ok) throw new Error('api ' + res.status);
       const data = await res.json();
@@ -1225,10 +1479,42 @@ function renderChoices(choices){
       gen = generateRandomPower();
       gen.rarity = 'epic';
     }
-    applyChoice({ kind:'generated', generated:gen });
-    wishBar.remove();
-  });
-  wishBar.appendChild(btn);
+    
+    // Pause the game and display the custom confirmation dialog
+    document.getElementById('levelup').classList.remove('visible');
+    const confirmOverlay = document.getElementById('wish-confirm');
+    confirmOverlay.classList.add('visible');
+    state.paused = true;
+    state.mode = 'wish-confirm';
+    
+    // Inject the generated card preview
+    const preview = document.getElementById('wish-card-preview');
+    preview.className = 'choice ' + (gen.rarity || 'epic');
+    preview.innerHTML = `
+      <div class="icon">${ico(gen.icon || 'target', 42)}</div>
+      <div class="name">${gen.name} <span style="color:var(--accent2);font-size:9px">AI</span></div>
+      <div class="rarity">AI · ${(gen.rarity || 'epic').toUpperCase()}</div>
+      <div class="desc">${gen.description}</div>
+    `;
+    
+    document.getElementById('wish-accept').onclick = () => {
+      confirmOverlay.classList.remove('visible');
+      applyChoice({ kind:'generated', generated:gen });
+      wishBar.remove();
+    };
+    
+    document.getElementById('wish-decline').onclick = () => {
+      confirmOverlay.classList.remove('visible');
+      document.getElementById('levelup').classList.add('visible');
+      state.paused = false;
+      state.mode = 'playing';
+      wishBar.remove();
+    };
+  };
+
+  btn.addEventListener('click', executeWish);
+  input.addEventListener('keydown', e => { if(e.code==='Enter') executeWish(); });
+  
   box.parentNode.insertBefore(wishBar, box.nextSibling);
 }
 
@@ -2112,7 +2398,7 @@ async function gameOver(){
   hideAllOverlays();
   document.getElementById('gameover').classList.add('visible');
 }
-function hideAllOverlays(){['username','menu','leaderboard','settings','levelup','pause','gameover','howto','legal'].forEach(id => document.getElementById(id).classList.remove('visible'))}
+function hideAllOverlays(){['username','menu','leaderboard','settings','levelup','pause','gameover','howto','legal','ad-player','wish-confirm'].forEach(id => document.getElementById(id).classList.remove('visible'))}
 function promptUsername(){ hideAllOverlays(); document.getElementById('username').classList.add('visible'); document.getElementById('username-input').value = profile.user || ''; setTimeout(()=> document.getElementById('username-input').focus(), 50); }
 
 // ----------------- Wire UI -----------------

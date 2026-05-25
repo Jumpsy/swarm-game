@@ -92,6 +92,8 @@ async function callOpenRouter(prompt) {
   // Uses only :free model variants so this stays zero-cost.
   // Llama 3.3 70B free → fallback to Gemini Flash free if unavailable.
   const models = [
+    'google/gemini-2.5-flash:free',
+    'qwen/qwen-2.5-coder-32b-instruct:free',
     'meta-llama/llama-3.3-70b-instruct:free',
     'google/gemini-2.0-flash-exp:free',
     'mistralai/mistral-small-3.1-24b-instruct:free',
