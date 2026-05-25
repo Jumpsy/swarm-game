@@ -702,7 +702,7 @@ function fit(){canvas.width=innerWidth*devicePixelRatio;canvas.height=innerHeigh
 fit(); addEventListener('resize', fit);
 
 // ----------------- Persistence -----------------
-const LS = { user:'swarm.user', coins:'swarm.coins', best:'swarm.best', leaderboard:'swarm.leaderboard', settings:'swarm.settings', runs:'swarm.runs' };
+const LS = { user:'swarm.user', coins:'swarm.coins', best:'swarm.best', leaderboard:'swarm.leaderboard', settings:'swarm.settings', runs:'swarm.runs', ownedSkins:'swarm.ownedSkins', activeSkin:'swarm.activeSkin', skillTree:'swarm.skillTree', completedStages:'swarm.completedStages', battlePassXp:'swarm.battlePassXp', battlePassPremium:'swarm.battlePassPremium' };
 function getProfile(){
   const j = k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
   return {
@@ -712,6 +712,12 @@ function getProfile(){
     leaderboard: j(LS.leaderboard) || [],
     settings: j(LS.settings) || {},
     runs: Number(localStorage.getItem(LS.runs) || 0),
+    ownedSkins: j(LS.ownedSkins) || ['soldier'],
+    activeSkin: localStorage.getItem(LS.activeSkin) || 'soldier',
+    skillTree: j(LS.skillTree) || { hp:0, speed:0, firing:0, magnet:0 },
+    completedStages: j(LS.completedStages) || [],
+    battlePassXp: Number(localStorage.getItem(LS.battlePassXp) || 0),
+    battlePassPremium: localStorage.getItem(LS.battlePassPremium) === 'true',
   };
 }
 function saveProfile(p){
@@ -721,6 +727,12 @@ function saveProfile(p){
   if(p.leaderboard!==undefined)localStorage.setItem(LS.leaderboard,JSON.stringify(p.leaderboard));
   if(p.settings!==undefined)localStorage.setItem(LS.settings,JSON.stringify(p.settings));
   if(p.runs!==undefined)localStorage.setItem(LS.runs,String(p.runs));
+  if(p.ownedSkins!==undefined)localStorage.setItem(LS.ownedSkins,JSON.stringify(p.ownedSkins));
+  if(p.activeSkin!==undefined)localStorage.setItem(LS.activeSkin,p.activeSkin);
+  if(p.skillTree!==undefined)localStorage.setItem(LS.skillTree,JSON.stringify(p.skillTree));
+  if(p.completedStages!==undefined)localStorage.setItem(LS.completedStages,JSON.stringify(p.completedStages));
+  if(p.battlePassXp!==undefined)localStorage.setItem(LS.battlePassXp,String(p.battlePassXp));
+  if(p.battlePassPremium!==undefined)localStorage.setItem(LS.battlePassPremium,String(p.battlePassPremium));
 }
 let profile = getProfile();
 let settings = { master:.7, sfx:.9, music:.3, shake:true, ads:true, ...profile.settings };
@@ -2699,9 +2711,9 @@ document.getElementById('nav-leaderboard').onclick = ()=>{ renderLeaderboard(); 
 document.getElementById('nav-settings').onclick = ()=>{ hideAllOverlays(); document.getElementById('settings').classList.add('visible'); };
 document.getElementById('nav-changeuser').onclick = promptUsername;
 document.getElementById('nav-howto').onclick = ()=>{ hideAllOverlays(); document.getElementById('howto').classList.add('visible'); };
-document.getElementById('howto-back').onclick = ()=>{ hideAllOverlays(); document.getElementById(state.mode==='paused'?'pause':'menu').classList.add('visible'); };
+document.getElementById('howto-back').onclick = goBack;
 document.getElementById('nav-legal').onclick = ()=>{ hideAllOverlays(); document.getElementById('legal').classList.add('visible'); showLegal('privacy'); };
-document.getElementById('legal-back').onclick = ()=>{ hideAllOverlays(); document.getElementById(state.mode==='paused'?'pause':'menu').classList.add('visible'); };
+document.getElementById('legal-back').onclick = goBack;
 document.getElementById('legal-tab-privacy').onclick = ()=> showLegal('privacy');
 document.getElementById('legal-tab-terms').onclick = ()=> showLegal('terms');
 document.getElementById('legal-tab-about').onclick = ()=> showLegal('about');
@@ -2729,7 +2741,7 @@ function showLegal(tab){
   };
   document.getElementById('legal-body').innerHTML = body[tab];
 }
-document.getElementById('lb-back').onclick = ()=>{ hideAllOverlays(); document.getElementById('menu').classList.add('visible'); };
+document.getElementById('lb-back').onclick = goBack;
 document.getElementById('lb-clear').onclick = ()=>{ if(confirm('Clear leaderboard?')){ profile.leaderboard=[]; saveProfile({leaderboard:[]}); renderLeaderboard(); } };
 document.getElementById('pause-resume').onclick = resumeGame;
 document.getElementById('pause-settings').onclick = ()=>{ document.getElementById('pause').classList.remove('visible'); document.getElementById('settings').classList.add('visible'); };
@@ -2748,7 +2760,7 @@ const setSlider = (id, k)=>{
 setSlider('set-master','master'); setSlider('set-sfx','sfx'); setSlider('set-music','music');
 document.getElementById('set-shake').addEventListener('change', e=>{ settings.shake = e.target.checked; saveProfile({settings}); });
 document.getElementById('set-ads').addEventListener('change', e=>{ settings.ads = e.target.checked; saveProfile({settings}); refreshTopnav(); });
-document.getElementById('settings-back').onclick = ()=>{ hideAllOverlays(); document.getElementById(state.mode==='paused'?'pause':'menu').classList.add('visible'); };
+document.getElementById('settings-back').onclick = goBack;
 
 ['set-master','set-sfx','set-music'].forEach(id=>{
   const k = id.replace('set-','');
@@ -2770,6 +2782,14 @@ profile.ownedSkins = profile.ownedSkins || ['soldier'];
 profile.activeSkin = profile.activeSkin || 'soldier';
 profile.skillTree = profile.skillTree || { hp: 0, speed: 0, firing: 0, magnet: 0 };
 profile.completedStages = profile.completedStages || [];
+
+// Ensure back buttons always return to the right screen
+function goBack(){
+  hideAllOverlays();
+  if(state.mode === 'paused') document.getElementById('pause').classList.add('visible');
+  else if(state.mode === 'lobby') document.getElementById('lobby').classList.add('visible');
+  else { state.mode = 'menu'; document.getElementById('menu').classList.add('visible'); }
+}
 
 const SKINS = {
   soldier: { name: 'Standard Issue', desc: 'Standard army gear.' },
@@ -3215,10 +3235,26 @@ function renderLobbySkins(){
     const isOwned = profile.ownedSkins.includes(id);
     const isActive = profile.activeSkin === id;
     
-    chip.className = `skin-chip ${isActive ? 'active' : ''} ${!isOwned ? 'locked' : ''}`;
-    chip.textContent = skin.name;
+    chip.style.cssText = `display:flex; flex-direction:column; align-items:center; gap:6px; padding:8px 12px; border-radius:6px; cursor:${isOwned ? 'pointer' : 'not-allowed'}; border:2px solid ${isActive ? 'var(--accent2)' : '#2c3870'}; background:${isActive ? 'rgba(61,163,255,0.15)' : 'rgba(20,28,60,0.5)'}; opacity:${isOwned ? '1' : '0.4'}; transition:all 0.15s; min-width:80px;`;
+    
+    // Draw sprite preview
+    const spriteCanvas = document.createElement('canvas');
+    spriteCanvas.width = 48; spriteCanvas.height = 48;
+    spriteCanvas.style.cssText = 'image-rendering:pixelated;';
+    const spriteCtx = spriteCanvas.getContext('2d');
+    const sprite = PLAYER_SPRITES[id];
+    if(sprite) spriteCtx.drawImage(sprite, 0, 0, 80, 80, 0, 0, 48, 48);
+    
+    const label = document.createElement('div');
+    label.style.cssText = 'font-size:9px; font-weight:700; color:var(--muted); letter-spacing:1px; text-transform:uppercase; font-family:monospace; text-align:center;';
+    label.textContent = isOwned ? skin.name : '🔒 LOCKED';
+    
+    chip.appendChild(spriteCanvas);
+    chip.appendChild(label);
     
     if(isOwned){
+      chip.onmouseenter = () => { if(!isActive) chip.style.borderColor = 'var(--accent)'; };
+      chip.onmouseleave = () => { if(!isActive) chip.style.borderColor = '#2c3870'; };
       chip.onclick = () => {
         profile.activeSkin = id;
         saveProfile({ activeSkin: id });
@@ -3338,17 +3374,17 @@ function drawBots(){
 }
 
 // Bind UI nav events
-document.getElementById('nav-campaign').onclick = () => { renderCampaignStages(); hideAllOverlays(); document.getElementById('campaign').classList.add('visible'); };
-document.getElementById('campaign-back').onclick = () => { hideAllOverlays(); document.getElementById('menu').classList.add('visible'); };
+document.getElementById('nav-campaign').onclick = () => { hideAllOverlays(); renderCampaignStages(); document.getElementById('campaign').classList.add('visible'); };
+document.getElementById('campaign-back').onclick = goBack;
 
-document.getElementById('nav-shop').onclick = () => { renderShop(); hideAllOverlays(); document.getElementById('shop').classList.add('visible'); };
-document.getElementById('shop-back').onclick = () => { hideAllOverlays(); document.getElementById('menu').classList.add('visible'); };
+document.getElementById('nav-shop').onclick = () => { hideAllOverlays(); renderShop(); document.getElementById('shop').classList.add('visible'); };
+document.getElementById('shop-back').onclick = goBack;
 
-document.getElementById('nav-skilltree').onclick = () => { renderSkillTree(); hideAllOverlays(); document.getElementById('skilltree').classList.add('visible'); };
-document.getElementById('skilltree-back').onclick = () => { hideAllOverlays(); document.getElementById('menu').classList.add('visible'); };
+document.getElementById('nav-skilltree').onclick = () => { hideAllOverlays(); renderSkillTree(); document.getElementById('skilltree').classList.add('visible'); };
+document.getElementById('skilltree-back').onclick = goBack;
 
-document.getElementById('nav-battlepass').onclick = () => { renderBattlePass(); hideAllOverlays(); document.getElementById('battlepass').classList.add('visible'); };
-document.getElementById('bp-back').onclick = () => { hideAllOverlays(); document.getElementById('menu').classList.add('visible'); };
+document.getElementById('nav-battlepass').onclick = () => { hideAllOverlays(); renderBattlePass(); document.getElementById('battlepass').classList.add('visible'); };
+document.getElementById('bp-back').onclick = goBack;
 document.getElementById('bp-buy-premium').onclick = () => {
   if(profile.coins >= 500 && !profile.battlePassPremium){
     profile.coins -= 500;
