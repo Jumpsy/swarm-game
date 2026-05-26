@@ -1,66 +1,50 @@
-# SWARM — Browser Horde-Survival Roguelite
+# SWARM — Neon Arena
 
-A single-file canvas-2D survivor-like. WASD to move, dash on Space, weapons auto-fire, level up to pick from 3 cards, survive as long as you can.
+A tight, twin-stick neon arena shooter. Survive five minutes, kill the Core, top the leaderboard.
 
-**Stack:** Plain HTML/CSS/JS · Vercel (static + serverless functions) · Supabase Postgres (global leaderboard).
+Plain HTML/CSS/JS · single file · no build step · Vercel + Supabase for the global leaderboard.
 
-## Features
-
-- 6 stacking weapons (Pulse, Blades, Lightning, Mines, Flame, Drone), each 1→5
-- 17 passive upgrades across 4 rarity tiers
-- 9 enemy types incl. shielded, exploder, spitter, spawner, boss
-- Dash with iframes · Combo counter · Screen shake · Damage numbers
-- Local + global leaderboard
-- localStorage account (username), coins
-- Synthesized SFX + background music
-
-## Run locally
+## Play
 
 ```bash
 python3 -m http.server 5174
 # open http://localhost:5174
 ```
 
+## Controls
+
+- `W A S D` / arrows — move
+- `MOUSE` — aim
+- `LMB` hold — fire
+- `R` or `RMB` — blink (short teleport + shockwave, 3s cd)
+- `ESC` — pause · `M` — mute
+
+## Loop
+
+5 enemy types, 12 stackable upgrades across common/rare/epic rarities. Mid-boss at 2:30. Final boss (the Core) at 5:00 — kill it to win the run.
+
+XP shards drop from kills and magnet to you when close. Each level-up offers 3 upgrades. Chain kills within 2 seconds to multiply score (capped at ×8).
+
 ## Deploy
 
-1. Create a Supabase project at https://supabase.com. In SQL Editor run `supabase/schema.sql`.
-2. Copy your project URL and `anon public` key from Project Settings → API.
-3. Install Vercel CLI: `npm i -g vercel`. Then `vercel link` in this folder.
-4. Set env: `vercel env add SUPABASE_URL` and `vercel env add SUPABASE_ANON_KEY`.
-5. (Optional) Add an AI key for the wish-power-up button. Pick **one**:
-   - `vercel env add GROQ_API_KEY` — **free**, fastest. Get one at https://console.groq.com (free tier ~30 req/min).
-   - `vercel env add GEMINI_API_KEY` — **free**. Get one at https://aistudio.google.com/apikey (1500 req/day free).
-   - `vercel env add ANTHROPIC_API_KEY` — paid (~$0.0008/wish). https://console.anthropic.com.
-   - If none are set, the wish button falls back to a free local procedural generator and still works.
-6. Deploy: `vercel --prod`.
-7. (Optional) Buy a domain in the Vercel dashboard → Domains.
+1. Create a Supabase project, run `supabase/schema.sql` in the SQL editor.
+2. `vercel link` then set env vars:
+   - `SUPABASE_URL`
+   - `SUPABASE_ANON_KEY`
+3. (Optional) `ADSENSE_CLIENT_ID` / `ADSENSE_SLOT_ID` for monetization.
+4. `vercel --prod`.
 
-## Project layout
+## Files
 
 ```
-index.html              — game (single file, no build step)
-api/leaderboard.js      — Vercel serverless function (GET top 10, POST a run)
-supabase/schema.sql     — Postgres schema with RLS + indexes
-vercel.json             — Vercel rewrites
-package.json            — Node deps for serverless functions
-LICENSE                 — MIT
-PRIVACY.md / TERMS.md   — legal
+index.html             — game (single file)
+api/leaderboard.js     — GET top 10 / POST a run
+api/config.js          — public config (AdSense ids)
+api/ads-txt.js         — ads.txt route
+supabase/schema.sql    — Postgres schema with RLS
+vercel.json            — rewrites
 ```
-
-## Legal
-
-See `PRIVACY.md` and `TERMS.md`. The game is original code, MIT-licensed. No third-party assets — visuals are primitives, audio is synthesized at runtime.
-
-## Roadmap
-
-- Persistent coin shop (permanent stat boosts)
-- Weapon evolution (level 5 + matching passive at boss kill = evolved weapon)
-- Character select (Soldier / Scout / Heavy / Scientist / Pyro / Hacker)
-- Daily challenge mode (deterministic seed)
-- Achievements
-- Multiple maps
-- Mobile touch controls
 
 ## Credits
 
-Code: Jacob Hurvitz · Assisted by Claude Code.
+Code: Jacob Hurvitz · rebuilt with Claude Code · MIT license.
