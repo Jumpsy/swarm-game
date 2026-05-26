@@ -505,25 +505,93 @@
     <button class="primary" id="settings-back">Back</button>
   </div>
 
-  <!-- Progressive Story Campaign -->
+  <!-- Story Mode: The Silent Cities -->
   <div id="campaign" class="overlay">
-    <h2 style="font-size:32px; letter-spacing:4px; font-family:'JetBrains Mono',monospace; color:var(--accent2); margin-bottom:4px;">CHAPTER 1: THE INVASION</h2>
-    <div style="font-size:10px; color:var(--muted); letter-spacing:2px; margin-bottom:20px; text-transform:uppercase;">Select Combat Theatre</div>
-    <div class="grid-container" id="campaign-stages">
-      <!-- Stages loaded dynamically -->
+    <div style="text-align:center;margin-bottom:8px;">
+      <div style="font-size:10px; letter-spacing:6px; color:var(--muted); text-transform:uppercase;">// STORY MODE //</div>
+      <h2 style="font-size:36px; letter-spacing:6px; font-family:'JetBrains Mono',monospace; color:var(--accent); margin-top:4px;">THE SILENT CITIES</h2>
+      <div style="font-size:10px; color:var(--accent2); letter-spacing:3px; margin-top:2px; text-transform:uppercase;" id="campaign-progress">Mission 0 / 8</div>
     </div>
-    
-    <div id="campaign-stage-detail" style="display:none; background:rgba(10,14,31,.85); border:1px solid #2c3870; border-radius:8px; padding:16px 24px; width:100%; max-width:520px; text-align:center; margin-bottom:18px; font-family:'JetBrains Mono',monospace;">
-      <h3 id="campaign-detail-title" style="color:var(--accent); font-size:16px; margin-bottom:8px; text-transform:uppercase;"></h3>
-      <p id="campaign-detail-desc" style="font-size:11px; color:var(--muted); line-height:1.5; margin-bottom:14px;"></p>
-      <div style="display:flex; justify-content:space-around; font-size:11px; margin-bottom:16px; text-transform:uppercase;">
-        <span>🎯 Goal: <b id="campaign-detail-goal" style="color:var(--accent2);"></b></span>
-        <span>💥 Multiplier: <b id="campaign-detail-hostility" style="color:var(--danger);"></b></span>
+
+    <div id="campaign-chapters" style="display:flex; flex-direction:column; gap:14px; max-width:900px; width:100%; margin:18px 0 14px; max-height:60vh; overflow-y:auto; padding:4px;">
+      <!-- Chapters/missions rendered dynamically -->
+    </div>
+
+    <div id="campaign-stage-detail" style="display:none; background:rgba(10,14,31,.92); border:1px solid #2c3870; border-radius:8px; padding:18px 26px; width:100%; max-width:560px; margin-bottom:14px; font-family:'JetBrains Mono',monospace;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <h3 id="campaign-detail-title" style="color:var(--accent); font-size:15px; text-transform:uppercase; letter-spacing:2px;"></h3>
+        <span id="campaign-detail-code" style="font-size:10px; color:var(--muted); letter-spacing:2px;"></span>
       </div>
-      <button class="primary" id="campaign-deploy" style="min-width:240px; margin:0;">DEPLOY ARMY (10 CR)</button>
+      <p id="campaign-detail-desc" style="font-size:11px; color:var(--muted); line-height:1.6; margin-bottom:12px;"></p>
+      <div style="display:flex; flex-wrap:wrap; gap:14px; font-size:10px; margin-bottom:14px; text-transform:uppercase; color:var(--muted);">
+        <span>OBJECTIVE: <b id="campaign-detail-goal" style="color:var(--accent2);"></b></span>
+        <span>DIFFICULTY: <b id="campaign-detail-hostility" style="color:var(--danger);"></b></span>
+        <span>REWARD: <b id="campaign-detail-reward" style="color:var(--accent);"></b></span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="primary" id="campaign-deploy" style="flex:1; margin:0;">BRIEFING →</button>
+      </div>
     </div>
-    
+
     <button class="danger small" id="campaign-back">Back to menu</button>
+  </div>
+
+  <!-- Pre-mission Briefing -->
+  <div id="briefing" class="overlay" style="background:radial-gradient(ellipse at center,rgba(10,18,40,.96),rgba(2,4,12,.99));">
+    <div style="text-align:center; margin-bottom:14px;">
+      <div style="font-size:10px; letter-spacing:6px; color:var(--danger); text-transform:uppercase; animation:warn 1.4s ease-in-out infinite;">// INCOMING TRANSMISSION //</div>
+      <div id="brief-code" style="font-size:11px; letter-spacing:4px; color:var(--muted); margin-top:6px; font-family:'JetBrains Mono',monospace;">OP-XX-XX</div>
+      <h2 id="brief-title" style="font-size:28px; letter-spacing:4px; color:var(--accent); margin-top:4px; font-family:'JetBrains Mono',monospace; text-transform:uppercase;">MISSION TITLE</h2>
+    </div>
+
+    <div style="background:rgba(0,0,0,.55); border:1px solid #2c3870; border-left:3px solid var(--accent2); border-radius:6px; padding:24px 32px; max-width:640px; width:100%; min-height:200px; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.8; color:#cfd5f0; margin-bottom:18px;">
+      <div id="brief-from" style="font-size:10px; color:var(--accent2); letter-spacing:2px; margin-bottom:14px;">— FROM: SIGNAL COMMAND</div>
+      <div id="brief-body" style="white-space:pre-wrap; min-height:120px;"></div>
+    </div>
+
+    <div style="background:rgba(10,14,31,.7); border:1px solid #2c3870; border-radius:6px; padding:12px 20px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); margin-bottom:18px; max-width:640px; width:100%;">
+      <span style="color:var(--accent2);">OBJECTIVE:</span> <span id="brief-objective" style="color:#fff;">—</span>
+    </div>
+
+    <div style="display:flex; gap:12px;">
+      <button class="danger small" id="brief-abort">ABORT</button>
+      <button class="primary" id="brief-deploy" style="min-width:240px;">DEPLOY</button>
+    </div>
+  </div>
+
+  <!-- Mid-mission Objective Banner (in HUD) -->
+  <div id="obj-banner" style="display:none; position:fixed; top:60px; left:18px; z-index:6; pointer-events:none; background:rgba(7,9,26,.92); border:1px solid var(--accent2); border-left:3px solid var(--accent2); border-radius:6px; padding:8px 14px; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px; color:#cfd5f0; min-width:200px; max-width:260px;">
+    <div style="font-size:9px; color:var(--accent2); letter-spacing:3px; margin-bottom:4px;">OBJECTIVE</div>
+    <div id="obj-text" style="color:#fff; margin-bottom:4px;">—</div>
+    <div id="obj-progress-wrap" style="display:none;">
+      <div style="height:4px; background:rgba(0,0,0,.5); border-radius:1px; overflow:hidden;"><div id="obj-progress-fill" style="height:100%; width:0%; background:var(--accent2); transition:width .25s;"></div></div>
+      <div id="obj-progress-text" style="font-size:10px; color:var(--muted); margin-top:2px;"></div>
+    </div>
+  </div>
+
+  <!-- Post-mission Victory Lore -->
+  <div id="victory" class="overlay" style="background:radial-gradient(ellipse at center,rgba(10,40,28,.95),rgba(2,8,5,.99));">
+    <div style="text-align:center; margin-bottom:18px;">
+      <div style="font-size:11px; letter-spacing:6px; color:var(--good); text-transform:uppercase;">// MISSION COMPLETE //</div>
+      <h2 id="victory-title" style="font-size:42px; letter-spacing:6px; color:var(--good); margin-top:4px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; text-shadow:0 0 30px rgba(52,211,153,.4);">VICTORY</h2>
+    </div>
+
+    <div style="background:rgba(0,0,0,.55); border:1px solid var(--good); border-radius:6px; padding:22px 30px; max-width:600px; width:100%; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.8; color:#cfd5f0; margin-bottom:18px;">
+      <div style="font-size:10px; color:var(--good); letter-spacing:3px; margin-bottom:12px;">// FIELD LOG //</div>
+      <div id="victory-lore" style="white-space:pre-wrap;"></div>
+    </div>
+
+    <div style="background:rgba(10,14,31,.7); border:1px solid #2c3870; border-radius:6px; padding:14px 24px; min-width:320px; font-family:'JetBrains Mono',monospace; font-size:12px; margin-bottom:18px;">
+      <div style="display:flex; justify-content:space-between; padding:3px 0;"><span style="color:var(--muted);">TIME</span><span id="victory-time" style="font-weight:800;">0:00</span></div>
+      <div style="display:flex; justify-content:space-between; padding:3px 0;"><span style="color:var(--muted);">KILLS</span><span id="victory-kills" style="font-weight:800; color:var(--danger);">0</span></div>
+      <div style="display:flex; justify-content:space-between; padding:3px 0;"><span style="color:var(--muted);">LEVEL</span><span id="victory-level" style="font-weight:800; color:var(--xp);">1</span></div>
+      <div style="display:flex; justify-content:space-between; padding:3px 0;"><span style="color:var(--muted);">REWARD</span><span id="victory-reward" style="font-weight:800; color:var(--accent);">+0 CR</span></div>
+    </div>
+
+    <div style="display:flex; gap:10px;">
+      <button class="primary" id="victory-next" style="min-width:200px;">NEXT MISSION →</button>
+      <button id="victory-menu">TO MAP</button>
+    </div>
   </div>
 
   <!-- Permanent Shop -->
@@ -1238,32 +1306,41 @@ function showBossWarning(){
 function tickSpawn(dt){
   state.lastSpawn += dt;
   state.wave = 1 + Math.floor(state.time/30);
-  const rate = 1.2 + state.time*0.025;
-  const ivl = 1/rate;
-  while(state.lastSpawn >= ivl){
-    state.lastSpawn -= ivl;
-    const t = state.time, r = Math.random();
-    let type = 'grunt';
-    if(typeof dynamicNpcDef !== 'undefined' && dynamicNpcDef && r < 0.10) type = 'dynamic_npc';
-    if(t > 12 && r < 0.30) type = 'swift';
-    if(t > 30 && r < 0.12) type = 'tank';
-    if(t > 45 && r < 0.08) type = 'shooter';
-    if(t > 60 && r < 0.06) type = 'exploder';
-    if(t > 90 && r < 0.05) type = 'shielded';
-    if(t > 120 && r < 0.04) type = 'spitter';
-    if(t > 150 && r < 0.03) type = 'spawner';
-    spawnEnemy(type);
+  // Story mode tweaks: no mob spawns during boss rush, hostility scales mob rate
+  const stageObj = state.activeStage?.objective;
+  if (stageObj?.type === 'bossrush') {
+    // no mob spawns at all during boss rush
+  } else {
+    const hostility = state.activeHostility || 1;
+    const rate = (1.2 + state.time*0.025) * hostility;
+    const ivl = 1/rate;
+    while(state.lastSpawn >= ivl){
+      state.lastSpawn -= ivl;
+      const t = state.time, r = Math.random();
+      let type = 'grunt';
+      if(typeof dynamicNpcDef !== 'undefined' && dynamicNpcDef && r < 0.10) type = 'dynamic_npc';
+      if(t > 12 && r < 0.30) type = 'swift';
+      if(t > 30 && r < 0.12) type = 'tank';
+      if(t > 45 && r < 0.08) type = 'shooter';
+      if(t > 60 && r < 0.06) type = 'exploder';
+      if(t > 90 && r < 0.05) type = 'shielded';
+      if(t > 120 && r < 0.04) type = 'spitter';
+      if(t > 150 && r < 0.03) type = 'spawner';
+      spawnEnemy(type);
+    }
   }
-  // Boss warning at 55s into each minute, boss at 60s
-  const min = Math.floor(state.time / 60);
-  if(min > state.lastBossMin && state.time - min*60 >= 0 && state.time - min*60 < 0.5 && !state.bossActive){
-    state.lastBossMin = min;
-    spawnBoss();
-  } else if(min > state.lastBossMin) {
-    // Show warning 5 seconds before
-    const next = (state.lastBossMin + 1) * 60;
-    if(next - state.time < 5 && next - state.time > 4.5 && state.bossWarning <= 0 && !state.bossActive){
-      showBossWarning();
+  // Boss warning at 55s into each minute, boss at 60s — suppressed during story mode
+  if (!state.activeStage) {
+    const min = Math.floor(state.time / 60);
+    if(min > state.lastBossMin && state.time - min*60 >= 0 && state.time - min*60 < 0.5 && !state.bossActive){
+      state.lastBossMin = min;
+      spawnBoss();
+    } else if(min > state.lastBossMin) {
+      // Show warning 5 seconds before
+      const next = (state.lastBossMin + 1) * 60;
+      if(next - state.time < 5 && next - state.time > 4.5 && state.bossWarning <= 0 && !state.bossActive){
+        showBossWarning();
+      }
     }
   }
   if(state.bossWarning > 0) state.bossWarning -= dt;
@@ -2463,6 +2540,54 @@ function render(){
       }
     }
 
+    // Story Mode entities — beacon + data shards
+    if (state.activeStage) {
+      if (state.stageBeacon && !state.stageBossSpawned) {
+        const b = state.stageBeacon;
+        const pulse = 0.5 + Math.sin(b.pulse)*0.5;
+        const hpRatio = Math.max(0, b.hp / b.hpMax);
+        // outer pulse ring
+        ctx.strokeStyle = `rgba(94,240,255,${0.3 + pulse*0.4})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.r + 8 + pulse*6, 0, TAU); ctx.stroke();
+        // base
+        ctx.fillStyle = b.hitFlash > 0 ? '#fff' : '#0a1428';
+        ctx.strokeStyle = '#5ef0ff'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, TAU); ctx.fill(); ctx.stroke();
+        // inner core
+        ctx.fillStyle = `hsl(${hpRatio*120}, 80%, 60%)`;
+        ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 20;
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.r*0.4 + pulse*2, 0, TAU); ctx.fill();
+        ctx.shadowBlur = 0;
+        // hp bar
+        const bw = b.r * 2.2;
+        ctx.fillStyle = 'rgba(0,0,0,.7)';
+        ctx.fillRect(b.x - bw/2, b.y - b.r - 14, bw, 5);
+        ctx.fillStyle = `hsl(${hpRatio*120}, 80%, 55%)`;
+        ctx.fillRect(b.x - bw/2, b.y - b.r - 14, bw * hpRatio, 5);
+        // label
+        ctx.fillStyle = '#5ef0ff'; ctx.font = '10px "JetBrains Mono",monospace'; ctx.textAlign = 'center';
+        ctx.fillText('BEACON', b.x, b.y - b.r - 20);
+      }
+      if (state.stageShards && state.stageShards.length) {
+        for (const s of state.stageShards) {
+          if (s.picked) continue;
+          const pulse = 0.5 + Math.sin(s.pulse)*0.5;
+          ctx.save();
+          ctx.translate(s.x, s.y); ctx.rotate(s.pulse * 0.3);
+          ctx.fillStyle = '#5ef0ff'; ctx.shadowColor = '#5ef0ff'; ctx.shadowBlur = 16 + pulse*8;
+          ctx.beginPath();
+          ctx.moveTo(0, -s.r); ctx.lineTo(s.r, 0); ctx.lineTo(0, s.r); ctx.lineTo(-s.r, 0); ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = '#fff'; ctx.shadowBlur = 0;
+          ctx.beginPath();
+          ctx.moveTo(0, -s.r*0.5); ctx.lineTo(s.r*0.5, 0); ctx.lineTo(0, s.r*0.5); ctx.lineTo(-s.r*0.5, 0); ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+    }
+
     for(const e of state.enemies) drawEnemy(e);
 
     // Bullets — glowing energy bolts
@@ -2673,7 +2798,9 @@ function refreshMenuStats(){
 function startRun(){
   audioInit();
   if(!profile.user){ promptUsername(); return; }
+  const carriedStage = state.activeStage; // preserve across initState
   initState();
+  state.activeStage = carriedStage;
   // Start with one weapon
   const start = { id:'pulse', level:1 };
   WEAPON_DEFS.pulse.init?.(start, state);
@@ -2685,13 +2812,27 @@ function startRun(){
   document.getElementById('hud').classList.remove('hidden');
   document.getElementById('hud').style.opacity = '';
   renderPowerbar();
+  // Story mode init
+  if (state.activeStage) initStageObjective();
+  else document.getElementById('obj-banner').style.display = 'none';
 }
 function pauseGame(){ state.mode = 'paused'; state.paused = true; document.getElementById('pause').classList.add('visible'); }
 function resumeGame(){ state.mode = 'playing'; state.paused = false; document.getElementById('pause').classList.remove('visible'); }
-function quitToMenu(){ state.mode = 'menu'; hideAllOverlays(); document.getElementById('hud').classList.add('hidden'); document.getElementById('menu').classList.add('visible'); refreshMenuStats(); }
+function quitToMenu(){
+  state.mode = 'menu';
+  state.activeStage = null;
+  document.getElementById('obj-banner').style.display = 'none';
+  hideAllOverlays();
+  document.getElementById('hud').classList.add('hidden');
+  document.getElementById('menu').classList.add('visible');
+  refreshMenuStats();
+}
 async function gameOver(){
   sfx.death();
   state.mode = 'gameover'; state.paused = true;
+  document.getElementById('obj-banner').style.display = 'none';
+  // story mode loss: clear active stage so retry goes back to menu cleanly
+  if (state.activeStage) state.activeStage = null;
   const run = { time:state.time, kills:state.kills, level:state.level, wave:state.wave };
   const best = profile.best;
   const newBest = run.time > best.time;
@@ -2716,7 +2857,7 @@ async function gameOver(){
   hideAllOverlays();
   document.getElementById('gameover').classList.add('visible');
 }
-function hideAllOverlays(){['username','menu','leaderboard','settings','levelup','pause','gameover','howto','legal','ad-player','wish-confirm','campaign','shop','skilltree','battlepass','lobby'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.remove('visible'); })}
+function hideAllOverlays(){['username','menu','leaderboard','settings','levelup','pause','gameover','howto','legal','ad-player','wish-confirm','campaign','shop','skilltree','battlepass','lobby','briefing','victory'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.remove('visible'); })}
 function promptUsername(){ hideAllOverlays(); document.getElementById('username').classList.add('visible'); document.getElementById('username-input').value = profile.user || ''; setTimeout(()=> document.getElementById('username-input').focus(), 50); }
 
 // ----------------- Wire UI -----------------
@@ -2842,86 +2983,529 @@ const SHOP_ITEMS = [
   { id: 'premium_bp', name: 'Premium Battle Pass', desc: 'Unlocks premium tracks for cosmetics.', cost: 500 }
 ];
 
+// ============================================================
+// STORY MODE — "The Silent Cities"
+// ============================================================
+// Objective types:
+//   survive      — outlast `goal` seconds, then a boss spawns and must die
+//   killcount    — kill `goal` enemies within `timeLimit` seconds
+//   protect      — beacon spawns at center; protect `goal` seconds. Enemies that
+//                  touch it deal damage; if beacon HP hits 0 you lose.
+//   collect      — `goal` data shards spawn around the arena; pick them all up
+//                  within `timeLimit` seconds.
+//   bossrush     — sequence of bosses (`bosses` array), no mob spawns between.
+//   finale       — survive `goal` seconds of escalating waves, then a multi-phase
+//                  HIVE MOTHER fight (handled by stage-specific code).
+
 const CAMPAIGN_STAGES = [
-  { id: '1-1', name: 'Sector 4 Outpost', desc: 'Outpost perimeter. Clear the first wave threat.', timeGoal: 60, bossName: 'TITAN GRUNT', mult: 1.0, reward: { coins: 150 } },
-  { id: '1-2', name: 'Cyber Grid Ruins', desc: 'Hostile grid. Swifter runner units detected.', timeGoal: 90, bossName: 'APEX SWIFT', mult: 1.3, reward: { coins: 300, skin: 'cyber' } },
-  { id: '1-3', name: 'The Hive Core', desc: 'Swarm factory heart. Survive the heaviest core pressure.', timeGoal: 120, bossName: 'MECH-BEAST X', mult: 1.7, reward: { coins: 500, skin: 'ghost' } }
+  // --- CHAPTER 1: EDGE OF THE QUIET ---
+  { id:'1-1', chapter:1, code:'OP-01', name:'First Contact',
+    objective:{ type:'survive', goal:45, boss:{ name:'SCOUT-9', kind:'boss' } },
+    mult:0.9, reward:{ coins:200 },
+    desc:'Holdout on the western perimeter. Drone command picked up unusual signal density — probably nothing. Probably.',
+    brief:`Eleven minutes is all it took for the cities to fall.\nYou were a courier when the swarm came online. Now you're the only call sign Signal Command can still raise.\n\nWestern perimeter is showing chatter — likely scouts. Hold the line for forty-five seconds, then I'm pushing a kill order on the lead unit.\n\nMove like you mean it, pilot.`,
+    lore:`Scouts down. The chatter wasn't nothing — it was a probe.\n\nThey wanted to see if you were still alive.\n\nNow they know.` },
+
+  { id:'1-2', chapter:1, code:'OP-02', name:'The Static Highway',
+    objective:{ type:'killcount', goal:60, timeLimit:90 },
+    mult:1.0, reward:{ coins:350 },
+    desc:'Bridge corridor. Cull at least sixty hostiles before the next caravan tries to cross.',
+    brief:`A civilian convoy is queued up on the east interchange. They cannot move while the swarm is on the bridge.\n\nGet on the deck, drop sixty hostiles, and clear the corridor. You've got ninety seconds before the convoy commander loses her nerve and bolts on her own.`,
+    lore:`Convoy cleared. Fourteen souls.\nThey didn't see your face. They never do.\n\nBut a kid in the back of the third truck waved at the empty sky.\n\nYou waved back.` },
+
+  { id:'1-3', chapter:1, code:'OP-03', name:'Beacon Hollow',
+    objective:{ type:'protect', goal:60, beaconHp:200, boss:{ name:'HARVESTER', kind:'boss' } },
+    mult:1.1, reward:{ coins:500, skin:'cyber' },
+    desc:'A long-range relay went dark. Defend the beacon while it boots — sixty seconds — then put down whatever broke it.',
+    brief:`The Hollow relay is the last node connecting the southern outposts to Command.\n\nIt went dark fourteen hours ago. Boot sequence is sixty seconds — you must keep hostiles off the beacon during the warmup. If the beacon dies, the southern grid goes silent for good.\n\nSomething big is sitting on it. Bring it down once the relay sings.`,
+    lore:`The Harvester's shell cracked open. Inside: dozens of comm-tethers, still warm.\n\nIt wasn't killing the relay.\nIt was listening through it.\n\nReward unlocked: NEON CYBERPUNK skin.` },
+
+  // --- CHAPTER 2: HIVE APPROACH ---
+  { id:'2-1', chapter:2, code:'OP-04', name:'Choke Point',
+    objective:{ type:'survive', goal:75, boss:{ name:'WARDEN', kind:'boss' }, hostility:1.3 },
+    mult:1.3, reward:{ coins:750 },
+    desc:'Subway pinch outside the inner ring. Survive the rush, then drop the Warden coordinating it.',
+    brief:`Inner-ring approach is funneled through a single tunnel. You're going to get hit from every angle and there's no good cover.\n\nSurvival window is seventy-five seconds. After that the Warden — their coordinator — surfaces. Kill it and we'll have an hour of breathing room before the next one wakes up.`,
+    lore:`The Warden's last broadcast cut off mid-pattern.\nWe ran it back. The pattern was your callsign.\n\nThey're not just listening anymore.\nThey're naming us.` },
+
+  { id:'2-2', chapter:2, code:'OP-05', name:'Vault Run',
+    objective:{ type:'collect', goal:8, timeLimit:120 },
+    mult:1.2, reward:{ coins:1000, skin:'ghost' },
+    desc:'Eight data shards scattered through the old archive vault. Get every one before the swarm gets you.',
+    brief:`The old archive vault has eight hardened data shards still intact. We need every single one — they contain pre-collapse maps of the hive root system.\n\nThey're scattered. The swarm is between you and most of them. You have two minutes and they will not let you walk this one.\n\nMove fast. Don't be cute.`,
+    lore:`Eight shards recovered. Decryption underway.\n\nFirst readout: the hive isn't a network.\nIt's a single organism. The whole continent.\n\nReward unlocked: STEALTH PHANTOM skin.` },
+
+  { id:'2-3', chapter:2, code:'OP-06', name:'The Conduit',
+    objective:{ type:'bossrush', bosses:[
+      { name:'GORE-PRIME' },
+      { name:'BISHOP-OF-TEETH' },
+      { name:'IRON SAINT' }
+    ] },
+    mult:1.4, reward:{ coins:1400 },
+    desc:'Three elite handlers stand between you and the Conduit gate. No mobs. Just them. Don\'t die.',
+    brief:`Three elite handlers protect the Conduit gate. The hive sends no foot soldiers here — these things are personal.\n\nGore-Prime. The Bishop. The Iron Saint.\n\nKill all three. We don't get a second crack.`,
+    lore:`Three down. The Conduit is open.\n\nThe air through the gate smells like wet copper and ozone.\n\nThe Core is on the other side.` },
+
+  // --- CHAPTER 3: THE CORE ---
+  { id:'3-1', chapter:3, code:'OP-07', name:'The Last Tower',
+    objective:{ type:'survive', goal:120, boss:{ name:'AVATAR OF THE SWARM', kind:'boss' }, hostility:1.5 },
+    mult:1.6, reward:{ coins:2000, skin:'gold' },
+    desc:'You\'re inside the tower now. Two minutes of escalating waves, then the Avatar.',
+    brief:`This is the last defensible position before the Core chamber. Two minutes of escalating waves — the hive is throwing everything it has left at you.\n\nWhen the waves break, the Avatar will descend. It wears a face we used to know. Don't look at it. Just kill it.`,
+    lore:`The Avatar's face was Reyes from Recon Three.\nReyes has been MIA for sixteen months.\n\nThe hive doesn't kill all of us.\nSome of us, it keeps.\n\nReward unlocked: AURUM EMPEROR skin.` },
+
+  { id:'3-2', chapter:3, code:'OP-FINAL', name:'HIVE MOTHER',
+    objective:{ type:'finale', goal:30, boss:{ name:'HIVE MOTHER', kind:'boss' }, hostility:2.0 },
+    mult:2.0, reward:{ coins:4000, skin:'robotic' },
+    desc:'The Core chamber. The Hive Mother. End it.',
+    brief:`This is the end of the line.\n\nThe Hive Mother is what was left of the first city. Every silent street, every empty window, every signal we lost — all of it is downstream of her.\n\nThirty seconds of approach. Then a fight you've been training your entire life for without knowing.\n\nNo more orders. No more transmissions. Just go.\n\nGo, pilot. Bring the silence back to her.`,
+    lore:`The Hive Mother has fallen.\n\nFor the first time in eleven months, the cities are quiet — actually quiet, not the silence she made.\n\nIn the morning, a child in a southern outpost asked her mother what the strange humming sound was. The mother listened.\n\nIt was wind.\n\nMission complete. The silence is ours again.\n\nReward unlocked: MECH INFANTRY skin.` }
 ];
 
-let selectedStageId = '1-1';
+let selectedStageId = null;
 let lobbyState = { active: false, roomId: null, playerId: null, peers: [], isReady: false, syncInterval: null, useBot: true };
 
-// --- 1. Campaign & Stage select UI ---
-function renderCampaignStages(){
-  const container = document.getElementById('campaign-stages');
-  container.innerHTML = `<div style="position:absolute; top:50%; left:60px; width:${CAMPAIGN_STAGES.length * 160}px; height:6px; background:#1a2055; z-index:0; transform:translateY(-50%); border-radius:3px;"></div>`;
-  
-  CAMPAIGN_STAGES.forEach((stage, idx) => {
-    const nodeWrapper = document.createElement('div');
-    nodeWrapper.style.cssText = 'position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; min-width:120px; cursor:pointer; transition:transform 0.2s;';
-    
-    const isUnlocked = idx === 0 || profile.completedStages.includes(CAMPAIGN_STAGES[idx-1].id);
-    const isCompleted = profile.completedStages.includes(stage.id);
-    const isActive = selectedStageId === stage.id;
-    
-    if (isActive) nodeWrapper.style.transform = 'scale(1.15)';
-    
-    let color = '#1a2055'; // locked
-    let shadow = 'none';
-    let icon = '🔒';
-    
-    if (isCompleted) {
-      color = 'var(--good)';
-      shadow = '0 0 15px rgba(52,211,153,0.4)';
-      icon = '✅';
-    } else if (isUnlocked) {
-      color = 'var(--accent2)';
-      shadow = '0 0 20px rgba(61,163,255,0.6)';
-      icon = '⚔️';
-    }
+// --- 1. Story Mode UI ---
+function isStageUnlocked(stage, idx){
+  if (idx === 0) return true;
+  const prev = CAMPAIGN_STAGES[idx-1];
+  return profile.completedStages.includes(prev.id);
+}
 
-    nodeWrapper.innerHTML = `
-      <div style="font-size:10px; font-weight:900; color:var(--muted); margin-bottom:12px; letter-spacing:2px;">STAGE ${idx+1}</div>
-      <div style="width:50px; height:50px; border-radius:50%; background:rgba(7,9,26,0.9); border:3px solid ${color}; box-shadow:${shadow}; display:flex; align-items:center; justify-content:center; font-size:18px;">
-        ${icon}
-      </div>
-      <div style="font-size:11px; font-weight:700; color:${isUnlocked ? '#fff' : 'var(--muted)'}; margin-top:12px; text-align:center; white-space:nowrap;">${stage.name}</div>
-    `;
-    
-    if(isUnlocked){
-      nodeWrapper.onclick = () => {
-        selectedStageId = stage.id;
-        renderCampaignStages();
-        showStageDetail(stage);
-      };
-    } else {
-      nodeWrapper.style.opacity = '0.5';
-    }
-    container.appendChild(nodeWrapper);
+function renderCampaignStages(){
+  const container = document.getElementById('campaign-chapters');
+  container.innerHTML = '';
+
+  // group by chapter
+  const chapters = {};
+  CAMPAIGN_STAGES.forEach((s,i) => { (chapters[s.chapter] = chapters[s.chapter] || []).push({ ...s, idx:i }); });
+
+  const CHAPTER_NAMES = {
+    1: 'EDGE OF THE QUIET',
+    2: 'HIVE APPROACH',
+    3: 'THE CORE'
+  };
+
+  const completedTotal = CAMPAIGN_STAGES.filter(s => profile.completedStages.includes(s.id)).length;
+  document.getElementById('campaign-progress').textContent = `Mission ${completedTotal} / ${CAMPAIGN_STAGES.length}`;
+
+  Object.keys(chapters).sort().forEach(ch => {
+    const chWrap = document.createElement('div');
+    chWrap.style.cssText = 'background:rgba(7,9,26,.6); border:1px solid #2c3870; border-radius:8px; padding:14px 18px;';
+    const allDone = chapters[ch].every(s => profile.completedStages.includes(s.id));
+    chWrap.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px;">
+      <div style="font-size:10px; letter-spacing:4px; color:var(--muted); text-transform:uppercase;">CHAPTER ${ch}</div>
+      <div style="font-size:13px; font-weight:800; letter-spacing:2px; color:${allDone ? 'var(--good)' : 'var(--accent)'};">${CHAPTER_NAMES[ch]}${allDone?' ✓':''}</div>
+    </div>`;
+
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex; gap:10px; flex-wrap:wrap;';
+    chapters[ch].forEach(stage => {
+      const unlocked = isStageUnlocked(stage, stage.idx);
+      const completed = profile.completedStages.includes(stage.id);
+      const active = selectedStageId === stage.id;
+
+      const card = document.createElement('div');
+      card.style.cssText = `flex:1; min-width:220px; max-width:280px; background:rgba(10,14,31,.85); border:1px solid ${completed?'var(--good)':unlocked?'var(--accent2)':'#1a2055'}; border-left:3px solid ${completed?'var(--good)':unlocked?'var(--accent2)':'#1a2055'}; border-radius:6px; padding:12px 14px; cursor:${unlocked?'pointer':'not-allowed'}; opacity:${unlocked?'1':'0.45'}; transition:transform .15s, box-shadow .15s; font-family:'JetBrains Mono',monospace; ${active?'transform:translateY(-3px); box-shadow:0 6px 18px rgba(61,163,255,.25);':''}`;
+      const iconCol = completed ? 'var(--good)' : unlocked ? 'var(--accent2)' : 'var(--muted)';
+      const icon = completed ? '◆' : unlocked ? '▶' : '✕';
+      const objLabel = OBJECTIVE_LABEL(stage.objective);
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+          <span style="font-size:9px; letter-spacing:2px; color:var(--muted);">${stage.code}</span>
+          <span style="font-size:14px; color:${iconCol};">${icon}</span>
+        </div>
+        <div style="font-size:13px; font-weight:800; color:${unlocked?'#fff':'var(--muted)'}; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">${stage.name}</div>
+        <div style="font-size:10px; color:var(--muted); letter-spacing:1px;">${objLabel}</div>
+      `;
+      if (unlocked) {
+        card.onclick = () => { selectedStageId = stage.id; renderCampaignStages(); showStageDetail(stage); };
+      }
+      row.appendChild(card);
+    });
+    chWrap.appendChild(row);
+    container.appendChild(chWrap);
   });
-  
-  const current = CAMPAIGN_STAGES.find(s => s.id === selectedStageId);
-  if(current) showStageDetail(current);
+
+  if (selectedStageId) {
+    const current = CAMPAIGN_STAGES.find(s => s.id === selectedStageId);
+    if (current) showStageDetail(current);
+  } else {
+    document.getElementById('campaign-stage-detail').style.display = 'none';
+  }
+}
+
+function OBJECTIVE_LABEL(obj){
+  switch(obj.type){
+    case 'survive':    return `SURVIVE ${obj.goal}s → ${obj.boss?.name||'BOSS'}`;
+    case 'killcount':  return `KILL ${obj.goal} IN ${obj.timeLimit}s`;
+    case 'protect':    return `DEFEND BEACON · ${obj.goal}s`;
+    case 'collect':    return `COLLECT ${obj.goal} SHARDS · ${obj.timeLimit}s`;
+    case 'bossrush':   return `BOSS RUSH × ${obj.bosses.length}`;
+    case 'finale':     return `FINAL BOSS · MULTI-PHASE`;
+    default:           return obj.type;
+  }
 }
 
 function showStageDetail(stage){
   const detail = document.getElementById('campaign-stage-detail');
   detail.style.display = 'block';
   document.getElementById('campaign-detail-title').textContent = stage.name;
+  document.getElementById('campaign-detail-code').textContent = stage.code;
   document.getElementById('campaign-detail-desc').textContent = stage.desc;
-  document.getElementById('campaign-detail-goal').textContent = `BEAT ${stage.bossName} AT ${stage.timeGoal}S`;
-  document.getElementById('campaign-detail-hostility').textContent = `×${stage.mult.toFixed(1)} HP/DMG`;
-  
+  document.getElementById('campaign-detail-goal').textContent = OBJECTIVE_LABEL(stage.objective);
+  document.getElementById('campaign-detail-hostility').textContent = `×${stage.mult.toFixed(1)} HP`;
+  const rewardTxt = `${stage.reward.coins} CR${stage.reward.skin?` + ${stage.reward.skin.toUpperCase()} SKIN`:''}`;
+  document.getElementById('campaign-detail-reward').textContent = rewardTxt;
+
   const deployBtn = document.getElementById('campaign-deploy');
-  const cost = 10;
-  deployBtn.textContent = `DEPLOY ARMY (${cost} CR)`;
-  deployBtn.disabled = profile.coins < cost;
-  deployBtn.onclick = () => {
-    profile.coins -= cost;
-    saveProfile({ coins: profile.coins });
-    refreshTopnav();
+  deployBtn.textContent = 'BRIEFING →';
+  deployBtn.disabled = false;
+  deployBtn.onclick = () => openBriefing(stage);
+}
+
+// --- Pre-mission briefing with typewriter ---
+let briefTypingTimer = null;
+function openBriefing(stage){
+  hideAllOverlays();
+  document.getElementById('briefing').classList.add('visible');
+  document.getElementById('brief-code').textContent = stage.code;
+  document.getElementById('brief-title').textContent = stage.name;
+  document.getElementById('brief-objective').textContent = OBJECTIVE_LABEL(stage.objective);
+  const body = document.getElementById('brief-body');
+  body.textContent = '';
+  if (briefTypingTimer) clearInterval(briefTypingTimer);
+  const text = stage.brief || stage.desc;
+  let i = 0;
+  briefTypingTimer = setInterval(() => {
+    if (i >= text.length) { clearInterval(briefTypingTimer); briefTypingTimer = null; return; }
+    body.textContent += text.charAt(i);
+    i++;
+    if (i % 3 === 0 && actx) tone('square', 1800, .005, 0.005);
+  }, 18);
+  document.getElementById('brief-abort').onclick = () => {
+    if (briefTypingTimer) { clearInterval(briefTypingTimer); briefTypingTimer = null; }
+    document.getElementById('briefing').classList.remove('visible');
+    document.getElementById('campaign').classList.add('visible');
+  };
+  document.getElementById('brief-deploy').onclick = () => {
+    if (briefTypingTimer) { clearInterval(briefTypingTimer); briefTypingTimer = null; body.textContent = text; }
+    document.getElementById('briefing').classList.remove('visible');
     state.activeStage = stage;
     startRun();
+  };
+  // skip typing on next deploy click — first click only completes the text
+}
+
+// --- Stage objective runtime ---
+function initStageObjective(){
+  const stage = state.activeStage;
+  if (!stage) return;
+  const o = stage.objective;
+  state.stageBossSpawned = false;
+  state.stageBossesKilled = 0;
+  state.stageShardsCollected = 0;
+  state.stageBeaconHp = o.beaconHp || 0;
+  state.stageBeaconHpMax = o.beaconHp || 0;
+  state.stageBeacon = null;
+  state.stageShards = [];
+  state.stagePhase = 0;
+  state.stageDone = false;
+  state.stageFail = false;
+  state.stageVictory = false;
+  state.activeHostility = o.hostility || 1;
+
+  if (o.type === 'protect') {
+    state.stageBeacon = { x: 0, y: 0, r: 22, hp: o.beaconHp, hpMax: o.beaconHp, hitFlash: 0, pulse: 0 };
+  }
+  if (o.type === 'collect') {
+    for (let i = 0; i < o.goal; i++) {
+      const a = (i / o.goal) * TAU + rnd(-0.3, 0.3);
+      const d = rnd(220, 480);
+      state.stageShards.push({ x: Math.cos(a)*d, y: Math.sin(a)*d, r: 12, pulse: rnd(0, TAU), picked: false });
+    }
+  }
+  if (o.type === 'bossrush') {
+    state.stageBossIdx = 0;
+  }
+  updateObjectiveBanner();
+  document.getElementById('obj-banner').style.display = 'block';
+}
+
+function updateObjectiveBanner(){
+  const stage = state.activeStage; if (!stage) return;
+  const o = stage.objective;
+  const txt = document.getElementById('obj-text');
+  const wrap = document.getElementById('obj-progress-wrap');
+  const fill = document.getElementById('obj-progress-fill');
+  const ptxt = document.getElementById('obj-progress-text');
+  let label = '', progress = 0, progressText = '', showBar = true;
+  switch(o.type){
+    case 'survive': {
+      if (!state.stageBossSpawned) {
+        const left = Math.max(0, o.goal - state.time);
+        label = `Hold position`;
+        progress = state.time / o.goal;
+        progressText = `${Math.ceil(left)}s remaining`;
+      } else {
+        label = `Kill ${o.boss.name}`;
+        if (state.bossActive) { progress = 1 - state.bossActive.hp / state.bossActive.maxHp; progressText = `${Math.ceil(state.bossActive.hp)} HP`; }
+        else { showBar = false; progressText = ''; }
+      }
+      break;
+    }
+    case 'killcount': {
+      const left = Math.max(0, o.timeLimit - state.time);
+      label = `Eliminate ${o.goal} hostiles`;
+      progress = Math.min(1, state.kills / o.goal);
+      progressText = `${state.kills} / ${o.goal} · ${Math.ceil(left)}s`;
+      break;
+    }
+    case 'protect': {
+      if (!state.stageBossSpawned) {
+        label = `Defend beacon`;
+        const left = Math.max(0, o.goal - state.time);
+        progress = state.time / o.goal;
+        progressText = `Beacon ${Math.ceil(state.stageBeaconHp)}/${state.stageBeaconHpMax} · ${Math.ceil(left)}s`;
+      } else {
+        label = `Kill ${o.boss.name}`;
+        if (state.bossActive) { progress = 1 - state.bossActive.hp / state.bossActive.maxHp; progressText = `${Math.ceil(state.bossActive.hp)} HP`; }
+        else { showBar = false; progressText = ''; }
+      }
+      break;
+    }
+    case 'collect': {
+      const left = Math.max(0, o.timeLimit - state.time);
+      label = `Collect data shards`;
+      progress = state.stageShardsCollected / o.goal;
+      progressText = `${state.stageShardsCollected} / ${o.goal} · ${Math.ceil(left)}s`;
+      break;
+    }
+    case 'bossrush': {
+      const cur = o.bosses[state.stageBossIdx];
+      label = cur ? `Eliminate ${cur.name}` : 'Clearing...';
+      progress = state.stageBossesKilled / o.bosses.length;
+      if (state.bossActive) progressText = `${Math.ceil(state.bossActive.hp)} HP · ${state.stageBossesKilled+1}/${o.bosses.length}`;
+      else progressText = `${state.stageBossesKilled}/${o.bosses.length}`;
+      break;
+    }
+    case 'finale': {
+      if (!state.stageBossSpawned) {
+        label = `Approach the Core`;
+        const left = Math.max(0, o.goal - state.time);
+        progress = state.time / o.goal;
+        progressText = `${Math.ceil(left)}s`;
+      } else {
+        const b = state.bossActive;
+        label = `HIVE MOTHER · Phase ${state.stagePhase+1}/3`;
+        if (b) { progress = 1 - b.hp / b.maxHp; progressText = `${Math.ceil(b.hp)} HP`; }
+        else { showBar = false; progressText = ''; }
+      }
+      break;
+    }
+  }
+  txt.textContent = label;
+  if (showBar) {
+    wrap.style.display = 'block';
+    fill.style.width = (Math.min(1, Math.max(0, progress)) * 100) + '%';
+    ptxt.textContent = progressText;
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+function spawnStageBoss(stage, def){
+  // Spawn a boss enemy using existing system but tag with a custom name
+  spawnBoss();
+  if (state.bossActive) {
+    state.bossActive.def = { ...state.bossActive.def, name: def.name };
+    state.bossActive.hp *= (stage.mult || 1);
+    state.bossActive.maxHp *= (stage.mult || 1);
+  }
+}
+
+function tickStageObjective(dt){
+  const stage = state.activeStage;
+  if (!stage || state.stageDone || state.stageFail) return;
+  const o = stage.objective;
+
+  // beacon damage (protect)
+  if (o.type === 'protect' && state.stageBeacon && !state.stageBossSpawned) {
+    state.stageBeacon.pulse += dt * 3;
+    state.stageBeacon.hitFlash = Math.max(0, state.stageBeacon.hitFlash - dt);
+    for (const e of state.enemies) {
+      if (e.dead) continue;
+      const dx = e.x - state.stageBeacon.x, dy = e.y - state.stageBeacon.y;
+      const cr = e.def.r + state.stageBeacon.r;
+      if (dx*dx + dy*dy < cr*cr) {
+        state.stageBeaconHp -= 6 * dt * Math.max(1, e.def.hp / 30);
+        state.stageBeacon.hp = state.stageBeaconHp;
+        state.stageBeacon.hitFlash = 0.25;
+        // push enemy back gently
+        const d = Math.sqrt(dx*dx + dy*dy) || 1;
+        e.x += dx/d * 30 * dt; e.y += dy/d * 30 * dt;
+      }
+    }
+    if (state.stageBeaconHp <= 0) { state.stageFail = true; failStage('BEACON DESTROYED'); return; }
+  }
+
+  // collect shards
+  if (o.type === 'collect') {
+    for (const s of state.stageShards) {
+      if (s.picked) continue;
+      s.pulse += dt * 4;
+      const dx = state.pos.x - s.x, dy = state.pos.y - s.y;
+      if (dx*dx + dy*dy < (s.r + 22)*(s.r + 22)) {
+        s.picked = true;
+        state.stageShardsCollected++;
+        sfx.pickup?.();
+        burst(s.x, s.y, 16, '#5ef0ff', 4);
+        pickup(`DATA SHARD ${state.stageShardsCollected}/${o.goal}`);
+      }
+    }
+  }
+
+  // Per-objective transitions
+  switch (o.type) {
+    case 'survive':
+    case 'protect':
+      if (!state.stageBossSpawned && state.time >= o.goal) {
+        state.stageBossSpawned = true;
+        spawnStageBoss(stage, o.boss);
+        showBossWarning();
+      }
+      if (state.stageBossSpawned && !state.bossActive && state.time > o.goal + 1.2) {
+        winStage();
+      }
+      break;
+    case 'killcount':
+      if (state.kills >= o.goal) { winStage(); break; }
+      if (state.time >= o.timeLimit) { failStage('TIME EXPIRED'); }
+      break;
+    case 'collect':
+      if (state.stageShardsCollected >= o.goal) { winStage(); break; }
+      if (state.time >= o.timeLimit) { failStage('TIME EXPIRED'); }
+      break;
+    case 'bossrush':
+      if (!state.bossActive && state.stageBossesKilled < o.bosses.length) {
+        // spawn next boss after brief delay
+        state.bossRushDelay = (state.bossRushDelay || 0) - dt;
+        if (state.bossRushDelay <= 0) {
+          state.bossRushDelay = 2.0;
+          const next = o.bosses[state.stageBossIdx];
+          if (next) { spawnStageBoss(stage, next); showBossWarning(); }
+        }
+      }
+      if (state.stageBossesKilled >= o.bosses.length) winStage();
+      break;
+    case 'finale':
+      if (!state.stageBossSpawned && state.time >= o.goal) {
+        state.stageBossSpawned = true;
+        spawnStageBoss(stage, o.boss);
+        showBossWarning();
+        if (state.bossActive) {
+          state.bossActive.hp *= 2.2; state.bossActive.maxHp *= 2.2; // beefy finale
+        }
+      }
+      if (state.stageBossSpawned && state.bossActive) {
+        const ratio = state.bossActive.hp / state.bossActive.maxHp;
+        if (state.stagePhase === 0 && ratio < 0.66) { state.stagePhase = 1; finalePhaseShift(); }
+        if (state.stagePhase === 1 && ratio < 0.33) { state.stagePhase = 2; finalePhaseShift(); }
+      }
+      if (state.stageBossSpawned && !state.bossActive && state.time > o.goal + 1.2) {
+        winStage();
+      }
+      break;
+  }
+
+  updateObjectiveBanner();
+}
+
+function finalePhaseShift(){
+  if (!state.bossActive) return;
+  sfx.boss?.();
+  if (settings.shake) cam.shake = 20;
+  showComboBadge(`HIVE MOTHER · PHASE ${state.stagePhase+1}`);
+  // spawn a ring of grunts as adds
+  for (let i = 0; i < 10 + state.stagePhase * 4; i++) {
+    spawnEnemy(state.stagePhase === 2 ? 'shooter' : 'swift');
+  }
+}
+
+function winStage(){
+  if (state.stageDone) return;
+  state.stageDone = true;
+  state.stageVictory = true;
+  document.getElementById('obj-banner').style.display = 'none';
+  // disable further enemy spawns
+  state.bossActive = null;
+  setTimeout(() => showVictoryScreen(state.activeStage), 700);
+}
+
+function failStage(reason){
+  if (state.stageFail) return;
+  state.stageFail = true;
+  document.getElementById('obj-banner').style.display = 'none';
+  pickup(reason || 'MISSION FAILED');
+  setTimeout(() => { gameOver(); }, 600);
+}
+
+function showVictoryScreen(stage){
+  state.mode = 'gameover'; state.paused = true;
+  // Award rewards once
+  if (!profile.completedStages.includes(stage.id)) {
+    profile.completedStages.push(stage.id);
+    profile.coins += (stage.reward.coins || 0);
+    if (stage.reward.skin && !profile.ownedSkins.includes(stage.reward.skin)) {
+      profile.ownedSkins.push(stage.reward.skin);
+    }
+    saveProfile({ coins: profile.coins, completedStages: profile.completedStages, ownedSkins: profile.ownedSkins });
+  }
+  refreshTopnav();
+  document.getElementById('victory-title').textContent = stage.id === '3-2' ? 'THE SILENCE RETURNS' : 'MISSION COMPLETE';
+  document.getElementById('victory-lore').textContent = '';
+  document.getElementById('victory-time').textContent = fmtTime(state.time);
+  document.getElementById('victory-kills').textContent = state.kills;
+  document.getElementById('victory-level').textContent = state.level;
+  document.getElementById('victory-reward').textContent = `+${stage.reward.coins||0} CR${stage.reward.skin?` + ${stage.reward.skin.toUpperCase()} SKIN`:''}`;
+
+  // type out lore
+  const lore = stage.lore || '';
+  const target = document.getElementById('victory-lore');
+  let i = 0;
+  if (briefTypingTimer) clearInterval(briefTypingTimer);
+  briefTypingTimer = setInterval(() => {
+    if (i >= lore.length) { clearInterval(briefTypingTimer); briefTypingTimer = null; return; }
+    target.textContent += lore.charAt(i); i++;
+    if (i % 4 === 0 && actx) tone('square', 1800, .005, 0.004);
+  }, 22);
+
+  hideAllOverlays();
+  document.getElementById('hud').classList.add('hidden');
+  document.getElementById('victory').classList.add('visible');
+
+  // wire next/menu buttons
+  const idx = CAMPAIGN_STAGES.findIndex(s => s.id === stage.id);
+  const next = CAMPAIGN_STAGES[idx + 1];
+  const nextBtn = document.getElementById('victory-next');
+  if (next) {
+    nextBtn.textContent = `NEXT: ${next.name.toUpperCase()} →`;
+    nextBtn.style.display = '';
+    nextBtn.onclick = () => {
+      if (briefTypingTimer) { clearInterval(briefTypingTimer); briefTypingTimer = null; }
+      document.getElementById('victory').classList.remove('visible');
+      openBriefing(next);
+    };
+  } else {
+    nextBtn.textContent = '★ CAMPAIGN COMPLETE ★';
+    nextBtn.onclick = () => { document.getElementById('victory').classList.remove('visible'); quitToMenu(); };
+  }
+  document.getElementById('victory-menu').onclick = () => {
+    if (briefTypingTimer) { clearInterval(briefTypingTimer); briefTypingTimer = null; }
+    document.getElementById('victory').classList.remove('visible');
+    hideAllOverlays();
+    renderCampaignStages();
+    document.getElementById('campaign').classList.add('visible');
   };
 }
 
@@ -3453,50 +4037,27 @@ initState = function() {
 const originalUpdate = update;
 update = function(dt) {
   originalUpdate(dt);
-  
+
   // Update AI Bots (only in multiplayer)
   if(lobbyState.active) updateBots(dt);
-  
-  // Check Story Mode stage objectives
-  if(state.activeStage && state.mode === 'playing'){
-    // Deploy boss once goal timer completes
-    if(state.time >= state.activeStage.timeGoal && !state.bossActive && !state.stageBossSpawned){
-      state.stageBossSpawned = true;
-      spawnBoss(state.activeStage.bossName);
-    }
-    
-    // Defeating the Stage Boss awards Chapter VICTORY!
-    if(state.stageBossSpawned && !state.bossActive && state.time > state.activeStage.timeGoal + 2){
-      state.mode = 'gameover'; state.paused = true;
-      
-      // Award stage rewards!
-      if(!profile.completedStages.includes(state.activeStage.id)){
-        profile.completedStages.push(state.activeStage.id);
-        const reward = state.activeStage.reward;
-        profile.coins += reward.coins || 0;
-        if(reward.skin && !profile.ownedSkins.includes(reward.skin)){
-          profile.ownedSkins.push(reward.skin);
-        }
-        saveProfile({ coins: profile.coins, completedStages: profile.completedStages, ownedSkins: profile.ownedSkins });
+
+  // Story Mode stage objective ticking
+  if (state.activeStage && state.mode === 'playing') {
+    // Bossrush: count when boss dies
+    const o = state.activeStage.objective;
+    if (o.type === 'bossrush') {
+      if (state._lastBossActive && !state.bossActive) {
+        state.stageBossesKilled++;
+        state.stageBossIdx = Math.min(o.bosses.length - 1, state.stageBossIdx + 1);
       }
-      
-      // Render Victory overlay screen
-      document.getElementById('go-time').textContent = 'VICTORY!';
-      document.getElementById('go-kills').textContent = state.kills;
-      document.getElementById('go-level').textContent = state.level;
-      document.getElementById('go-wave').textContent = 'STAGE CLEAR';
-      document.getElementById('go-coins').textContent = `+${state.activeStage.reward.coins} CR (STAGE BONUS!)`;
-      
-      refreshTopnav();
-      hideAllOverlays();
-      document.getElementById('gameover').classList.add('visible');
-      state.activeStage = null;
-      state.stageBossSpawned = false;
+      state._lastBossActive = state.bossActive;
     }
+    tickStageObjective(dt);
+    // suppress global Battle Pass XP spam during story mode
   }
-  
+
   // Check Battle Pass XP awards during play
-  if(state.mode === 'playing' && Math.random() < 0.005){
+  if (state.mode === 'playing' && Math.random() < 0.005) {
     addBPXP(1); // 1 BP XP for combat loops
   }
 };
