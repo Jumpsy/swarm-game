@@ -3,8 +3,14 @@
   "rewrites": [
     { "source": "/api/leaderboard", "destination": "/api/leaderboard.js" },
     { "source": "/api/leaderboard/", "destination": "/api/leaderboard.js" },
+    { "source": "/api/wish", "destination": "/api/wish.js" },
+    { "source": "/api/wish/", "destination": "/api/wish.js" },
     { "source": "/api/config", "destination": "/api/config.js" },
     { "source": "/api/config/", "destination": "/api/config.js" },
+    { "source": "/api/npc", "destination": "/api/npc.js" },
+    { "source": "/api/npc/", "destination": "/api/npc.js" },
+    { "source": "/api/lobby", "destination": "/api/lobby.js" },
+    { "source": "/api/lobby/", "destination": "/api/lobby.js" },
     { "source": "/ads.txt", "destination": "/api/ads-txt.js" }
   ]
 }
